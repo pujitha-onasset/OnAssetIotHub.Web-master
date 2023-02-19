@@ -1,0 +1,111 @@
+<div ng-controller="RecoveryAdminController as recoveryAdmin">
+    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row" ng-hide="recoveryAdmin.isNew" style="margin-top: 3px;" ng-if="recoveryAdmin.hasPermission.toRemove">
+                        <div class="col-sm-8">
+                            <ul class="nav nav-pills" ng-cloak>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="Delete" ng-click="recoveryAdmin.removeBegin()"
+                                            ng-hide="recoveryAdmin.removeInProgress">
+                                        <i class="fa fa-trash"></i> Delete
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="Yes" ng-click="recoveryAdmin.removeSubmit()"
+                                            ng-show="recoveryAdmin.removeInProgress">
+                                        <i class="fa fa-check"></i> Yes
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="No" ng-click="recoveryAdmin.removeCancel()"
+                                            ng-show="recoveryAdmin.removeInProgress">
+                                        <i class="fa fa-ban"></i> No
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row" ng-show="recoveryAdmin.removeInProgress">
+                        <div class="col-sm-12">
+                            <br/>
+                            <br/>
+                            <p><i class="fa fa-question-circle fa-lg"></i>  Do you wish to delete <strong>{{ recoveryAdmin.device.id }}</strong>? </p>
+                        </div>
+                    </div>
+                    <div class="row"  ng-show="!recoveryAdmin.removeInProgress">
+                        <div class="col-sm-12">
+                            <br/>
+                            <br/>
+                            <div feedback></div>
+                            <form name="recoveryAdminForm" id="recoveryAdminForm" novalidate>
+                                <div class="form-group">
+                                    <label for="recoveryId">Device</label>
+                                    <input type="text" class="form-control" id="recoveryId" name="recoveryId" ng-model="recoveryAdmin.device.deviceId" ng-readonly="true">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recoveryId">Shipment</label>
+                                    <input type="text" class="form-control" id="recoveryId" name="recoveryId" ng-model="recoveryAdmin.device.shipmentRefNumber" ng-readonly="true">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recoveryId">Last Report Timestamp</label>
+                                    <br>
+                                    <span local-datetime utc-datetime="{{ recoveryAdmin.device.lastReportTimestamp }}" date-format="L" time-format="LTS"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="recoveryId">Last Report Latitude</label>
+                                    <input type="text" class="form-control" id="recoveryId" name="recoveryId" ng-model="recoveryAdmin.device.lastReportLatitude" ng-readonly="true">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recoveryId">Last Report Longitude</label>
+                                    <input type="text" class="form-control" id="recoveryId" name="recoveryId" ng-model="recoveryAdmin.device.lastReportLongitude" ng-readonly="true">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recoveryId">Home Branch</label>
+                                    <input type="text" class="form-control" id="recoveryId" name="recoveryId" ng-model="recoveryAdmin.device.homebranchName" ng-readonly="true">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recoveryId">Recovery Clock</label>
+                                    <br>
+                                    <span local-datetime utc-datetime="{{ recoveryAdmin.device.recoveryClockTimestamp }}" date-format="L" time-format="LTS"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="recoveryId">Recovery Acknowledgement</label>
+                                    <input type="text" class="form-control" id="recoveryId" name="recoveryId" ng-model="recoveryAdmin.device.recoveryAcknowledgement" ng-readonly="true">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recoveryId">Recovery User</label>
+                                    <input type="text" class="form-control" id="recoveryId" name="recoveryId" ng-model="recoveryAdmin.device.recoveryUserEmailAddress" ng-readonly="true">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recoveryId">Confirmed Returned</label>
+                                    <input type="text" class="form-control" id="recoveryId" name="recoveryId" ng-model="recoveryAdmin.device.confirmedReturned" ng-readonly="true">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recoveryId">Used New Shipment</label>
+                                    <input type="text" class="form-control" id="recoveryId" name="recoveryId" ng-model="recoveryAdmin.device.usedForNewShipment" ng-readonly="true">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recoveryId">Created Date</label>
+                                    <br>
+                                    <span local-datetime utc-datetime="{{ recoveryAdmin.device.createdDate }}" date-format="L" time-format="LTS"></span>
+                                </div>
+                                <div class="form-group" ng-if="recoveryAdmin.device.isDeleted">
+                                    <label for="recoveryId">Deleted Date</label>
+                                    <br>
+                                    <span local-datetime utc-datetime="{{ recoveryAdmin.device.dateDeleted }}" date-format="L" time-format="LTS"></span>
+                                </div>
+                                <div class="form-group">
+                                    <div class="pull-right">
+                                        <button type="button" class="btn btn-default" ng-click="recoveryAdmin.close()"><i class="fa fa-times"></i>&nbsp;&nbsp;Close</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,77 @@
+<div ng-controller="BranchContactAdminController as branchContactUi">
+     <div feedback></div>
+    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row" ng-hide="branchContactUi.isNew" style="margin-top: 3px;" ng-if="branchContactUi.hasPermission.toChange">
+                            <div class="col-sm-8">
+                                <ul class="nav nav-pills" ng-cloak>
+                                    <li ng-show="!branchContactUi.isRemoving">
+                                        <button class="btn btn-default" type="button" title="Delete" ng-click="branchContactUi.actions.beginRemove()"
+                                                ng-if="branchContactUi.hasPermission.toDelete">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                    </li>
+                                    <li ng-show="branchContactUi.isRemoving">
+                                        <button class="btn btn-default" type="button" title="Yes" ng-click="branchContactUi.actions.remove()"
+                                                ng-if="branchContactUi.hasPermission.toDelete">
+                                            <i class="fa fa-check"></i> Yes
+                                        </button>
+                                    </li>
+                                    <li ng-show="branchContactUi.isRemoving">
+                                        <button class="btn btn-default" type="button" title="Delete" ng-click="branchContactUi.actions.cancelRemove()"
+                                                ng-if="branchContactUi.hasPermission.toDelete">
+                                            <i class="fa fa-ban"></i> No
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row" ng-show="branchContactUi.isRemoving">
+                            <div class="col-sm-12">
+                                <br/>
+                                <br/>
+                                <p><i class="fa fa-question-circle fa-lg"></i>  Do you wish to delete <strong>{{ branchContactUi.branchContact.emailAddress }}</strong>? </p>
+                            </div>
+                        </div>
+                        <div class="row" ng-show="!branchContactUi.isRemoving">
+                            <div class="col-sm-12">
+                                <br/>
+                                <br/>
+                                <form name="contactForm" id="contactForm" ng-submit="branchContactUi.actions.submit()" novalidate>
+                                    <div class="form-group" ng-class="{'has-error': !branchContactUi.role.isPristine && branchContactUi.role.hasError()}">
+                                        <label for="Role">Role *</label>
+                                        <select class="form-control" name="Role" id="Role" ng-model="branchContactUi.role.value" 
+ng-options="r.id as r.name for r in branchContactUi.roles" ng-readonly="!branchContactUi.hasPermission.toChange"
+                                            ng-change="branchContactUi.role.isPristine = true">
+                                      
+                                        </select>
+                                        <p class="help-block text-right" ng-show="!branchContactUi.lastname.isPristine && branchContactUi.lastname.errors.isBlank" class="help-block"><i class="fa fa-exclamation-circle"></i>&nbsp;Role is required</p>
+                                    </div>
+                                    <div class="form-group" ng-class="{'has-error': !branchContactUi.email.isPristine && branchContactUi.email.hasError()}">
+                                        <label for="emailAddress">Email address *</label>
+                                        <input type="text" class="form-control" id="emailAddress" name="emailAddress" placeholder="Enter an email address for the contact" maxlength="100"
+                                            ng-model="branchContactUi.email.value" ng-readonly="!branchContactUi.hasPermission.toChange"
+                                            ng-change="branchContactUi.email.isPristine = true">
+                                        <p class="help-block text-right" ng-show="!branchContactUi.email.isPristine && branchContactUi.email.errors.isBlank" class="help-block"><i class="fa fa-exclamation-circle"></i>&nbsp;Email address is required</p>
+                                        <p class="help-block text-right" ng-show="!branchContactUi.email.isPristine && branchContactUi.email.errors.isBadFormat" class="help-block"><i class="fa fa-exclamation-circle"></i>&nbsp;Email address format is not valid</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="pull-right">
+                                            <button type="submit" class="btn btn-default" ng-if="branchContactUi.hasPermission.toChange"><i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                            <button type="button" class="btn btn-default" ng-if="branchContactUi.hasPermission.toChange" ng-click="branchContactUi.actions.reset()"><i class="fa fa-undo"></i>&nbsp;&nbsp;Reset</button>
+                                            <button type="button" class="btn btn-default" ng-click="branchContactUi.actions.close()"><i class="fa fa-times"></i>&nbsp;&nbsp;Close</button>
+                                        </div>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

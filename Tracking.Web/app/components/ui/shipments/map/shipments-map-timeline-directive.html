@@ -1,0 +1,25 @@
+<div id="shipmentsMapTimeline"></div>
+<nav class="navbar navbar-default">
+    <div class="collapse navbar-collapse" id="shipmentsMapTimelineNav">
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <form class="navbar-form">
+                    <div class="btn-group" role="group">
+                        <button role="button" class="btn btn-default btn-sm" title="Show all shipments on timeline" id="btn-timeline-all" ng-click="shipmentsMapTimeline.moveToAll()">
+                            All shipments
+                        </button>
+                        <button role="button" class="btn btn-default btn-sm" title="Show last 30 days" id="btn-timeline-month" ng-click="shipmentsMapTimeline.moveToCurrentMonth()">
+                            Last 30 days
+                        </button>
+                        <button role="button" class="btn btn-default btn-sm" title="Show last 7 days" id="btn-timeline-week" ng-click="shipmentsMapTimeline.moveToCurrentWeek()">
+                            Last 7 days
+                        </button>
+                        <button role="button" class="btn btn-default btn-sm" title="Show last 24 hours" id="btn-timeline-day" ng-click="shipmentsMapTimeline.moveToCurrentDay()">
+                            Last 24 hours
+                        </button>
+                    </div>
+                </form>
+            </li>
+        </ul>
+    </div>
+</nav>

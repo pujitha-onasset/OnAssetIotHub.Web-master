@@ -1,0 +1,53 @@
+<div ng-controller="LocationDetailsController as locationDetails">
+    <div feedback></div>
+    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12">
+
+        <div class="row">
+        	<h3>Location: {{locationDetails.location.name}}</h3>
+            <div style="text-align: right;"><export-table-to file-name="locations" table-id-to-export="locations"></export-table-to></div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="locations">
+                    <thead>
+                    <tr>
+                        <th width="20">#</th>
+                        <th width="200">Zone</th>
+                        <th width="200">TimeOfReport</th>
+                        <th width="200">SightingNumber</th>
+                        <th width="300">Asset</th>
+                        <th >RSSI</th>
+                        <th >In Zone</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="locationDetails.zones.length === 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="6">Awaiting zone data</td>
+                    </tr>
+                    <tr style="{{zone.IsZoneAssigned ? 'font-weight: bold;' : ''}}" ng-show="locationDetails.zones.length != 0" ng-repeat="zone in locationDetails.zones">
+                        <td width="20">{{ $index + 1 }}</td>
+                        <td width="300">
+                            {{zone.zone}}
+                        </td>
+                        <td width="300">
+                            {{zone.timeOfReport}}
+                        </td>
+                        <td width="300">
+                            {{zone.sightingNumber}}
+                        </td>
+                        <td width="300">
+                            {{zone.asset}}
+                        </td>
+                        <td>
+                            {{zone.rssi}}
+                        </td>
+                        <td>
+                            {{zone.IsZoneAssigned ? 'YES' : 'NO'}}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+       
+    </div>
+</div>

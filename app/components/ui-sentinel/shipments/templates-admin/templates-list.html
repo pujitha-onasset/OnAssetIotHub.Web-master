@@ -1,0 +1,92 @@
+<div ng-controller="TemplatesListController as templatesList">
+    <nav class="navbar navbar-default">
+        <form class="navbar-form navbar-left" ng-hide="templatesList.isSearchMode">
+            <label><i class="fa fa-lg fa-filter"></i></label>&nbsp;&nbsp;
+            <input type="text" class="form-control" placeholder="Filter.." ng-model="templatesList.filterText">
+        </form> 
+        <form class="navbar-form navbar-left" ng-show="templatesList.isSearchMode">
+            <label><i class="fa fa-lg fa-search"></i></label>&nbsp;&nbsp;
+            <input type="text" class="form-control" placeholder="Search.." ng-model="templatesList.searchText">
+            <button role="button" class="btn btn-default" title="Search" id="btn-do-search" ng-click="templatesList.actions.doSearch()">
+                <i class="fa fa-arrow-circle-right fa-lg"></i>
+            </button>
+            <button role="button" class="btn btn-default" title="Clear" id="btn-clear-search" ng-click="templatesList.actions.clearSearch()">
+                <i class="fa fa-times fa-lg"></i>
+            </button>
+        </form>
+         <form class="navbar-form navbar-left">
+        
+        <export-table-to file-name="shipments" table-id-to-export="shipments"></export-table-to>
+    </form>
+    </nav>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="shipments">
+                    <thead>
+                    <tr>
+                        <th width="20">#</th>
+                        <th class="sortcolumn" ng-click="templatesList.sortBy('name')">Name<span class="sortorder" ng-show="templatesList.propertyName === 'name'" ng-class="{reverse: templatesList.reverse}"></span></th>
+                        <th class="sortcolumn" ng-click="templatesList.sortBy('defaultTrackingTimeSpanInDays')">Duration<span class="sortorder" ng-show="templatesList.propertyName === 'defaultTrackingTimeSpanInDays'" ng-class="{reverse: templatesList.reverse}"></span></th>
+                        <th class="sortcolumn" ng-click="templatesList.sortBy('trackReverseLogistics')">Track device return<span class="sortorder" ng-show="templatesList.propertyName === 'trackReverseLogistics'" ng-class="{reverse: templatesList.reverse}"></span></th>
+                        <th class="sortcolumn" ng-click="templatesList.sortBy('deviceTagId')">Device<span class="sortorder" ng-show="templatesList.propertyName === 'deviceTagId'" ng-class="{reverse: templatesList.reverse}"></span></th>
+                        <th class="sortcolumn" ng-click="templatesList.sortBy('sentinels')">Sentinels<span class="sortorder" ng-show="templatesList.propertyName === 'sentinels'" ng-class="{reverse: templatesList.reverse}"></span></th>
+                        <!--<th>Stops</th>
+                        <th>Subscribers</th>-->
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="templatesList.isSearchMode && !templatesList.searchText" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">Enter search criteria and click search button to find matching templates</td>
+                    </tr>
+                    <tr ng-show="templatesList.isSearchMode && templatesList.searchText && !templatesList.isSearchDone" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">Click search button to find matching templates</td>
+                    </tr>
+                    <tr ng-show="templatesList.isSearchMode && templatesList.searchText && templatesList.isSearchDone && templatesList.templates.length === 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">No templates found matching your criteria</td>
+                    </tr>
+                    <tr ng-show="templatesList.isSearchMode && templatesList.searchText && templatesList.templates.length > 0 && templatesList.templates.length <= 500" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">Found {{ templatesList.templates.length }} templates that match your search criteria</td>
+                    </tr>
+                    <tr ng-show="templatesList.isSearchMode && templatesList.searchText && templatesList.templates.length > 500" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">Showing first {{ templatesList.templates.length }} templates that match your search criteria.  You may need to narrow you search..</td>
+                    </tr>
+                    <tr ng-show="!templatesList.isSearchMode && templatesList.templates.length === 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">There are no shipping templates for this client</td>
+                    </tr>
+                    <tr ng-show="!templatesList.isSearchMode && templatesList.templates.length > 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">Showing {{ filteredList.length }} / {{ templatesList.templates.length }} templates</td>
+                    </tr>
+                    <tr ng-show="templatesList.templates.length !== 0"
+                        ng-repeat="template in filteredList = (templatesList.templates | orderBy:templatesList.propertyName:templatesList.reverse | filter: templatesList.filter | limitTo: 500)">
+                        <td width="20">{{ $index + 1 }}</td>
+                        <td>
+                            <a role="button" ng-click="templatesList.actions.goToTemplate(template)">{{ template.name }}</a>
+                        </td>
+                        <td>{{ template.defaultTrackingTimeSpanInDays >= 1 ? template.defaultTrackingTimeSpanInDays : '' }} <span ng-show="template.defaultTrackingTimeSpanInDays === 1">day</span><span ng-show="template.defaultTrackingTimeSpanInDays > 1">days</span></td>
+                        <td>{{ template.trackReverseLogistics ? 'Yes' : 'No' }}</td>
+                        <td>{{ templatesList.actions.printSentryFriendlyName(template) }}</td>
+                        <td>
+                        <span ng-repeat="sentinel in template.sentinels">
+                            {{ templatesList.actions.printSentinelFriendlyName(sentinel) }}<br/>
+                        </span>
+                        </td>
+                        <!--
+                        <td>
+                            <span ng-repeat="subscriber in template.subscribers">{{subscriber}}<br/></span>
+                        </td>-->
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div><!--table-->
+</div>
+

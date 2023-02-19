@@ -1,0 +1,9 @@
+<nav class="navbar navbar-default">
+    <form class="navbar-form navbar-left">
+        <label><i class="fa fa-lg fa-filter"></i></label>&nbsp;&nbsp;
+        <input type="text" class="form-control" placeholder="Filter.." ng-model="branchesFilterBar.filter.searchText">
+    </form>
+      <form class="navbar-form navbar-left">
+        <export-table-to file-name="branches" table-id-to-export="branches"></export-table-to>
+    </form>
+</nav>

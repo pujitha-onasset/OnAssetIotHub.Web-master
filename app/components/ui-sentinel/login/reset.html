@@ -1,0 +1,43 @@
+<div ng-controller="ResetController as reset">
+    <br/><br/>
+    <div class="col-lg-4 col-lg-offset-4 col-md-6 col-md-offset-3 col-sm-10 col-sm-offset-1">
+        <div id="login-panel" class="panel panel-default">
+            <div class="panel-heading">  <h3 class="panel-title" >Confirm Reset Token</h3></div>
+            <div class="panel-body">
+                <div feedback></div>
+               
+                <p>Please check your email and enter the provided token in the form below in order to reset your password</p><br/>
+                <form name="resetForm" role="form" autocomplete="off">
+                    <div class="form-group" ng-class="{'has-error': !reset.email.isPristine && reset.email.hasError()}">
+                        <label>Email address *</label>
+                        <input id="text" type="text" class="form-control" name="email" ng-model="reset.email.value" placeholder="Enter your email address" autocomplete="off" ng-change="reset.email.isPristine = true">
+                        <p ng-show="!reset.email.isPristine && reset.email.hasError()" class="help-block text-right"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid email address is required</p>
+                    </div>
+                    <div class="form-group" ng-class="{'has-error': !reset.token.isPristine && reset.token.hasError()}">
+                        <label>Reset token *</label>
+                        <input id="resetToken" type="text" class="form-control" name="resetToken" ng-model="reset.token.value" placeholder="Enter the reset token from the email" ng-change="reset.token.isPristine = true" autocomplete="off">
+                        <p ng-show="!reset.token.isPristine && reset.token.errors.isBlank" class="help-block text-right"><i class="fa fa-exclamation-circle"></i>&nbsp;Reset token is required</p>
+                        <p ng-show="!reset.token.isPristine && reset.token.errors.isExpired" class="help-block text-right"><i class="fa fa-exclamation-circle"></i>&nbsp;Reset token is invalid or has expired.  <a role="button" ng-click="reset.requestAnotherToken()">Request a new token</a></p>
+                    </div>
+                    <div class="form-group" ng-class="{'has-error':!reset.password.isPristine && reset.password.hasError()}">
+                        <label>New password *</label>
+                        <input id="newPassword" type="password" class="form-control" name="newPassword" ng-model="reset.password.value" placeholder="Enter your new password" ng-change="reset.password.isPristine = true" autocomplete="off">
+                        <p ng-show="!reset.password.isPristine && reset.password.errors.isBlank" class="help-block text-right"><i class="fa fa-exclamation-circle"></i>&nbsp;Password is required</p>
+                        <p ng-show="!reset.password.isPristine && reset.password.errors.isBadFormat" class="help-block text-right"><i class="fa fa-exclamation-circle"></i>&nbsp;Password must be a minimum of 8 characters and have at least one uppercase letter, one number, and one special case character</p>
+                        <p ng-show="!reset.password.isPristine && reset.password.errors.isRepeat" class="help-block text-right"><i class="fa fa-exclamation-circle"></i>&nbsp;The new password cannot be the same as one of your last four passwords</p>
+                    </div>
+                    <div class="form-group" ng-class="{'has-error': !reset.confirmation.isPristine && reset.confirmation.hasError()}">
+                        <label>Confirm password *</label>
+                        <input id="confirmation" type="password" class="form-control" name="confirmation" ng-model="reset.confirmation.value" placeholder="Re-enter your new password for confirmation" ng-change="reset.confirmation.isPristine = true" autocomplete="off">
+                        <p ng-show="!reset.confirmation.isPristine && reset.confirmation.errors.isBlank" class="help-block text-right"><i class="fa fa-exclamation-circle"></i>&nbsp;Password confirmation is required</p>
+                        <p ng-show="!reset.confirmation.isPristine && reset.confirmation.errors.isNotMatching" class="help-block text-right"><i class="fa fa-exclamation-circle"></i>&nbsp;Password confirmation does not match new password</p>
+                    </div>
+                    <div class="form-group  pull-right">
+                        <button class="btn btn-default btn-themed" id="btn-submitToken" ng-click="reset.submitToken()">Submit</button>
+                        <button class="btn btn-default btn-themed" ng-click="reset.backToLogin()">Cancel</button>
+                    </div>
+                </form>                
+            </div>
+        </div>
+    </div>
+</div>

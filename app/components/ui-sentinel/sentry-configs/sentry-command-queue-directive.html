@@ -1,0 +1,39 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <a role="button" ng-click="sentryCommandQueue.panel.toggle()">Pending Configuration Commands</a>
+        <span class="pull-right text-right"><a role="button" ng-click="sentryCommandQueue.panel.toggle()"><i class="fa fa-lg" ng-class="{'fa-caret-right': sentryCommandQueue.panel.isCollapsed, 'fa-caret-down': !sentryCommandQueue.panel.isCollapsed}" title="Expand"></i></a></span>
+        <span class="pull-right text-right" ng-show="!sentryCommandQueue.panel.isCollapsed"><a role="button" ng-click="sentryCommandQueue.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+    </div>
+    <div ng-class="{'collapse': sentryCommandQueue.panel.isCollapsed}">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th width="20">#</th>
+                                <th width="300">Command</th>
+                                <th width="150">Time queued</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-show="sentryCommandQueue.pendingCommands.length != 0" ng-repeat="command in sentryCommandQueue.pendingCommands">
+                                <td width="20">{{ $index + 1 }}</td>
+                                <td width="300">{{ command.command }}</td>
+                                <td width="150">
+                                    <span local-datetime utc-datetime="{{command.commandCreated}}" date-format="L" time-format="LTS"></span>
+                                </td>
+                            </tr>
+                            <tr ng-show="sentryCommandQueue.pendingCommands.length === 0" class="warning">
+                                <td></td>
+                                <td colspan="2">There are no pending commands for this device</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

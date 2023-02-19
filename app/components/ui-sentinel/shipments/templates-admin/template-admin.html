@@ -1,0 +1,163 @@
+<div ng-controller="TemplateAdminController as templateAdmin">
+    <div feedback></div>
+    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12">
+        <div class="row">
+            <div class="col-sm-12"> 
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row" style="margin-top: 3px;">
+                            <div class="col-sm-8" ng-if="templateAdmin.hasPermission.toChange">
+                                <ul class="nav nav-pills" ng-cloak>
+                                    <li>
+                                        <button class="btn btn-default" type="button" title="Delete" ng-show="!templateAdmin.isCreateMode && !templateAdmin.isDeleteMode" ng-click="templateAdmin.actions.beginDelete()">
+                                            <i class="fa fa-trash-o"></i> Delete
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="btn btn-default" type="button" title="Delete" ng-show="templateAdmin.isDeleteMode" ng-click="templateAdmin.actions.deleteTemplate()">
+                                            <i class="fa fa-check"></i> Yes
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="btn btn-default" type="button" title="Delete" ng-show="templateAdmin.isDeleteMode" ng-click="templateAdmin.actions.cancelDelete()">
+                                            <i class="fa fa-ban"></i> No
+                                        </button>
+                                    </li>
+                                </ul>
+                                <br/>
+                                <br/>
+                            </div>
+                        </div>
+                        <div class="row" ng-show="templateAdmin.isDeleteMode">
+                            <div class="col-sm-12">
+                                <p><i class="fa fa-question-circle fa-lg"></i> Do you wish to delete <strong>{{ templateAdmin.editor.template.name }}</strong>? </p>
+                            </div>
+                        </div>
+                        
+                        <div class="row" ng-show="!templateAdmin.isDeleteMode">
+                            <div class="col-sm-12">
+                                <form name="templateForm" ng-submit="templateAdmin.actions.saveTemplate()" novalidate>
+                                    <div class="form-group" ng-class="{'has-error': !templateAdmin.editor.name.isPristine && templateAdmin.editor.name.hasError()}">
+                                        <label>Name *</label>
+                                        <input id="input-name" type="text" class="form-control" placeholder="Enter a name for the template" maxlength="100" spellcheck="false" ng-model="templateAdmin.editor.name.value" ng-readonly="!templateAdmin.hasPermission.toChange" ng-change="templateAdmin.editor.name.isPristine = true">
+                                        <p class="help-block text-right" ng-show="!templateAdmin.editor.name.isPristine && templateAdmin.editor.name.errors.isBlank"><i class="fa fa-info-circle"></i>&nbsp;A template name is required</p>
+                                        <p class="help-block text-right" ng-show="!templateAdmin.editor.name.isPristine && templateAdmin.editor.name.errors.isDuplicate"><i class="fa fa-info-circle"></i>&nbsp;The template name is already in use</p>
+                                    </div>
+                                    <div class="form-group" ng-class="{'has-error': templateForm.duration.$invalid && !templateForm.duration.$pristine}">
+                                        <label>Duration</label>
+                                        <div class="input-group">
+                                            <input type="number" name="duration" id="duration" class="form-control" placeholder="Enter a default duration (optional)" ng-readonly="!templateAdmin.hasPermission.toChange" ng-model="templateAdmin.editor.duration.value" ng-change="templateAdmin.editor.duration.isPristine = true"
+                                                min="{{templateAdmin.editor.duration.min}}" max="{{templateAdmin.editor.duration.max}}">
+                                            <span class="input-group-addon">days</span>
+                                        </div>
+                                        <p class="help-block text-right" ng-show="templateForm.duration.$invalid && !templateForm.duration.$pristine"><i class="fa fa-info-circle"></i>&nbsp;If duration is not blank, it must be between {{ templateAdmin.editor.duration.min }} and {{ templateAdmin.editor.duration.max }} days</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Track device return?&nbsp;&nbsp;</label><br/>
+                                        <button type="button" id="btn-track-return" class="btn btn-default btn-sm" ng-click="templateAdmin.actions.toggleTrackDeviceReturn()" ng-disabled="!templateAdmin.hasPermission.toChange" ng-class="{'active': templateAdmin.editor.trackDeviceReturn.value}">
+                                            <i class="fa {{templateAdmin.editor.trackDeviceReturn.value ? 'fa-check-square' : 'fa-square-o'}}"></i>
+                                            &nbsp;&nbsp;{{templateAdmin.editor.trackDeviceReturn.value ? 'Yes' : 'No'}}
+                                        </button>
+                                    </div>
+                                    <!--div>
+                                        <label for="sentinel">Subscribers </label>
+                                        <p ng-show="templateAdmin.editor.subscribers.length > 0"><i class="fa fa-info-circle"></i>&nbsp;List of Subscribers selected</p>
+                                        <div class="input-group" ng-repeat="s in templateAdmin.editor.subscribers">
+                                            <input type="text" class="form-control" ng-value="templateAdmin.actions.getEmailSubscriber(s)" readonly>
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default" title="Change device" ng-click="templateAdmin.actions.removeSubscriber(s,$index)"
+                                                ng-disabled="!templateAdmin.hasPermission.toChange"><i class="fa fa-fw fa-remove"></i></button>
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <input type="text" class="form-control" placeholder="Enter text to filter the subscriber list..." ng-model="templateAdmin.subscriberSearchText">
+                                            <p ng-show="templateAdmin.availableSubscribers.length <= templateAdmin.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Click a subscriber to use</p>
+                                            <p ng-show="templateAdmin.availableSubscribers.length > templateAdmin.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Showing first {{templateAdmin.listLimit}} matches. Use the filter to narrow your search and then click a subscriber to use</p>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Email</th>
+                                                        <th>First Name</th>
+                                                        <th>Last Name</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr ng-repeat="subscriber in templateAdmin.availableSubscribers | filter: templateAdmin.subscriberFilter | limitTo:templateAdmin.listLimit" ng-if="templateAdmin.availableSubscribers.length > 0">
+                                                        <th></th>
+                                                        <td><a role="button" ng-click="templateAdmin.actions.selectSubscriber(subscriber)" ng-disabled="!templateAdmin.hasPermission.toChange">{{ subscriber.emailAddress }}</a></td>
+                                                        <td>{{subscriber.firstName}}</td>
+                                                        <td>{{subscriber.lastName}}</td>
+                                                    </tr>
+                                                    <tr ng-if="templateAdmin.availableSubscribers.length === 0">
+                                                        <td></td>
+                                                        <td colspan="4">There are no sentinels assigned to the this client</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div -->
+                                    <div class="form-group"  ng-class="{'has-error': !templateAdmin.editor.shipmentEmails.isPristine && templateAdmin.editor.shipmentEmails.hasError()}">
+                                        <label for="shipmentEmails">Tracking notification recipients</label>
+                                        <textarea class="form-control" id="shipmentEmails" name="shipmentEmails" ng-model="templateAdmin.editor.shipmentEmails.value" placeholder="Enter a list of email addresses, separated by semi-colons (optional)" rows="3" maxlength="1000" ng-change="templateAdmin.editor.shipmentEmails.isPristine = true" spellcheck="false"></textarea>
+                                        <p class="help-block text-right" ng-show="!templateAdmin.editor.shipmentEmails.isPristine && templateAdmin.editor.shipmentEmails.hasError()"><i class="fa fa-info-circle"></i>&nbsp;An invalid email address exists</p>
+                                        <p class="help-block text-right" ng-hide="!templateAdmin.editor.shipmentEmails.isPristine && templateAdmin.editor.shipmentEmails.hasError()"><i class="fa fa-info-circle"></i>&nbsp;Recipients listed above will receive departure, arrival, and completion email notifications with an embedded link to your tracking page</p>
+                                    </div>
+                                    
+
+                                    <div class="form-group">
+                                        <button id="btn-add-stop" type="button" class="btn btn-default btn-sm"
+                                                ng-if="templateAdmin.hasPermission.toChange"
+                                                ng-click="templateAdmin.actions.addStop()"><i class="fa fa-plus"></i> Add Stop
+                                        </button>
+                                        <table class="table table-striped">
+                                            <thead>
+                                            <tr>
+                                                <th width="10%">Stops</th>
+                                                <th width="20%">Stop type</th>
+                                                <th width="60%">Location</th>
+                                                <th width="10%"></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody> 
+                                            <!--tr shipment-stop-row label="Origin" stop="templateAdmin.editor.stops.origin" geofences="templateAdmin.availableGeofences" optional="true" removable="false" editable="{{!templateAdmin.hasPermission.toChange}}"></tr -->
+                                            <tr shipment-stop-row label="Stop {{$index + 1}}" stop="stop" geofences="templateAdmin.availableGeofences" optional="false" removable="true" editable="{{!templateAdmin.hasPermission.toChange}}"
+                                                ng-repeat="stop in templateAdmin.editor.stops.other | orderBy: 'destinationId'"
+                                                ng-if="templateAdmin.editor.stops.other.length > 0"></tr>
+                                            <!--tr shipment-stop-row label="Destination" stop="templateAdmin.editor.stops.destination" geofences="templateAdmin.availableGeofences" optional="true" removable="false" editable="{{!templateAdmin.hasPermission.toChange}}"></tr-->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <!--<div class="form-group" ng-if="templateAdmin.trackingConfig && templateAdmin.trackingConfig.referencePrefix"  ng-class="{'has-error': !templateAdmin.editor.subscribers.isPristine && templateAdmin.editor.subscribers.hasError()}">
+                                        <label for="subscribers">Tracking notification recipients</label>
+                                        <textarea class="form-control" id="subscribers" name="subscribers"
+                                              ng-model="templateAdmin.editor.subscribers.value"
+                                              ng-readonly="!templateAdmin.hasPermission.toChange"
+                                              ng-change="templateAdmin.editor.subscribers.isPristine = true" spellcheck="false"
+                                              placeholder="Enter a list of email addresses, separated by commas (optional)" rows="3" maxlength="1000">
+                                        </textarea>
+                                        <p class="help-block text-right" ng-show="!templateAdmin.editor.subscribers.isPristine && templateAdmin.editor.subscribers.hasError()"><i class="fa fa-info-circle"></i>&nbsp;Invalid emails: {{ templateAdmin.editor.subscribers.value }}</p>
+                                        <p class="help-block text-right" ng-hide="!templateAdmin.editor.subscribers.isPristine && !templateAdmin.editor.subscribers.hasError()"><i class="fa fa-info-circle"></i>&nbsp;Recipients listed above will receive departure, arrival, and completion email notifications with an embedded link to your tracking page</p>
+                                    </div>-->
+                                    <div class="form-group">
+                                        <div class="pull-right">
+                                            <button type="submit" class="btn btn-default" ng-if="templateAdmin.hasPermission.toChange" ng-disabled="templateForm.duration.$invalid"><i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                             <button type="button" class="btn btn-default" ng-show="!templateAdmin.isCreateMode && !templateAdmin.isDeleteMode" 
+                                             ng-click="templateAdmin.actions.gotoNewTemplate()"><i class="fa fa-plus"></i>&nbsp;&nbsp;New Template</button>
+                                        </button>
+                                            <button type="button" id="btn-reset" class="btn btn-default" ng-click="templateAdmin.actions.reset()" ng-if="templateAdmin.hasPermission.toChange"><i class="fa fa-undo"></i>&nbsp;&nbsp;Reset</button>
+                                            <button type="button" class="btn btn-default" ng-click="templateAdmin.actions.close()"><i class="fa times"></i>&nbsp;&nbsp;Close</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--template-->
+    </div>
+</div>

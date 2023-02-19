@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html ng-app="tracking">
+<head lang="en">
+    <meta charset="UTF-8">
+	<title>Tracking</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- bower:css -->
+    <!-- endinject -->
+    <!-- inject:css -->
+    <!-- endinject -->
+	<!-- client:css -->
+    <!-- endinject -->
+</head>
+<body ng-controller="TrackingController as tracking">
+<!--[if lt IE 7]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+<div id="wrapper">
+    <div navigation></div>
+    <div class="container">
+        <div ui-view id="main-view"></div>
+    </div>
+    <div feedback></div>
+</div>
+
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=GOOGLE-MAPS-API-KEY&libraries=drawing"></script>
+<!-- bower:js -->
+<!-- endinject -->
+<!-- app-vars:js -->
+<!-- endinject -->
+<!-- inject:js -->
+<!-- endinject -->
+</body>
+</html>

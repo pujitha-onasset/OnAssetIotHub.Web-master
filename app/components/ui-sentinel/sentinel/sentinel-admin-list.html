@@ -1,0 +1,209 @@
+<div ng-controller="SentinelAdminController as sentinelAdminUi">
+    <!-- Modals-->
+    <div class="modal fade" id="friendlyNameModal" tabindex="-1" role="dialog" aria-labelledby="friendlyNameModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-warning">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="sentinelAdminUi.setFriendlyNameCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="logRetrieverModalLabel"><i class="fa fa-exclamation-circle"></i> Sentinel <strong>{{ sentinelAdminUi.friendlyNameSentinel.mac }}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="sentinelAdminUi.friendlyNameErrorMessage" class="alert alert-danger">{{ sentinelAdminUi.friendlyNameErrorMessage }}</div>
+                    <form class="form-horizontal">
+                        <div class="form-group" >
+                            <label class="col-sm-3">Device Name</label>
+                            <div class="col-sm-9">
+                                <input type="text" ng-model="sentinelAdminUi.friendlyNameSentinel.friendlyName" placeholder="Device name"> 
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="sentinelAdminUi.setFriendlyNameCancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="sentinelAdminUi.setFriendlyNameSubmit()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Modals-->   
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <nav class="navbar navbar-default col-sm-12">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa {{sentinelAdminUi.currentPageView.icon}}"></i>&nbsp;&nbsp;{{ sentinelAdminUi.currentPageView.title}} <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="view in sentinelAdminUi.pageViews"><a type="button" ng-click="sentinelAdminUi.changeView(view.name)"><i class="fa {{view.icon}}"></i>&nbsp;&nbsp;{{view.title}}</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="navbar-form" ng-show="sentinelAdminUi.currentPageView.name === 'list'">
+                    <div class="form-group">
+                        <select class="form-control" ng-model="sentinelAdminUi.filter">
+                            <option value="all" ng-selected="sentinelAdminUi.filter === 'all'">Show assigned and available</option>
+                            <option value="assigned" ng-selected="sentinelAdminUi.filter === 'assigned'">Show assigned only</option>
+                            <option value="available" ng-selected="sentinelAdminUi.filter === 'available'">Show available only</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        &nbsp;
+                        <button class="btn btn-default" type="button" ng-click="sentinelAdminUi.load()">Load</button>
+                        &nbsp;
+                         <export-table-to file-name="Sentinels" table-id-to-export="sentinlList"></export-table-to>
+                    </div>
+                </form>
+                <form class="navbar-form" ng-show="sentinelAdminUi.currentPageView.name === 'search'">
+                    <div class="form-group">
+                        <input type="text" class="form-control search" ng-model="sentinelAdminUi.searchText" placeholder="Enter sentinel pattern to search for">
+                    </div>
+                    <div class="form-group">
+                        &nbsp;
+                        <button class="btn btn-default" type="button" ng-click="sentinelAdminUi.search()">Search</button>
+                        &nbsp;
+                         <export-table-to file-name="Sentinels" table-id-to-export="sentinlList"></export-table-to>
+                    </div>
+                </form>
+            </nav>
+            <div ng-if="sentinelAdminUi.errorMessage" class="alert alert-danger">{{ sentinelAdminUi.errorMessage }}</div>
+        </div>
+    </div>
+    <!-- Modals -->
+    <div class="modal fade" id="assignModal" tabindex="-1" role="dialog" aria-labelledby="assignModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-info">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="sentinelAdminUi.assignCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="assignModalLabel"><i class="fa fa-exclamation-circle"></i> Assign Sentinels to account</h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="sentinelAdminUi.assignErrorMessage" class="alert alert-danger">{{ sentinelAdminUi.assignErrorMessage }}</div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Account</label>
+                            <div class="col-sm-6">
+                                <select class="form-control" ng-options="account as account.name for account in sentinelAdminUi.accounts track by account.id" ng-model="sentinelAdminUi.assignAccount"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">List of MACs</label>
+                            <div class="col-sm-6">
+                                <textarea class="form-control" rows="10" ng-model="sentinelAdminUi.assignMacText"></textarea>
+                                <p class="help-block">Enter up to 1500 MACs; one MAC per row</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Backfill data?</label>
+                            <div class="col-sm-6">
+                                <input type="checkbox" ng-model="sentinelAdminUi.assignIsBackfill">
+                            </div>
+                        </div>
+                        <div class="form-group" ng-show="sentinelAdminUi.assignIsBackfill">
+                            <label class="col-sm-3 control-label">From</label>
+                            <div class="col-sm-4">
+                                <input type="text" data-date-time-picker data-format="YYYY-MM-DDTHH:mm:ss" class="form-control datetimepicker" ng-model="sentinelAdminUi.assignBackfillFrom" placeholder="yyyy-mm-ddThh:mm">
+                                <p class="help-block">Enter the date to begin backfilling from</p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="sentinelAdminUi.assignCancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="sentinelAdminUi.assignSubmit()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="removeModal" tabindex="-1" role="dialog" aria-labelledby="removeModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="sentinelAdminUi.removeCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="removeModalLabel"><i class="fa fa-exclamation-triangle"></i> Remove Sentinel</h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="sentinelAdminUi.removeErrorMessage" class="alert alert-danger">{{ sentinelAdminUi.removeErrorMessage }}</div>
+                    <p>Are you sure you want to remove <strong>{{sentinelAdminUi.removeAssignment.mac}}</strong> from <strong>{{sentinelAdminUi.removeAssignment.latestAssignment.accountName}}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="sentinelAdminUi.removeCancel()">No</button>
+                    <button type="button" class="btn btn-primary" ng-click="sentinelAdminUi.removeSubmit()">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <nav class="pull-right" aria-label="Page navigation" ng-show="sentinelAdminUi.totalPages > 1">
+                <ul class="pagination">
+                    <li ng-class="{'disabled': sentinelAdminUi.page === 1}">
+                        <a role="button" aria-label="Previous" ng-click="sentinelAdminUi.previous();">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li ng-repeat="n in sentinelAdminUi.pageArray" ng-class="{'active': n === sentinelAdminUi.page}">
+                        <a role="button" ng-click="sentinelAdminUi.gotoPage(n);" aria-label="Page {{n}}">
+                            <span aria-hidden="true">{{n}}</span>
+                        </a>
+                    </li>
+                    <li ng-class="{'disabled': sentinelAdminUi.page === sentinelAdminUi.totalPages}">
+                        <a role="button" aria-label="Next" ng-click="sentinelAdminUi.next();">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <table class="table table-striped" id="sentinlList">
+                <thead>
+                <tr>
+                    <th width="20">#</th>
+                    <th width="60" class="noExport">
+                        <!--<button class="btn btn-sm btn-default" type="button" id="btn-addAccount" ng-click="sentinelAdminUi.addAccountBegin()">-->
+                        <!--New-->
+                        <!--</button>-->
+                    </th>
+                    <th>Sentinel</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>
+                        Is Assigned&nbsp;
+                    </th>
+                    <th>Account</th>
+                    <th ng-show="sentinelAdminUi.showIsAdmin">Date Assigned</th>
+                    <th ng-show="sentinelAdminUi.showIsAdmin">Date Removed</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-show="sentinelAdminUi.latestList.length === 0" class="warning noExport">
+                    <td></td>
+                    <td colspan="7">There are no records</td>
+                </tr>
+                <tr ng-show="sentinelAdminUi.latestList.length != 0" ng-repeat="item in sentinelAdminUi.latestList">
+                    <td width="20">{{ (sentinelAdminUi.page > 1) ? ((sentinelAdminUi.page - 1) * sentinelAdminUi.itemsPerPage) + $index + 1 : $index + 1 }}</td>
+                    <td width="60" class="noExport">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-default dropdown-toggle" type="button" id="dropdown{{$index}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdown{{$index}}">
+                                <li ng-show="sentinelAdminUi.hasPermission.toRemove && item.isCurrentlyAssigned"><a ng-click="sentinelAdminUi.removeBegin(item)" data-toggle="modal" data-target="#removeModal">Remove</a></li>
+                                <li ng-show="item.isCurrentlyAssigned"><a data-toggle="modal" data-target="#friendlyNameModal" ng-click="sentinelAdminUi.setFriendlyNameBegin(item)">Set Device Name</a></li>
+                                <li ng-show="item.sentinelType == '100L'"><a ng-click="sentinelAdminUi.goToWatchlist(item)">Watchlist</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                    <td>{{ item.mac }}</td>
+                    <td>{{ item.friendlyName }}</td>
+                    <td>{{ item.sentinelType }}</td>
+                    <td>{{ item.isCurrentlyAssigned ? 'yes' : 'no' }}</td>
+                    <td>{{ item.latestAssignment ? item.latestAssignment.accountName : '' }}</td>
+                    <td ng-show="sentinelAdminUi.showIsAdmin"><span local-datetime utc-datetime="{{ item.latestAssignment ? item.latestAssignment.timeOfAssignment : null}}" date-format="L" time-format="LTS"></span></td>
+                    <td ng-show="sentinelAdminUi.showIsAdmin"><span local-datetime utc-datetime="{{ item.latestAssignment ? item.latestAssignment.timeOfRemoval : null}}" date-format="L" time-format="LTS"></span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,227 @@
+<div ng-controller="NotificationsAdminController as notificationsAdmin">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Notification Settings
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th width="30%"></th>
+                                <th class="text-center">Shipment Completed</th>
+                                <th class="text-center">Shipment Created</th>
+                                <th class="text-center">Shipment Overdue</th>
+                                <th class="text-center">Stop Arrival</th>
+                                <th class="text-center">Stop Departure</th>
+                                <th class="text-center">View Alarm</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td width="30%">
+                                    <h5><strong>Shipping notification</strong></h5>
+                                    Send event notification emails
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-default" id="btn-completed-notification-subscribers"
+                                            ng-click="notificationsAdmin.actions.notification.toggleCompletedNotificationSubscribers()"
+                                            ng-disabled="!notificationsAdmin.hasPermission.toChange"
+                                            ng-class="{'active': notificationsAdmin.shipmentcompleted.isActiveForNotificationSubscribers }">
+                                        <i class="fa fa-fw {{notificationsAdmin.shipmentcompleted.isActiveForNotificationSubscribers ? 'fa-check-square' : 'fa-square-o'}}"></i>{{ notificationsAdmin.shipmentcompleted.isActiveForNotificationSubscribers ? 'Yes' : 'No' }}
+                                    </button>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-default" id="btn-created-notification-subscribers"
+                                            ng-click="notificationsAdmin.actions.notification.toggleCreatedNotificationSubscribers()"
+                                            ng-disabled="!notificationsAdmin.hasPermission.toChange"
+                                            ng-class="{'active': notificationsAdmin.shipmentcreated.isActiveForNotificationSubscribers }">
+                                        <i class="fa fa-fw {{notificationsAdmin.shipmentcreated.isActiveForNotificationSubscribers ? 'fa-check-square' : 'fa-square-o'}}"></i>{{ notificationsAdmin.shipmentcreated.isActiveForNotificationSubscribers ? 'Yes' : 'No' }}
+                                    </button>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-default" id="btn-overdue-notification-subscribers"
+                                            ng-click="notificationsAdmin.actions.notification.toggleOverdueNotificationSubscribers()"
+                                            ng-disabled="!notificationsAdmin.hasPermission.toChange"
+                                            ng-class="{'active': notificationsAdmin.shipmentoverdue.isActiveForNotificationSubscribers }">
+                                        <i class="fa fa-fw {{notificationsAdmin.shipmentoverdue.isActiveForNotificationSubscribers ? 'fa-check-square' : 'fa-square-o'}}"></i>{{ notificationsAdmin.shipmentoverdue.isActiveForNotificationSubscribers ? 'Yes' : 'No' }}
+                                    </button>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-default" id="btn-arrival-notification-subscribers"
+                                            ng-click="notificationsAdmin.actions.notification.toggleArrivalNotificationSubscribers()"
+                                            ng-disabled="!notificationsAdmin.hasPermission.toChange"
+                                            ng-class="{'active': notificationsAdmin.stoparrival.isActiveForNotificationSubscribers }">
+                                        <i class="fa fa-fw {{notificationsAdmin.stoparrival.isActiveForNotificationSubscribers ? 'fa-check-square' : 'fa-square-o'}}"></i>{{ notificationsAdmin.stoparrival.isActiveForNotificationSubscribers ? 'Yes' : 'No' }}
+                                    </button>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-default" id="btn-departure-notification-subscribers"
+                                            ng-click="notificationsAdmin.actions.notification.toggleDepartureNotificationSubscribers()"
+                                            ng-disabled="!notificationsAdmin.hasPermission.toChange"
+                                            ng-class="{'active': notificationsAdmin.stopdeparture.isActiveForNotificationSubscribers }">
+                                        <i class="fa fa-fw {{notificationsAdmin.stopdeparture.isActiveForNotificationSubscribers ? 'fa-check-square' : 'fa-square-o'}}"></i>{{ notificationsAdmin.stopdeparture.isActiveForNotificationSubscribers ? 'Yes' : 'No' }}
+                                    </button>
+                                </td>
+
+                                <td class="text-center">
+                                    <button class="btn btn-default" id="btn-viewalarm-notification-subscribers"
+                                            ng-click="notificationsAdmin.actions.notification.toggleViewAlarmNotificationSubscribers()"
+                                            ng-disabled="!notificationsAdmin.hasPermission.toChange"
+                                            ng-class="{'active': notificationsAdmin.viewalarm.isActiveForNotificationSubscribers }">
+                                        <i class="fa fa-fw {{notificationsAdmin.viewalarm.isActiveForNotificationSubscribers ? 'fa-check-square' : 'fa-square-o'}}"></i>{{ notificationsAdmin.viewalarm.isActiveForNotificationSubscribers ? 'Yes' : 'No' }}
+                                    </button>
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <td width="30%">
+                                    <h5><strong>Shipment subscriber notifications</strong></h5>
+                                    Send event notification emails to shipment subscribers
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-default" id="btn-completed-shipment-subscribers"
+                                            ng-click="notificationsAdmin.actions.notification.toggleCompletedShipmentSubscribers()"
+                                            ng-disabled="!notificationsAdmin.hasPermission.toChange || !notificationsAdmin.shipmentcompleted.isActiveForNotificationSubscribers"
+                                            ng-class="{'active': notificationsAdmin.shipmentcompleted.isActiveForNotificationSubscribers && notificationsAdmin.shipmentcompleted.isActiveForShipmentSubscribers }">
+                                        <i class="fa fa-fw {{notificationsAdmin.shipmentcompleted.isActiveForNotificationSubscribers && notificationsAdmin.shipmentcompleted.isActiveForShipmentSubscribers ? 'fa-check-square' : 'fa-square-o'}}"></i>{{ notificationsAdmin.shipmentcompleted.isActiveForNotificationSubscribers && notificationsAdmin.shipmentcompleted.isActiveForShipmentSubscribers ? 'Yes' : 'No' }}
+                                    </button>
+                                </td>
+                                <td class="text-center"><i class="fa fa-fw fa-ban text-danger"></i> N/A </td>
+                                <td class="text-center"><i class="fa fa-fw fa-ban text-danger"></i> N/A </td>
+                                <td class="text-center">
+                                    <button class="btn btn-default" id="btn-arrival-shipment-subscribers"
+                                            ng-click="notificationsAdmin.actions.notification.toggleArrivalShipmentSubscribers()"
+                                            ng-disabled="!notificationsAdmin.hasPermission.toChange || !notificationsAdmin.stoparrival.isActiveForNotificationSubscribers"
+                                            ng-class="{'active': notificationsAdmin.stoparrival.isActiveForNotificationSubscribers && notificationsAdmin.stoparrival.isActiveForShipmentSubscribers }">
+                                        <i class="fa fa-fw {{notificationsAdmin.stoparrival.isActiveForNotificationSubscribers && notificationsAdmin.stoparrival.isActiveForShipmentSubscribers ? 'fa-check-square' : 'fa-square-o'}}"></i>{{ notificationsAdmin.stoparrival.isActiveForNotificationSubscribers && notificationsAdmin.stoparrival.isActiveForShipmentSubscribers ? 'Yes' : 'No' }}
+                                    </button>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-default" id="btn-departure-shipment-subscribers"
+                                            ng-click="notificationsAdmin.actions.notification.toggleDepartureShipmentSubscribers()"
+                                            ng-disabled="!notificationsAdmin.hasPermission.toChange || !notificationsAdmin.stopdeparture.isActiveForNotificationSubscribers"
+                                            ng-class="{'active': notificationsAdmin.stopdeparture.isActiveForNotificationSubscribers && notificationsAdmin.stopdeparture.isActiveForShipmentSubscribers }">
+                                        <i class="fa fa-fw {{ notificationsAdmin.stopdeparture.isActiveForNotificationSubscribers && notificationsAdmin.stopdeparture.isActiveForShipmentSubscribers ? 'fa-check-square' : 'fa-square-o'}}"></i>{{ notificationsAdmin.stopdeparture.isActiveForNotificationSubscribers && notificationsAdmin.stopdeparture.isActiveForShipmentSubscribers ? 'Yes' : 'No' }}
+                                    </button>
+                                </td>
+
+                                <td class="text-center">
+                                    <button class="btn btn-default" id="btn-viewalarm-shipment-subscribers"
+                                            ng-click="notificationsAdmin.actions.notification.toggleViewAlarmShipmentSubscribers()"
+                                            ng-disabled="!notificationsAdmin.hasPermission.toChange || !notificationsAdmin.viewalarm.isActiveForNotificationSubscribers"
+                                            ng-class="{'active': notificationsAdmin.viewalarm.isActiveForNotificationSubscribers && notificationsAdmin.viewalarm.isActiveForShipmentSubscribers }">
+                                        <i class="fa fa-fw {{ notificationsAdmin.viewalarm.isActiveForNotificationSubscribers && notificationsAdmin.viewalarm.isActiveForShipmentSubscribers ? 'fa-check-square' : 'fa-square-o'}}"></i>{{ notificationsAdmin.viewalarm.isActiveForNotificationSubscribers && notificationsAdmin.viewalarm.isActiveForShipmentSubscribers ? 'Yes' : 'No' }}
+                                    </button>
+                                </td>
+
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Notification Subscribers
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <p>Notification subscribers receive event notification emails for all shipments</p>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th width="15%" class="sortcolumn" ng-click="notificationsAdmin.sortBy(['lastName', 'firstName'])">Name<span class="sortorder" ng-show="notificationsAdmin.propertyName.toString() === 'lastName,firstName'" ng-class="{reverse: notificationsAdmin.reverse}"></span></th>
+                                        <th width="15%" class="sortcolumn" ng-click="notificationsAdmin.sortBy('emailAddress')">Email<span class="sortorder" ng-show="notificationsAdmin.propertyName === 'emailAddress'" ng-class="{reverse: notificationsAdmin.reverse}"></span></th>
+                                        <th class="text-center sortcolumn" ng-click="notificationsAdmin.sortBy('isShipmentCompletedOn')">Shipment Completed<span class="sortorder" ng-show="notificationsAdmin.propertyName === 'isShipmentCompletedOn'" ng-class="{reverse: notificationsAdmin.reverse}"></span></th>
+                                        <th class="text-center sortcolumn" ng-click="notificationsAdmin.sortBy('isShipmentCreatedOn')">Shipment Created<span class="sortorder" ng-show="notificationsAdmin.propertyName === 'isShipmentCreatedOn'" ng-class="{reverse: notificationsAdmin.reverse}"></span></th>
+                                        <th class="text-center">Shipment Overdue</th>
+                                        <th class="text-center">Stop Arrival</th>
+                                        <th class="text-center">Stop Departure</th>
+
+                                        <th class="text-center">View Alarm</th>
+
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-show="notificationsAdmin.subscribers.length === 0" class="warning">
+                                        <td colspan="7">There are no notification subscribers for this client</td>
+                                    </tr>
+                                    <tr ng-repeat="subscriber in notificationsAdmin.subscribers | orderBy:notificationsAdmin.propertyName:notificationsAdmin.reverse">
+                                        <td width="15%">
+                                            <a role="button" ui-sref="shipment-notification-subscriber.admin({subscriberId: subscriber.id})">{{subscriber.lastName}}, {{subscriber.firstName}}</a>
+                                        </td>
+                                        <td width="15%">
+                                            {{subscriber.emailAddress}}
+                                        </td>
+                                        <td class="text-center">
+                                            <button class="btn btn-default" id="btn-completed-{{subscriber.id}}"
+                                                    ng-click="notificationsAdmin.actions.subscriber.toggleCompletedForSubscriber(subscriber)"
+                                                    ng-disabled="!notificationsAdmin.hasPermission.toChange || !notificationsAdmin.shipmentcompleted.isActiveForNotificationSubscribers"
+                                                    ng-class="{'active': notificationsAdmin.shipmentcompleted.isActiveForNotificationSubscribers && subscriber.isShipmentCompletedOn }">
+                                                <i class="fa fa-fw {{notificationsAdmin.shipmentcompleted.isActiveForNotificationSubscribers && subscriber.isShipmentCompletedOn ? 'fa-check-square' : 'fa-square-o'}}"></i>{{ notificationsAdmin.shipmentcompleted.isActiveForNotificationSubscribers && subscriber.isShipmentCompletedOn ? 'Yes' : 'No' }}
+                                            </button>
+                                        </td>
+                                        <td class="text-center">
+                                            <button class="btn btn-default" id="btn-created-{{subscriber.id}}"
+                                                    ng-click="notificationsAdmin.actions.subscriber.toggleCreatedForSubscriber(subscriber)"
+                                                    ng-disabled="!notificationsAdmin.hasPermission.toChange || !notificationsAdmin.shipmentcreated.isActiveForNotificationSubscribers"
+                                                    ng-class="{'active': notificationsAdmin.shipmentcreated.isActiveForNotificationSubscribers && subscriber.isShipmentCreatedOn }">
+                                                <i class="fa fa-fw {{notificationsAdmin.shipmentcreated.isActiveForNotificationSubscribers && subscriber.isShipmentCreatedOn ? 'fa-check-square' : 'fa-square-o'}}"></i>{{ notificationsAdmin.shipmentcreated.isActiveForNotificationSubscribers && subscriber.isShipmentCreatedOn ? 'Yes' : 'No' }}
+                                            </button>
+                                        </td>
+                                        <td class="text-center">
+                                            <button class="btn btn-default" id="btn-overdue-{{subscriber.id}}"
+                                                    ng-click="notificationsAdmin.actions.subscriber.toggleOverdueForSubscriber(subscriber)"
+                                                    ng-disabled="!notificationsAdmin.hasPermission.toChange || !notificationsAdmin.shipmentoverdue.isActiveForNotificationSubscribers"
+                                                    ng-class="{'active': notificationsAdmin.shipmentoverdue.isActiveForNotificationSubscribers && subscriber.isShipmentOverdueOn }">
+                                                <i class="fa fa-fw {{notificationsAdmin.shipmentoverdue.isActiveForNotificationSubscribers && subscriber.isShipmentOverdueOn ? 'fa-check-square' : 'fa-square-o'}}"></i>{{ notificationsAdmin.shipmentoverdue.isActiveForNotificationSubscribers && subscriber.isShipmentOverdueOn ? 'Yes' : 'No' }}
+                                            </button>
+                                        </td>
+                                        <td class="text-center">
+                                            <button class="btn btn-default" id="btn-arrival-{{subscriber.id}}"
+                                                    ng-click="notificationsAdmin.actions.subscriber.toggleArrivalForSubscriber(subscriber)"
+                                                    ng-disabled="!notificationsAdmin.hasPermission.toChange || !notificationsAdmin.stoparrival.isActiveForNotificationSubscribers"
+                                                    ng-class="{'active': notificationsAdmin.stoparrival.isActiveForNotificationSubscribers && subscriber.isStopArrivalOn }">
+                                                <i class="fa fa-fw {{notificationsAdmin.stoparrival.isActiveForNotificationSubscribers && subscriber.isStopArrivalOn ? 'fa-check-square' : 'fa-square-o'}}"></i>{{ notificationsAdmin.stoparrival.isActiveForNotificationSubscribers && subscriber.isStopArrivalOn ? 'Yes' : 'No' }}
+                                            </button>
+                                        </td>
+                                        <td class="text-center">
+                                            <button class="btn btn-default" id="btn-departure-{{subscriber.id}}"
+                                                    ng-click="notificationsAdmin.actions.subscriber.toggleDepartureForSubscriber(subscriber)"
+                                                    ng-disabled="!notificationsAdmin.hasPermission.toChange || !notificationsAdmin.stopdeparture.isActiveForNotificationSubscribers"
+                                                    ng-class="{'active': notificationsAdmin.stopdeparture.isActiveForNotificationSubscribers && subscriber.isStopDepartureOn }">
+                                                <i class="fa fa-fw {{notificationsAdmin.stopdeparture.isActiveForNotificationSubscribers && subscriber.isStopDepartureOn ? 'fa-check-square' : 'fa-square-o'}}"></i>{{ notificationsAdmin.stopdeparture.isActiveForNotificationSubscribers && subscriber.isStopDepartureOn ? 'Yes' : 'No' }}
+                                            </button>
+                                        </td>
+
+                                        <td class="text-center">
+                                            <button class="btn btn-default" id="btn-viewalarm-{{subscriber.id}}"
+                                                    ng-click="notificationsAdmin.actions.subscriber.toggleViewAlarmForSubscriber(subscriber)"
+                                                    ng-disabled="!notificationsAdmin.hasPermission.toChange || !notificationsAdmin.viewalarm.isActiveForNotificationSubscribers"
+                                                    ng-class="{'active': notificationsAdmin.viewalarm.isActiveForNotificationSubscribers && subscriber.isViewAlarmOn }">
+                                                <i class="fa fa-fw {{notificationsAdmin.viewalarm.isActiveForNotificationSubscribers && subscriber.isViewAlarmOn ? 'fa-check-square' : 'fa-square-o'}}"></i>{{ notificationsAdmin.viewalarm.isActiveForNotificationSubscribers && subscriber.isViewAlarmOn ? 'Yes' : 'No' }}
+                                            </button>
+                                        </td>
+
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div><!-- subscribers -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>

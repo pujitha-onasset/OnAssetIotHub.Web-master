@@ -1,0 +1,173 @@
+ <div ng-controller="LatestSightingsController as latestSightingsUi">
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <nav class="navbar navbar-default col-sm-12">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa {{latestSightingsUi.currentPageView.icon}}"></i>&nbsp;&nbsp;{{ latestSightingsUi.currentPageView.title}} <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="view in latestSightingsUi.pageViews"><a type="button" ng-click="latestSightingsUi.changeView(view.name)"><i class="fa {{view.icon}}"></i>&nbsp;&nbsp;{{view.title}}</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="navbar-form" ng-show="latestSightingsUi.currentPageView.name === 'latest'">
+                    <div class="form-group">
+                        &nbsp;
+                        <button class="btn btn-default" type="button" ng-click="latestSightingsUi.load()">Reload</button>
+                        &nbsp;
+                        <export-table-to file-name="sightings" table-id-to-export="sightings"></export-table-to>
+                    </div>
+                </form>
+                <form class="navbar-form" ng-show="latestSightingsUi.currentPageView.name === 'hours'">
+                    <div class="form-group">
+                        <label>Hours&nbsp;</label>
+                        <input type="number" class="form-control" ng-model="latestSightingsUi.hoursText">
+                    </div>
+                    <div class="form-group">
+                        &nbsp;
+                        <button class="btn btn-default" type="button" ng-click="latestSightingsUi.load()">Load</button>
+                        &nbsp;
+                        <export-table-to file-name="sightings" table-id-to-export="sightings"></export-table-to>
+                    </div>
+                </form>
+                <form class="navbar-form" ng-show="latestSightingsUi.currentPageView.name === 'range'">
+                    <div class="form-group">
+                        <label>From&nbsp;</label>
+                        <input type='text' data-date-time-picker data-format="YYYY-MM-DDTHH:mm:ss" class="form-control datetimepicker" ng-model="latestSightingsUi.fromText" placeholder="yyyy-mm-ddThh:mm:ss" ng-change="latestSightingsUi.validateDateRange()"/>
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;&nbsp;To&nbsp;</label>
+                        <input type="text" data-date-time-picker data-format="YYYY-MM-DDTHH:mm:ss" class="form-control datetimepicker" ng-model="latestSightingsUi.toText" placeholder="yyyy-mm-ddThh:mm:ss" ng-change="latestSightingsUi.validateDateRange()" data-nomax="true">
+
+                    </div>
+                    <div class="form-group">
+                        &nbsp;
+                        <button class="btn btn-default" type="button" ng-click="latestSightingsUi.load()">Load</button>
+                        &nbsp;
+                        <export-table-to file-name="sightings" table-id-to-export="sightings"></export-table-to>
+                    </div>
+                </form>
+            </nav>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <div ng-if="latestSightingsUi.errorMessage" class="alert alert-danger">{{ latestSightingsUi.errorMessage }}</div>
+            <nav class="pull-right" aria-label="Page navigation" ng-show="latestSightingsUi.totalPages > 1">
+                <ul class="pagination">
+                    <li ng-class="{'disabled': latestSightingsUi.page === 1}"><a role="button" aria-label="Previous" ng-click="latestSightingsUi.previous();"><span aria-hidden="true">&laquo;</span></a></li>
+                    <li ng-repeat="n in latestSightingsUi.pageArray" ng-class="{'active': n === latestSightingsUi.page}"><a role="button" ng-click="latestSightingsUi.gotoPage(n);" aria-label="Page {{n}}"><span aria-hidden="true">{{n}}</span></a></li>
+                    <li ng-class="{'disabled': latestSightingsUi.page === latestSightingsUi.totalPages}"><a role="button" aria-label="Next" ng-click="latestSightingsUi.next();"><span aria-hidden="true">&raquo;</span></a></li>
+                </ul>
+            </nav>
+            <table class="table table-striped" id="sightings">
+                <thead>
+                <tr>
+                    <th width="20">#</th>
+                    <th class="noExport"></th>
+                    <th>Sentry</th>
+                    <th>Sentinel</th>
+                    <th>Sequence</th>
+                    <th>Beacon Type</th>
+                    <th>Time of Receipt</th>
+                    <th>Time of Report</th>
+                    <th>Battery (%)</th>
+                    <th>Battery (V)</th>
+                    <th>Humidity (%)</th>
+                    <th>Light (lux)</th>
+                    <th>Rssi (db)</th>
+                    <th>Internal Temp (&deg;C)</th>
+                    <th>Internal Temp (&deg;F)</th>
+                    <th>Temp probe 1 (&deg;C)</th>
+                    <th>Temp probe 1 (&deg;F)</th>
+                    <th>Temp probe 2 (&deg;C)</th>
+                    <th>Temp ṕrobe 2 (&deg;F)</th>
+                    <th>Shock Magnitude</th>
+                    <th>Shock Elapsed Time</th>
+                    <th>Shock X</th>
+                    <th>Shock Y</th>
+                    <th>Shock Z</th>
+                    <th>Tilt X</th>
+                    <th>Tilt Y</th>
+                    <th>Tilt Z</th>
+                    <th>Pressure</th>
+                    <th>Power Source</th>
+                    <th>First Seen Timestamp</th>
+                    <th>Last Seen Timestamp</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-show="latestSightingsUi.list.length === 0" class="warning noExport">
+                    <td></td>
+                    <td colspan="28">There are no records</td>
+                </tr>
+                <tr ng-show="latestSightingsUi.list.length != 0" ng-repeat="item in latestSightingsUi.list track by $index">
+                    <td width="20">{{ (latestSightingsUi.page > 1) ? ((latestSightingsUi.page - 1) * latestSightingsUi.itemsPerPage) + $index + 1 : $index + 1 }}</td>
+                    <td class="noExport">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-default dropdown-toggle" type="button" id="dropdown{{$index}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdown{{$index}}">
+                                <li><a ng-click="latestSightingsUi.gotoSightingsForReport(item)"><i class="fa fa-sm fa-search"></i>&nbsp;Sightings for this report</a></li>
+                                <li role="separator" class="divider"></li>
+                                <!--<li><a ng-click="latestSentryReportUi.gotoDeviceReports(item)"><i class="fa fa-sm fa-search"></i>&nbsp;Reports from this Sentry</a></li>-->
+                                <li><a ng-click="latestSightingsUi.gotoSightingsByDevice(item)"><i class="fa fa-sm fa-search"></i>&nbsp;Sightings by this Sentry</a></li>
+                                <li><a ng-click="latestSightingsUi.gotoSightingsOfMac(item)"><i class="fa fa-sm fa-search"></i>&nbsp;Sightings of this Sentinel</a></li>
+                                <!--<li><a ng-click="latestSentryReportUi.gotoSightingsPivotForDevice(item)"><i class="fa fa-sm fa-search"></i>&nbsp;Sightings Pivot for this Sentry</a></li>-->
+                                <!--<li role="separator" class="divider"></li>-->
+                                <!--<li><a ng-click="latestSentryReportUi.gotoSeparationSimulator(item)"><i class="fa fa-sm fa-arrow-circle-right"></i>&nbsp;Separation simulator</a></li>-->
+                                <!--<li role="separator" class="divider"></li>-->
+                                <!--<li><a ng-click="latestSentryReportUi.goToReportSightings(item)"><i class="fa fa-sm fa-arrow-circle-right"></i>&nbsp;Warehouse simulator</a></li>-->
+                                <!--<li><a ng-click="latestSentryReportUi.goToReportSightings(item)"><i class="fa fa-sm fa-plus-square"></i>&nbsp;Add to warehouse simulator</a></li>-->
+                                <!--<li><a ng-click="latestSentryReportUi.goToReportSightings(item)"><i class="fa fa-sm fa-minus-square"></i>&nbsp;Remove from warehouse simulator</a></li>-->
+                            </ul>
+                        </div>
+                    </td>
+                    <td>
+                        <span ng-if="!item.sentryFriendlyName">{{item.imei}}</span>
+                        <span ng-if="item.sentryFriendlyName ">{{ item.sentryFriendlyName }}<br/><small>[{{ item.imei }}]</small></span>
+                    </td>
+                    <td>
+                        <span ng-if="!item.sentinelFriendlyName">{{item.sightingId}}</span>
+                        <span ng-if="item.sentinelFriendlyName">{{ item.sentinelFriendlyName }}<br/><small>[{{ item.sightingId }}]</small></span>
+
+                    </td>
+                    <td>{{ item.sequenceNumber }}</td>
+                    <td>{{ item.beaconType }}</td>
+                    <td><span local-datetime utc-datetime="{{ item.timeOfReceipt }}" date-format="L" time-format="LTS"></span></td>
+                    <td><span local-datetime utc-datetime="{{ item.timeOfReport }}" date-format="L" time-format="LTS"></span></td>
+                    <td>{{ item.batteryVoltage | batteryPercentage }}</td>
+                    <td>{{ item.batteryVoltage }}</td>
+                    <td>{{ item.humidity }}</td>
+                    <td>{{ item.lightValue }}</td>
+                    <td>{{ item.rssi }}</td>
+                    <td>{{ item.temperatureValueC }}</td>
+                    <td>{{ item.temperatureValueF }}</td>
+                    <td>{{ item.externalTemperatureC }}</td>
+                    <td>{{ item.externalTemperatureF }}</td>
+                    <td>{{ item.externalTemperatureC_2 }}</td>
+                    <td>{{ item.externalTemperatureF_2 }}</td>
+                    <td>{{ item.shockMagnitude }}</td>
+                    <td>{{ item.shockElapsedTime }}</td>
+                    <td>{{ item.shockX }}</td>
+                    <td>{{ item.shockY }}</td>
+                    <td>{{ item.shockZ }}</td>
+                    <td>{{ item.tiltX }}</td>
+                    <td>{{ item.tiltY }}</td>
+                    <td>{{ item.tiltZ }}</td>
+                    <td>{{ item.pressureValue }}</td>
+                    <td>{{ item.statusFlags_PowerSource}}</td>
+                    <td><span local-datetime utc-datetime="{{ item.firstSeenTimestamp }}" date-format="L" time-format="LTS"></span></td>
+                    <td><span local-datetime utc-datetime="{{ item.lastSeenTimestamp }}" date-format="L" time-format="LTS"></span></td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

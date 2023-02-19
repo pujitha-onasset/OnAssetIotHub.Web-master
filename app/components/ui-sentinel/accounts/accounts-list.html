@@ -1,0 +1,345 @@
+<div ng-controller="AccountsListController as accountListUi">
+    <!-- Modals -->
+    <div class="modal fade" id="rolesAccessModal" tabindex="-1" role="dialog" aria-labelledby="accessLevelsModal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-info">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="accountListUi.rolesAccessCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="rolesAccessLabel"><i class="fa fa-exclamation-circle"></i> Roles based access</h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="accountListUi.rolesAccessErrorMessage" class="alert alert-danger">{{ accountListUi.rolesAccessErrorMessage }}</div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Account</label>
+                            <div class="col-sm-6">
+                                {{accountListUi.rolesAccessAccount.name}}
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Roles Access</label>
+                            <div class="col-sm-6">
+                               <div ng-repeat="role in accountListUi.roles | filter:accountListUi.filterRoles">
+                                  <input type="checkbox" checklist-model="accountListUi.rolesAccessAccount.accessLevel" checklist-value="role"> {{role}} 
+                                </div> 
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="accountListUi.rolesAccessCancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="accountListUi.rolesAccessSubmit()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="transferSentriesModal" tabindex="-1" role="dialog" aria-labelledby="transferSentriesModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-info">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="accountListUi.transferSentriesCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="transferSentriesModalLabel"><i class="fa fa-exclamation-circle"></i> {{ accountListUi.transferTitle }}</h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="accountListUi.transferSentriesErrorMessage" class="alert alert-danger">{{ accountListUi.transferSentriesErrorMessage }}</div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Account</label>
+                            <div class="col-sm-6">
+                                {{accountListUi.parentAccountTransfer.name}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">SubAccount</label>
+                            <div class="col-sm-6">
+                                <select class="form-control" ng-options="account as account.name for account in accountListUi.subaccounts track by account.id" ng-model="accountListUi.transferSentriesSubAccount"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">List of IMEIs</label>
+                            <div class="col-sm-6">
+                                <textarea class="form-control" rows="10" ng-model="accountListUi.transferSentriesImeiText"></textarea>
+                                <p class="help-block">Enter up to 1500 IMEIs; one IMEI per row</p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="accountListUi.transferSentriesCancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="accountListUi.transferSentriesSubmit()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="transferSentinelsModal" tabindex="-1" role="dialog" aria-labelledby="transferSentinelsModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content panel-info">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="accountListUi.transferSentinelsCancel()"><span aria-hidden="true">&times;</span></button>
+                        <h5 class="modal-title" id="transferSentinelsModalLabel"><i class="fa fa-exclamation-circle"></i> {{ accountListUi.transferTitle }}</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div ng-if="accountListUi.transferSentinelsErrorMessage" class="alert alert-danger">{{ accountListUi.transferSentinelsErrorMessage }}</div>
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Account</label>
+                                <div class="col-sm-6">
+                                    {{accountListUi.parentAccountTransfer.name}}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">SubAccount</label>
+                                <div class="col-sm-6">
+                                    <select class="form-control" ng-options="account as account.name for account in accountListUi.subaccounts track by account.id" ng-model="accountListUi.transferSentriesSubAccount"></select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">List of MACs</label>
+                                <div class="col-sm-6">
+                                    <textarea class="form-control" rows="10" ng-model="accountListUi.transferSentinelsMacText"></textarea>
+                                    <p class="help-block">Enter up to 1500 MACs; one MAC per row</p>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="accountListUi.transferSentinelsCancel()">Cancel</button>
+                        <button type="button" class="btn btn-primary" ng-click="accountListUi.transferSentinelsSubmit()">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <div class="modal fade" id="activateModal" tabindex="-1" role="dialog" aria-labelledby="activateModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="accountListUi.activateCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title"><i class="fa fa-exclamation-triangle"></i> Activate <strong>{{accountListUi.account.name}}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="accountListUi.activateErrorMessage" class="alert alert-danger">{{ accountListUi.activateErrorMessage }}</div>
+                    <p>Are you sure you want to activate <strong>{{accountListUi.account.name}}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="accountListUi.activateCancel()">No</button>
+                    <button type="button" class="btn btn-primary" ng-click="accountListUi.activateSubmit()">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="suspendModal" tabindex="-1" role="dialog" aria-labelledby="suspendModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="accountListUi.suspendCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="suspendModalLabel"><i class="fa fa-exclamation-triangle"></i> Suspend <strong>{{accountListUi.account.name}}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="accountListUi.suspendErrorMessage" class="alert alert-danger">{{ accountListUi.suspendErrorMessage }}</div>
+                    <p>Are you sure you want to suspend <strong>{{accountListUi.account.name}}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="accountListUi.suspendCancel()">No</button>
+                    <button type="button" class="btn btn-primary" ng-click="accountListUi.suspendSubmit()">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="accountListUi.deleteCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="deleteModalLabel"><i class="fa fa-exclamation-triangle"></i> Delete <strong>{{accountListUi.account.name}}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="accountListUi.deleteErrorMessage" class="alert alert-danger">{{ accountListUi.deleteErrorMessage }}</div>
+                    <p>Are you sure you want to delete <strong>{{accountListUi.account.name}}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="accountListUi.deleteCancel()">No</button>
+                    <button type="button" class="btn btn-primary" ng-click="accountListUi.deleteSubmit()">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="changeNameModal"  tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static" aria-labelledby="changeNameModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-warning">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="accountListUi.changeNameCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="changeNameModalLabel"><i class="fa fa-exclamation-circle"></i> Manage Client <strong>{{accountListUi.account.name}}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="margin-top: 3px;">
+                        <div class="col-sm-12">
+                            <div ng-if="accountListUi.activateErrorMessage" class="alert alert-danger">{{ accountListUi.activateErrorMessage }}</div>
+                            <div ng-if="accountListUi.suspendErrorMessage" class="alert alert-danger">{{ accountListUi.suspendErrorMessage }}</div>
+                            <ul class="nav nav-pills">
+                                <li class="dropdown" role="presentation">
+                                    <button class="btn {{ accountListUi.account.status == 'active' ? 'btn-success' : 'btn-danger' }} dropdown-toggle" type="button" id="accessDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <span class="font-bold">Client Status</span>&nbsp;&nbsp;<span class="caret"></span><br/>
+                                        <small>{{ accountListUi.account.status == 'active' ? 'Active' : 'Inactive' }}</small>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="accessDropdown">
+                                        <li ng-show="accountListUi.account.status == 'active'" ng-if="accountListUi.canSuspendAccount(account.id)"><a role="button" ng-click="accountListUi.suspendAccount()"><i class="fa fa-ban fa-fw"></i>&nbsp;&nbsp;Suspend client</a></li>
+                                        <li ng-show="accountListUi.account.status != 'active'"><a role="button" ng-click="accountListUi.activeAccount()"><i class="fa fa-check-circle-o fa-fw"></i>&nbsp;&nbsp;Activate client</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <br/>
+                            <br/>
+                            <div ng-if="accountListUi.changeNameErrorMessage" class="alert alert-danger">{{ accountListUi.changeNameErrorMessage }}</div>
+                            <form class="form-horizontal" style="margin-left: 15px;">
+                                <div class="form-group">
+                                    <label for="clientName">Account name *</label>
+                                    <input type="text" id="txt-NewName" class="form-control" ng-model="accountListUi.newName">
+                                </div>
+                                <div class="form-group" ng-hide="clientAdmin.isSystem">
+                                    <label for="parent">Parent account</label>
+                                    <input type="text" class="form-control" id="parent" name="parent"
+                                           ng-model="accountListUi.account.parentName"
+                                           readonly>
+                                </div>
+                                <div class="form-group">
+                                    <div class="pull-right">
+                                        <button type="button" class="btn btn-default" ng-click="accountListUi.changeNameSubmit()"><i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                        <button type="button" class="btn btn-default" ng-click="accountListUi.newName = accountListUi.account.name"><i class="fa fa-undo"></i>&nbsp;&nbsp;Reset</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div feedback></div>
+                    <div class="row" ng-if="accountListUi.account != null">
+                        <div account-logo-admin></div>
+                    </div>
+                    <div class="row" ng-if="accountListUi.account != null">
+                        <div account-tracking-config></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="accountListUi.changeNameCancel()">Close</button>
+                    <!--button type="button" class="btn btn-primary" ng-click="accountListUi.changeNameSubmit()">Submit</button -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="addAccountModal" tabindex="-1" role="dialog" aria-labelledby="addAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-success">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="accountListUi.addAccountCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="addAccountModalLabel"><i class="fa fa-exclamation-circle"></i> Add account</h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="accountListUi.addAccountErrorMessage" class="alert alert-danger">{{ accountListUi.addAccountErrorMessage }}</div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-3">Account name</label>
+                            <div class="col-sm-6">
+                                <input type="text" id="txt-AccountName" class="form-control" ng-model="accountListUi.newName">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="accountListUi.addAccountCancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="accountListUi.addAccountSubmit()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="addSubAccountModal" tabindex="-1" role="dialog" aria-labelledby="addSubAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-success">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="accountListUi.addSubAccountCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="addSubAccountModalLabel"><i class="fa fa-exclamation-circle"></i> Add subaccount to <strong>{{ accountListUi.account.name }}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="accountListUi.addSubAccountErrorMessage" class="alert alert-danger">{{ accountListUi.addSubAccountErrorMessage }}</div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-3">Subaccount name</label>
+                            <div class="col-sm-6">
+                                <input type="text" id="txt-AccountName" class="form-control" ng-model="accountListUi.newSubAccountName">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="accountListUi.addSubAccountCancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="accountListUi.addSubAccountSubmit()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <!--<script type="text/ng-template"  id="tree_item_renderer.html">
+                {{data.name}}
+                <ul>
+                    <li ng-repeat="data in data.children" ng-include="'tree_item_renderer.html'"></li>
+                </ul>
+            </script>
+            <ul>
+                <li ng-repeat="data in accountListUi.list" ng-include="'tree_item_renderer.html'"></li>
+            </ul>-->
+            <script id="table_tree.html" type="text/ng-template">
+            <tr>
+                <td width="4%">
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-default dropdown-toggle" type="button" id="dropdown{{$index}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdown{{$index}}">
+                            <li ng-if="accountListUi.isSystemAdmin()"><a ng-click="accountListUi.rolesAccessBegin(item)" data-toggle="modal" data-target="#rolesAccessModal">Edit Roles</a></li>
+                            <li ng-hide="item.status === 'active'"><a ng-click="accountListUi.activateBegin(item)" data-toggle="modal" data-target="#activateModal">Activate</a></li>
+                            <li ng-hide="!accountListUi.canCreateSubAccount()"><a ng-click="accountListUi.addSubAccountBegin(item)" data-toggle="modal" data-target="#addSubAccountModal">Add subaccount</a></li>
+                            <li ng-hide="item.status !== 'active' || item.children.length==0"><a ng-click="accountListUi.transferSentriesBegin(item)" data-toggle="modal" data-target="#transferSentriesModal">Transfer sentries to subaccount</a></li>
+                            <li ng-hide="item.status !== 'active' || item.children.length==0"><a ng-click="accountListUi.transferSentinelsBegin(item)" data-toggle="modal" data-target="#transferSentinelsModal">Transfer sentinels to subaccount</a></li>
+                            <li ng-hide="item.status !== 'active' || item.children.length==0"><a ng-click="accountListUi.untransferSentriesBegin(item)" data-toggle="modal" data-target="#transferSentriesModal">Remove sentries on subaccount</a></li>
+                            <li ng-hide="item.status !== 'active' || item.children.length==0"><a ng-click="accountListUi.untransferSentinelsBegin(item)" data-toggle="modal" data-target="#transferSentinelsModal">Remove sentinels on subaccount</a></li>
+                            <li><a ng-click="accountListUi.changeNameBegin(item)" data-toggle="modal" data-target="#changeNameModal">Edit Account</a></li>
+                            <li><a ng-click="accountListUi.setFocus(item)">Set Focus</a></li>
+                            <li ng-show="item.status === 'active'" ng-if="accountListUi.canSuspendAccount(item.id)"><a ng-click="accountListUi.suspendBegin(item)" data-toggle="modal" data-target="#suspendModal">Suspend</a></li>
+                            <li ng-hide="!accountListUi.canCreateSubAccount() || !level"><a ng-click="accountListUi.deleteBegin(item)" data-toggle="modal" data-target="#deleteModal">Delete</a></li>
+                        </ul>
+                    </div>
+                </td>
+                <td width="50%"><span style="padding-left: {{15*level}}px"><span ng-show="level > 0"><i class="fa fa-level-up fa-rotate-90"></i>&nbsp;&nbsp;</span>{{ item.name }}</span></td>
+                <td width="23%">{{ item.status }}</td>
+                <td width="23%"><span local-datetime utc-datetime="{{item.dateAdded}}" date-format="L" time-format="LTS"></span></td>
+            </tr>
+                <tr class="children" ng-if="item.children &amp;&amp; item.children.length &gt; 0">
+                <td colspan="5" style="padding:0px">
+                <table class="table table-striped" style="margin-bottom: 0">
+                <tbody ng-include="'table_tree.html'" ng-init="level = level + 1" ng-repeat="item in item.children"></tbody>
+                </table>
+                </td>
+            </tr>
+            </script>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th width="60">
+                        <button class="btn btn-sm btn-default" type="button" id="btn-addAccount" ng-if="accountListUi.canCreateAccount()" ng-click="accountListUi.addAccountBegin()" data-toggle="modal" data-target="#addAccountModal">
+                            New
+                        </button>
+                    </th>
+                    <th class="sortcolumn" ng-click="accountListUi.sortBy('name')">Name<span class="sortorder" ng-show="accountListUi.propertyName === 'name'" ng-class="{reverse: accountListUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="accountListUi.sortBy('status')">Status<span class="sortorder" ng-show="accountListUi.propertyName === 'status'" ng-class="{reverse: accountListUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="accountListUi.sortBy('dateAdded')">Date Added<span class="sortorder" ng-show="accountListUi.propertyName === 'dateAdded'" ng-class="{reverse: accountListUi.reverse}"></span></th>
+                </tr>
+                </thead>
+                <tbody ng-include="'table_tree.html'" ng-repeat="item in accountListUi.list | orderBy:accountListUi.propertyName:accountListUi.reverse"></tbody>
+            </table>
+        </div>
+    </div>
+</div>

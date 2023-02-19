@@ -1,0 +1,122 @@
+<div ng-controller="NotificationSubscriberAdminController as notificationSubscriberAdmin">
+    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12" ng-if="notificationSubscriberAdmin.hasPermission.toChange">
+                            <ul class="nav nav-pills">
+                                <li>
+                                    <button class="btn btn-default" type="button" ng-show="!notificationSubscriberAdmin.mode.isCreateMode && !notificationSubscriberAdmin.mode.isDeleteMode" title="Remove notification subscriber" ng-click="notificationSubscriberAdmin.actions.beginRemove()">
+                                        <i class="fa fa-trash-o"></i>&nbsp;Remove
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" ng-show="notificationSubscriberAdmin.mode.isDeleteMode" title="Yes" ng-click="notificationSubscriberAdmin.actions.remove()">
+                                        <i class="fa fa-check"></i>&nbsp;Yes
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" ng-show="notificationSubscriberAdmin.mode.isDeleteMode" title="No" ng-click="notificationSubscriberAdmin.actions.cancelRemove()">
+                                        <i class="fa fa-ban"></i>&nbsp;No
+                                    </button>
+                                </li>
+                            </ul>
+                            <br/>
+                            <br/>
+                        </div>
+                    </div><!-- buttons -->
+                    <div class="row" ng-show="notificationSubscriberAdmin.mode.isDeleteMode">
+                        <div class="col-sm-12">
+                            <p><i class="fa fa-question-circle fa-lg"></i>  Do you wish to delete <strong>{{ notificationSubscriberAdmin.subscriber.lastName }}, {{ notificationSubscriberAdmin.subscriber.firstName }}</strong>? </p>
+                        </div>
+                    </div>
+                    <div feedback></div>
+                    <div class="row" ng-show="!notificationSubscriberAdmin.mode.isDeleteMode">
+                        <div class="col-sm-12">
+                            <form name="subscriberForm" id="subscriberForm" ng-submit="notificationSubscriberAdmin.actions.submit()" novalidate>
+                                <div class="form-group" ng-class="{'has-error': !notificationSubscriberAdmin.firstName.isPristine && notificationSubscriberAdmin.firstName.hasError() }">
+                                    <label for="firstName">First name *</label>
+                                    <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Enter the subscriber's first name" maxlength="80"
+                                           ng-model="notificationSubscriberAdmin.firstName.value"
+                                           ng-readonly="!notificationSubscriberAdmin.hasPermission.toChange"
+                                           ng-change="notificationSubscriberAdmin.firstName.isPristine = true" >
+                                    <p class="help-block text-right" ng-show="!notificationSubscriberAdmin.firstName.isPristine && notificationSubscriberAdmin.firstName.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;First name is required</p>
+                                </div>
+                                <div class="form-group" ng-class="{'has-error': !notificationSubscriberAdmin.lastName.isPristine && notificationSubscriberAdmin.lastName.hasError()}">
+                                    <label for="lastName">Last name *</label>
+                                    <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Enter the subscriber's last name"  maxlength="80"
+                                           ng-model="notificationSubscriberAdmin.lastName.value"
+                                           ng-readonly="!notificationSubscriberAdmin.hasPermission.toChange"
+                                           ng-change="notificationSubscriberAdmin.lastName.isPristine = true">
+                                    <p class="help-block text-right" ng-show="!notificationSubscriberAdmin.lastName.isPristine && notificationSubscriberAdmin.lastName.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Last name is required</p>
+                                </div>
+                                <div class="form-group" ng-class="{'has-error': !notificationSubscriberAdmin.email.isPristine && notificationSubscriberAdmin.email.hasError()}">
+                                    <label for="subscriberEmail">Email *</label>
+                                    <input type="text" class="form-control" id="subscriberEmail" name="subscriberEmail" placeholder="Enter the subscriber's email address" maxlength="100"
+                                           ng-model="notificationSubscriberAdmin.email.value"
+                                           ng-readonly="!notificationSubscriberAdmin.hasPermission.toChange"
+                                           ng-change="notificationSubscriberAdmin.email.isPristine = true">
+                                    <p class="help-block text-right" ng-show="!notificationSubscriberAdmin.email.isPristine && notificationSubscriberAdmin.email.errors.isBlank" ><i class="fa fa-exclamation-circle"></i>&nbsp;An email address is required</p>
+                                    <p class="help-block text-right" ng-show="!notificationSubscriberAdmin.email.isPristine && notificationSubscriberAdmin.email.errors.isBadFormat" ><i class="fa fa-exclamation-circle"></i>&nbsp;Email address format is not valid</p>
+                                </div>
+                                <div ng-if="!notificationSubscriberAdmin.mode.isEditMode" class="form-group">
+                                    <label for="password">Password <span class="text-small">(optional)</span></label>
+                                    <div style="display: flex;">
+                                    <input style="width: 300%;" type="text" class="form-control" id="password" name="password" placeholder="Enter your password"
+                                    ng-model="notificationSubscriberAdmin.password.value">
+                                    <span class="col-sm-3">
+                                        <button type="button" ng-if="notificationSubscriberAdmin.hasPermissionForPassword.toChange" ng-click="notificationSubscriberAdmin.actions.passwordGenerate('add')" title="generate a random password" ><i class="fa fa-asterisk"></i></button>
+                                    </span>
+                                </div>
+                                </div>
+
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="notificationSubscriberAdmin.isShipmentCompletedOn" ng-disabled="!notificationSubscriberAdmin.hasPermission.toChange"> Shipment Completed
+                                    </label>
+                                </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="notificationSubscriberAdmin.isShipmentCreatedOn" ng-disabled="!notificationSubscriberAdmin.hasPermission.toChange"> Shipment Created
+                                    </label>
+                                </div>
+                                
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="notificationSubscriberAdmin.isShipmentOverdueOn" ng-disabled="!notificationSubscriberAdmin.hasPermission.toChange"> Shipment Overdue
+                                    </label>
+                                </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="notificationSubscriberAdmin.isStopArrivalOn" ng-disabled="true"> Stop Arrival
+                                    </label>
+                                </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="notificationSubscriberAdmin.isStopDepartureOn" ng-disabled="true"> Stop Departure
+                                    </label>
+                                </div>
+
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="notificationSubscriberAdmin.isViewAlarmOn" ng-disabled="!notificationSubscriberAdmin.hasPermission.toChange" > View Alarm
+                                    </label>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="text-right">
+                                        <button type="submit" class="btn btn-default" ng-if="notificationSubscriberAdmin.hasPermission.toChange"><i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                        <button type="button" class="btn btn-default" ng-if="notificationSubscriberAdmin.hasPermission.toChange" ng-click="notificationSubscriberAdmin.actions.reset()"><i class="fa fa-undo"></i>&nbsp;&nbsp;Reset</button>
+                                        <button type="button" class="btn btn-default" ng-click="notificationSubscriberAdmin.actions.close()"><i class="fa times"></i>&nbsp;&nbsp;Close</button>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div><!-- subscriber edit/add -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

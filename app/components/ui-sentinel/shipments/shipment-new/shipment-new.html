@@ -1,0 +1,608 @@
+<div ng-controller="ShipmentNewController as shipmentNew">
+    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12">
+        <div class="row">
+            <div class="col-sm-12"> 
+                <nav class="navbar navbar-default">
+                    <div class="navbar-header menu-shipment">
+                        <a class="navbar-brand" role="button" ng-click="shipmentNew.currentPage = 'start'">Steps: </a>
+                    </div>
+                    <ul class="nav navbar-nav menu-shipment">
+                        <li role="presentation" class="menu-shipment-steps" ng-class="{'active': shipmentNew.currentPage === 'start'}">
+                            <a role="button" ng-click="shipmentNew.currentPage = 'start'">1. Start <i class="fa fa-lg fa-fw {{shipmentNew.startPage.isValid ? 'fa-check-square' : 'fa-square-o'}}"></i></a>
+                        </li>
+                        
+                        <li role="presentation" ng-class="{'active': shipmentNew.currentPage === 'stops'}">
+                            <a role="button" ng-click="shipmentNew.currentPage = 'stops'">2. Add Stops <i class="fa fa-lg fa-fw {{shipmentNew.stopsPage.isValid ? 'fa-check-square' : 'fa-square-o'}}"></i></a>
+                        </li> 
+                        
+                        <li role="presentation" class="menu-shipment-steps" ng-class="{'active': shipmentNew.currentPage === 'alarms'}">
+                            <a role="button" ng-click="shipmentNew.currentPage = 'alarms'">2. Add Alarms <i class="fa fa-lg fa-fw {{shipmentNew.alarmsPage.isValid() ? 'fa-check-square' : 'fa-square-o'}}"></i></a>
+                        </li>
+                        <li role="presentation" class="menu-shipment-steps" ng-class="{'active': shipmentNew.currentPage === 'finish'}">
+                            <a role="button" ng-click="shipmentNew.currentPage = 'finish'">3. Finish <i class="fa fa-lg fa-fw {{shipmentNew.startPage.isValid && shipmentNew.stopsPage.isValid && shipmentNew.alarmsPage.isValid()  ? 'fa-flag-checkered' : 'fa-flag-o'}}"></i></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div feedback></div>
+        <div class="col-sm-12">
+            <div class="row">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row" style="margin-top: 3px;"><!-- nav pills -->
+                            <div class="col-sm-8">
+                                <ul class="nav nav-pills" ng-cloak>
+                                    <li ng-if="shipmentNew.currentPage === 'stops'">
+                                        <button class="btn btn-default" type="button" title="Add stop" ng-click="shipmentNew.actions.addStop()">
+                                            <i class="fa fa-plus"></i> Add stop
+                                        </button>
+                                    </li>
+                                    
+                                    <li ng-if="shipmentNew.currentPage === 'start' && shipmentNew.templateCount > 0 && !shipmentNew.startPage.isShowingTemplates">
+                                        <button class="btn btn-default" type="button" title="Select template" ng-click="shipmentNew.actions.showTemplates()">
+                                            <i class="fa fa-file-text-o"></i> Select template
+                                        </button>
+                                    </li>
+                                    <li ng-if="shipmentNew.startPage.selectedTemplate !== null && !shipmentNew.startPage.isShowingTemplates">
+                                        <button class="btn btn-default" type="button" title="Save template" ng-click="shipmentNew.actions.updateTemplate()">
+                                            <i class="fa fa-save"></i> Update template
+                                        </button>
+                                    </li>
+                                    <li ng-if="!shipmentNew.startPage.isShowingTemplates">
+                                        <button class="btn btn-default" ng-class="{'active': shipmentNew.saveAsTemplatePage.isShowing }"  type="button" title="Save as template" ng-click="shipmentNew.actions.beginSaveAsTemplate()">
+                                            <i class="fa fa-plus"></i> Save as template
+                                        </button>
+                                    </li>
+                                
+                                    <li ng-if="shipmentNew.currentPage === 'start' && shipmentNew.startPage.isShowingTemplates">
+                                        <button class="btn btn-default" type="button" title="Close templates" ng-click="shipmentNew.actions.hideTemplates()">
+                                            <i class="fa fa-times"></i> Close
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div><!-- nav pills -->
+                        <div class="row" ng-show="shipmentNew.saveAsTemplatePage.isShowing">
+                            <div class="col-sm-6">
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <form name="saveAsTemplateForm">
+                                            <div class="form-group" ng-class="{'has-error': !shipmentNew.templateEditor.name.isPristine && shipmentNew.templateEditor.name.hasError()}">
+                                                <label>Template name *</label>
+                                                <input id="input-name" type="text" class="form-control" ng-model="shipmentNew.templateEditor.name.value"
+                                                       ng-change="shipmentNew.templateEditor.name.isPristine = true" maxlength="100" spellcheck="false">
+                                                <p class="help-block text-right" ng-show="!shipmentNew.templateEditor.name.isPristine && shipmentNew.templateEditor.name.errors.isBlank"><i class="fa fa-info-circle"></i>&nbsp;A template name is required</p>
+                                                <p class="help-block text-right" ng-show="!shipmentNew.templateEditor.name.isPristine && shipmentNew.templateEditor.name.errors.isDuplicate"><i class="fa fa-info-circle"></i>&nbsp;The template name is already in use</p>
+                                            </div>
+                                            <div class="form-group" ng-class="{'has-error': !shipmentNew.templateEditor.duration.isPristine && shipmentNew.templateEditor.duration.hasError()}">
+                                                <label>Duration</label>
+                                                <div class="input-group">
+                                                    <input type="number" class="form-control" ng-model="shipmentNew.templateEditor.duration.value" ng-change="shipmentNew.templateEditor.duration.isPristine = true">
+                                                    <span class="input-group-addon">days</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="!shipmentNew.templateEditor.duration.isPristine && shipmentNew.templateEditor.duration.hasError()"><i class="fa fa-info-circle"></i>&nbsp;If duration is not blank, it must be between {{ shipmentNew.templateEditor.duration.min }} and {{ shipmentNew.templateEditor.duration.max }} days</p>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="pull-right">
+                                                    <button type="button" class="btn btn-default" ng-click="shipmentNew.saveAsTemplatePage.save()"><i class="fa fa-save"></i>&nbsp;&nbsp;Create</button>
+                                                    <button type="button" class="btn btn-default" ng-click="shipmentNew.saveAsTemplatePage.close()"><i class="fa fa-times"></i>&nbsp;&nbsp;Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!--saveAsTemplate-->
+                        <div class="row" ng-show="shipmentNew.startPage.isShowingTemplates">
+                            <div class="col-sm-12">
+                                <br/>
+                                <br/>
+                                <form>
+                                    <div class="form-group">
+                                        <label>Template</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Enter a template name or address information" ng-model="shipmentNew.templateSearchText">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default" title="Search" ng-click="shipmentNew.actions.searchTemplates()"><i class="fa fa-fw fa-search"></i></button>
+                                            </span>
+                                        </div>
+                                        <p class="help-block" ng-show="shipmentNew.isTemplateSearchMode && (shipmentNew.templateSearchText === null || shipmentNew.templateSearchText.length < 2)"><i class="fa fa-info-circle"></i>&nbsp;Please enter 2 or more characters to search for results</p>
+                                        <div  ng-if="shipmentNew.availableTemplates.length > 0">
+                                            <p class="help-block" ng-show="shipmentNew.availableTemplates.length <= shipmentNew.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Click a template to use for this shipment</p>
+                                            <p class="help-block" ng-show="shipmentNew.availableTemplates.length > shipmentNew.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Only showing first {{shipmentNew.listLimit}} matches.  Use the filter to narrow your search and then click a template to use for this shipment</p>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped table-hover">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Duration</th>
+                                                        <th>Track device return</th>
+                                                        <th>Device</th>
+                                                        <th>Sentinels</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr ng-show="shipmentNew.availableTemplates.length !== 0"
+                                                        ng-repeat="template in shipmentNew.availableTemplates | filter:shipmentNew.templateFilter | limitTo: shipmentNew.listLimit">
+                                                        <td>
+                                                            <a role="button" ng-click="shipmentNew.actions.selectTemplate(template)">{{ template.name }}</a>
+                                                        </td>
+                                                        <td>{{ template.defaultTrackingTimeSpanInDays >= 1 ? template.defaultTrackingTimeSpanInDays : '' }} <span ng-show="template.defaultTrackingTimeSpanInDays === 1">day</span><span ng-show="template.defaultTrackingTimeSpanInDays > 1">days</span></td>
+                                                        <td>{{ template.trackReverseLogistics ? 'Yes' : 'No' }}</td>
+                                                        <td>
+                                                    <span>
+                                                        {{ template.deviceTagId }}<br/>
+                                                    </span>
+                                                        </td>
+                                                        <td>
+                                                            <span ng-repeat="sentinel in template.sentinels">{{sentinel.deviceId}}<br/></span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr ng-show="shipmentNew.isShowingTemplates && shipmentNew.availableTemplates.length === 0">
+                                                        <td width="20">&nbsp;</td>
+                                                        <td colspan="5">There are no templates for this client</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div><!-- select templates -->
+                        <div class="row" ng-hide="shipmentNew.startPage.isShowingTemplates">
+                            <div class="col-sm-12">
+                                <br/>
+                                <br/>
+                                <form name="startForm" ng-show="shipmentNew.currentPage === 'start'">
+                                    <div class="form-group" ng-if="shipmentNew.startPage.selectedTemplateName !== null">
+                                        <label>Template</label>
+                                        <input type="text" class="form-control" ng-model="shipmentNew.startPage.selectedTemplateName" readonly>
+                                    </div><!-- selected template -->
+                                    <div class="form-group" ng-class="{'has-error': !shipmentNew.shipmentEditor.referenceNumber.isPristine && shipmentNew.shipmentEditor.referenceNumber.hasError()}">
+                                        <label for="referenceNumber">Reference number *</label>
+                                        <div class="input-group" ng-show="shipmentNew.shipmentEditor.referencePrefix">
+                                            <span class="input-group-addon">{{shipmentNew.shipmentEditor.referencePrefix}}</span>
+                                            <input type="text" class="form-control" id="referenceNumber" name="referenceNumber" placeholder="Enter a reference number for the shipment" spellcheck="false" maxlength="80"
+                                                   ng-model="shipmentNew.shipmentEditor.referenceNumber.value"
+                                                   ng-change="shipmentNew.shipmentEditor.referenceNumber.isPristine = true" >
+                                        </div>
+                                        <input type="text" class="form-control" id="referenceNumberNoPrefix" name="referenceNumberNoPrefix" placeholder="Enter a reference number for the shipment" spellcheck="false" maxlength="80"
+                                               ng-model="shipmentNew.shipmentEditor.referenceNumber.value"
+                                               ng-change="shipmentNew.shipmentEditor.referenceNumber.isPristine = true"
+                                               ng-show="!shipmentNew.shipmentEditor.referencePrefix">
+                                        <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.referenceNumber.isPristine && shipmentNew.shipmentEditor.referenceNumber.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Reference number is required</p>
+                                        <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.referenceNumber.isPristine && !shipmentNew.shipmentEditor.referenceNumber.errors.isBlank && shipmentNew.shipmentEditor.referenceNumber.errors.isDuplicate"><i class="fa fa-exclamation-circle"></i>&nbsp;Reference number already in use</p>
+                                        <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.referenceNumber.isPristine && shipmentNew.shipmentEditor.referenceNumber.errors.isTooLong"><i class="fa fa-exclamation-circle"></i>&nbsp;Reference number cannot be more than 30 characters long</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="begiTrackingStrategyType">Begin Tracking Strategy Type</label>
+                                        <select id="beginTrackingStrategyType" class="form-control"       ng-model="shipmentNew.shipmentEditor.beginTrackingStrategyType.value"
+                                            ng-change="shipmentNew.shipmentEditor.beginTrackingStrategyType.isPristine = true">
+                                            <option value="date/time" ng-selected="shipmentNew.shipmentEditor.beginTrackingStrategyType.value === 'date/time'">Date/Time</option>
+                                            <option value="ArrivalGeofence" ng-selected="shipmentNew.shipmentEditor.beginTrackingStrategyType.value === 'ArrivalGeofence'">Arrival at Geofence</option>
+                                             <option value="DepartureGeofence" ng-selected="shipmentNew.shipmentEditor.beginTrackingStrategyType.value === 'DepartureGeofence'">Departure from Geofence</option>
+                                              <option value="Immediately" ng-selected="shipmentNew.shipmentEditor.beginTrackingStrategyType.value === 'Immediately'">Immediately</option>
+                                        </select>
+                                        <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.beginTrackingStrategyType.isPristine && shipmentNew.shipmentEditor.beginTrackingStrategyType.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Begin Tracking Strategy type is required</p>
+                                    </div>  
+                                    <div class="form-group" ng-if="shipmentNew.shipmentEditor.beginTrackingStrategyType.value === 'ArrivalGeofence'">
+                                        <label for="endGeofenceNameText">Arrival at Geofence *</label>
+                                        <div ng-if="shipmentNew.shipmentEditor.endGeofence.value !== null">
+                                            <div class="input-group">
+                                                <input id="endGeofenceNameText" type="text" class="form-control" ng-model="shipmentNew.startPage.endGeofenceNameText" readonly>
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default" title="Change geofence" ng-click="shipmentNew.actions.clearEndGeofence()"><i class="fa fa-fw fa-pencil"></i></button>
+                                            </span>
+                                            </div>
+                                        </div> 
+                                         <div  ng-class="{'has-error': !shipmentNew.shipmentEditor.endGeofence.isPristine && shipmentNew.shipmentEditor.endGeofence.value === null}">
+                                            <input type="text" class="form-control" placeholder="Enter text to filter the geofences list..." ng-model="shipmentNew.endGeofenceSearchText">
+                                            <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.endGeofence.isPristine && shipmentNew.shipmentEditor.endGeofence.value === null"><i class="fa fa-exclamation-circle"></i>&nbsp;A Geofence is required</p>
+                                            <p ng-show="shipmentNew.availableGeofences.length <= shipmentNew.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Click a geofence to use</p>
+                                            <p ng-show="shipmentNew.availableGeofences.length > shipmentNew.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Showing first {{shipmentNew.listLimit}} matches.  Use the filter to narrow your search and then click a geofences to use</p>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Name</th>
+                                                        <th>Address</th>
+                                                        <th>Type</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr ng-repeat="g in shipmentNew.availableGeofences | filter: shipmentNew.endGeofenceFilter | limitTo:shipmentNew.listLimit " ng-if="shipmentNew.availableGeofences.length > 0">
+                                                        <th></th>
+                                                        <td><a role="button" ng-click="shipmentNew.actions.selectEndGeofence(g)">{{ g.name }}</a></td>
+                                                        <td>{{g.address}}</td>
+                                                        <td>{{g.type}}</td>
+                                                    </tr>
+                                                    <tr ng-if="shipmentNew.availableGeofences.length === 0">
+                                                        <td></td>
+                                                        <td colspan="4">There are no geofences assigned to the this client</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-if="shipmentNew.shipmentEditor.beginTrackingStrategyType.value === 'DepartureGeofence'">
+                                        <label for="beginGeofenceNameText">Departure from Geofence *</label>
+                                        <div ng-if="shipmentNew.shipmentEditor.beginGeofence.value !== null">
+                                            <div class="input-group">
+                                                <input id="beginGeofenceNameText" type="text" class="form-control" ng-model="shipmentNew.startPage.beginGeofenceNameText" readonly>
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default" title="Change geofence" ng-click="shipmentNew.actions.clearBeginGeofence()"><i class="fa fa-fw fa-pencil"></i></button>
+                                            </span>
+                                            </div>
+                                        </div> 
+                                         <div  ng-class="{'has-error': !shipmentNew.shipmentEditor.beginGeofence.isPristine && shipmentNew.shipmentEditor.beginGeofence.value === null}">
+                                            <input type="text" class="form-control" placeholder="Enter text to filter the geofences list..." ng-model="shipmentNew.beginGeofenceSearchText">
+                                            <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.beginGeofence.isPristine && shipmentNew.shipmentEditor.beginGeofence.value === null"><i class="fa fa-exclamation-circle"></i>&nbsp;A Geofence is required</p>
+                                            <p ng-show="shipmentNew.availableGeofences.length <= shipmentNew.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Click a geofence to use</p>
+                                            <p ng-show="shipmentNew.availableGeofences.length > shipmentNew.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Showing first {{shipmentNew.listLimit}} matches.  Use the filter to narrow your search and then click a geofences to use</p>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Name</th>
+                                                        <th>Address</th>
+                                                        <th>Type</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr ng-repeat="g in shipmentNew.availableGeofences | filter: shipmentNew.beginGeofenceFilter | limitTo:shipmentNew.listLimit " ng-if="shipmentNew.availableGeofences.length > 0">
+                                                        <th></th>
+                                                        <td><a role="button" ng-click="shipmentNew.actions.selectBeginGeofence(g)">{{ g.name }}</a></td>
+                                                        <td>{{g.address}}</td>
+                                                        <td>{{g.type}}</td>
+                                                    </tr>
+                                                    <tr ng-if="shipmentNew.availableGeofences.length === 0">
+                                                        <td></td>
+                                                        <td colspan="4">There are no geofences assigned to the this client</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-show="shipmentNew.shipmentEditor.beginTrackingStrategyType.value === 'date/time'" ng-class="{'has-error': !shipmentNew.shipmentEditor.beginDate.isPristine && shipmentNew.shipmentEditor.beginDate.hasError() && shipmentNew.shipmentEditor.beginTrackingStrategyType.value === 'date/time'}">
+                                        <label for="beginDate">Tracking begin date *</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="beginDate" name="beginDate"
+                                                   ng-model="shipmentNew.shipmentEditor.beginDate.date" ng-change="shipmentNew.shipmentEditor.beginDate.isPristine = true">
+                                            <span class="input-group-addon">@</span>
+                                            <input type="text" class="form-control" id="beginTime" name="beginTime"
+                                                   ng-model="shipmentNew.shipmentEditor.beginDate.time" ng-change="shipmentNew.shipmentEditor.beginDate.isPristine = true">
+                                        </div>
+                                        <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.beginDate.isPristine && shipmentNew.shipmentEditor.beginDate.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Begin date is required</p>
+                                        <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.beginDate.isPristine && shipmentNew.shipmentEditor.beginDate.errors.isTimeBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Begin time is required</p>
+                                        <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.beginDate.isPristine && shipmentNew.shipmentEditor.beginDate.errors.isBeforeNow"><i class="fa fa-exclamation-circle"></i>&nbsp;Begin date must be in the future</p>
+                                        <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.beginDate.isPristine && shipmentNew.shipmentEditor.beginDate.errors.isNotADate"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid begin date is required</p>
+                                        <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.beginDate.isPristine && shipmentNew.shipmentEditor.beginDate.errors.isNotATime"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid begin time is required</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="endTrackingStrategyType">End Tracking Strategy Type</label>
+                                        <select id="endTrackingStrategyType" class="form-control"       ng-model="shipmentNew.shipmentEditor.endTrackingStrategyType.value"
+                                            ng-change="shipmentNew.shipmentEditor.endTrackingStrategyType.isPristine = true">
+                                            <option value="date/time" ng-selected="shipmentNew.shipmentEditor.endTrackingStrategyType.value === 'date/time'">Date/Time</option>
+                                            <option value="ArrivalGeofence" ng-selected="shipmentNew.shipmentEditor.endTrackingStrategyType.value === 'ArrivalGeofence'">Arrival at a Geofence</option>
+                                        </select>
+                                        <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.endTrackingStrategyType.isPristine && shipmentNew.shipmentEditor.endTrackingStrategyType.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;End Tracking Strategy type is required</p>
+                                    </div>
+                                    <div class="form-group" ng-if="shipmentNew.shipmentEditor.endTrackingStrategyType.value === 'ArrivalGeofence'">
+                                        <label for="endGeofence2NameText">Arrival at Geofence *</label>
+                                        <div ng-if="shipmentNew.shipmentEditor.endGeofence2.value !== null">
+                                            <div class="input-group">
+                                                <input id="endGeofence2NameText" type="text" class="form-control" ng-model="shipmentNew.startPage.endGeofence2NameText" readonly>
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default" title="Change geofence" ng-click="shipmentNew.actions.clearEndGeofence2()"><i class="fa fa-fw fa-pencil"></i></button>
+                                            </span>
+                                            </div>
+                                        </div> 
+                                         <div  ng-class="{'has-error': !shipmentNew.shipmentEditor.endGeofence2.isPristine && shipmentNew.shipmentEditor.endGeofence2.value === null}">
+                                            <input type="text" class="form-control" placeholder="Enter text to filter the geofences list..." ng-model="shipmentNew.endGeofence2SearchText">
+                                            <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.endGeofence2.isPristine && shipmentNew.shipmentEditor.endGeofence2.value === null"><i class="fa fa-exclamation-circle"></i>&nbsp;A Geofence is required</p>
+                                            <p ng-show="shipmentNew.availableGeofences.length <= shipmentNew.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Click a geofence to use</p>
+                                            <p ng-show="shipmentNew.availableGeofences.length > shipmentNew.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Showing first {{shipmentNew.listLimit}} matches.  Use the filter to narrow your search and then click a geofences to use</p>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Name</th>
+                                                        <th>Address</th>
+                                                        <th>Type</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr ng-repeat="g in shipmentNew.availableGeofences | filter: shipmentNew.endGeofence2Filter | limitTo:shipmentNew.listLimit " ng-if="shipmentNew.availableGeofences.length > 0">
+                                                        <th></th>
+                                                        <td><a role="button" ng-click="shipmentNew.actions.selectEndGeofence2(g)">{{ g.name }}</a></td>
+                                                        <td>{{g.address}}</td>
+                                                        <td>{{g.type}}</td>
+                                                    </tr>
+                                                    <tr ng-if="shipmentNew.availableGeofences.length === 0">
+                                                        <td></td>
+                                                        <td colspan="4">There are no geofences assigned to the this client</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>   
+                                    <div class="form-group" ng-show="shipmentNew.shipmentEditor.endTrackingStrategyType.value === 'date/time'" ng-class="{'has-error': !shipmentNew.shipmentEditor.endDate.isPristine && shipmentNew.shipmentEditor.endDate.hasError() && shipmentNew.shipmentEditor.endTrackingStrategyType.value === 'date/time'}">
+                                        <label for="endDate">Tracking end date *</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="endDate" name="endDate"
+                                                   ng-model="shipmentNew.shipmentEditor.endDate.date" ng-change="shipmentNew.shipmentEditor.endDate.isPristine = true">
+                                            <span class="input-group-addon">@</span>
+                                            <input type="text" class="form-control" id="endTime" name="endTime"
+                                                   ng-model="shipmentNew.shipmentEditor.endDate.time" ng-change="shipmentNew.shipmentEditor.endDate.isPristine = true">
+                                        </div>
+                                        <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.endDate.isPristine && shipmentNew.shipmentEditor.endDate.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;End date is required</p>
+                                        <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.endDate.isPristine && shipmentNew.shipmentEditor.endDate.errors.isTimeBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;End time is required</p>
+                                        <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.endDate.isPristine && shipmentNew.shipmentEditor.endDate.errors.isBeforeNow"><i class="fa fa-exclamation-circle"></i>&nbsp;End date must be in the future</p>
+                                        <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.endDate.isPristine && shipmentNew.shipmentEditor.endDate.errors.isNotADate"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid end date is required</p>
+                                        <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.endDate.isPristine && shipmentNew.shipmentEditor.endDate.errors.isNotATime"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid end time is required</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="device">Tracking device *</label>
+                                        <div ng-if="shipmentNew.shipmentEditor.device.value !== null">
+                                            <div class="input-group">
+                                                <input id="device" type="text" class="form-control" ng-model="shipmentNew.startPage.deviceNameText" readonly>
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default" title="Change device" ng-click="shipmentNew.actions.clearDevice()"><i class="fa fa-fw fa-pencil"></i></button>
+                                            </span>
+                                            </div>
+                                        </div>
+                                        <div ng-if="shipmentNew.shipmentEditor.device.value === null" ng-class="{'has-error': !shipmentNew.shipmentEditor.device.isPristine && shipmentNew.shipmentEditor.device.value === null}">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" placeholder="Enter text to filter the device list..."
+                                                     ng-model="shipmentNew.deviceSearchText" ng-scanner-detect="shipmentNew.sentry_scan_options">
+                                                <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default" title="Search sentry" ng-click="shipmentNew.changeSentryFilter(shipmentNew.deviceSearchText)">Search sentry</button>
+                                            </span>
+                                            </div>
+                                            <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.device.isPristine && shipmentNew.shipmentEditor.device.value === null"><i class="fa fa-exclamation-circle"></i>&nbsp;A tracking device is required</p>
+                                            <div class="table-responsive" ng-show="shipmentNew.availableDevices.length == 0">
+                                                <table class="table table-striped">
+                                                    <tbody><tr class="warning"><td>This sentry does not exist in this account</td></tr></tbody>
+                                                </table>
+                                            </div>
+                                            <div class="table-responsive" ng-show="shipmentNew.availableDevices.length>0">
+                                                <p ng-show="shipmentNew.availableDevices.length <= shipmentNew.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Click a device to use</p>
+                                                <p ng-show="shipmentNew.availableDevices.length > shipmentNew.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Showing first {{shipmentNew.listLimit}} matches.  Use the filter to narrow your search and then click a device to use</p>
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Device</th>
+                                                        <th>Name</th>
+                                                        <th>Last Reported</th>
+                                                        <th>Last Battery %</th>
+                                                        <th style="text-align: center;">Ready for Use</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr ng-repeat="device in shipmentNew.availableDevices" ng-if="shipmentNew.availableDevices.length > 0">
+                                                        <th></th>
+                                                        <td><a role="button" ng-click="shipmentNew.actions.selectDevice(device)">{{ device.imei }}</a></td>
+                                                        <td>{{device.friendlyName}}</td>
+                                                        <td><span local-datetime utc-datetime="{{ device.timeOfReport }}" date-format="L" time-format="LTS"></td>
+                                                        <td>{{device.batteryVoltage}}{{device.batteryVoltage ? '%' : ''}}</td>
+                                                        <td class="{{device.readyForUse === true ? 'text-success' : 'text-danger'}}" style="text-align: center;"><b>{{device.readyForUse ? 'YES' : 'NO'}}</b></td>
+                                                    </tr>
+                                                    <tr ng-if="shipmentNew.availableDevices.length === 0">
+                                                        <td></td>
+                                                        <td colspan="4">There are no sentries assigned to this client</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="sentinel">Tracking sentinels *</label>
+                                           <p ng-show="shipmentNew.shipmentEditor.sentinels.length > 0"><i class="fa fa-info-circle"></i>&nbsp;List of Sentinels selected</p>
+                                             <div class="input-group" ng-repeat="s in shipmentNew.shipmentEditor.sentinels">
+                                                <input type="text" class="form-control" ng-show="s.friendlyName" ng-value="s.friendlyName + ' [' + s.deviceId + ']'" readonly>
+                                                <input type="text" class="form-control" ng-show="!s.friendlyName" ng-value="s.deviceId" readonly>
+                                                 <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default" title="Change device" ng-click="shipmentNew.actions.removeSentinel(s,$index)"><i class="fa fa-fw fa-remove"></i></button>
+                                            </span>
+                                            </div>
+                                            <div class="input-group">
+                                            <input type="text" class="form-control" id="addSentinelInput" 
+                                                placeholder="Enter text to filter the sentinel list..." 
+                                                ng-model="shipmentNew.sentinelSearchText"
+                                                ng-scanner-detect="shipmentNew.sentinel_scan_options">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default" title="Search sentinel" ng-click="shipmentNew.sentinelFilter(shipmentNew.sentinelSearchText)">Search sentinel</button>
+                                            </span>
+                                            </div>
+                                            <div class="table-responsive" ng-show="shipmentNew.availableSentinels.length == 0">
+                                                <table class="table table-striped">
+                                                    <tbody><tr class="warning"><td>This sentinel does not exist in this account</td></tr></tbody>
+                                                </table>
+                                            </div>
+                                            <div class="table-responsive" ng-show="shipmentNew.availableSentinels.length>0">
+                                                <p>&nbsp;Showing first {{shipmentNew.listLimit}} matches.  Use the filter to narrow your search and then click a sentinel to use</p>
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Device</th>
+                                                        <th>Name</th>
+                                                        <th>Last Reported</th>
+                                                        <th>Last Battery %</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr ng-repeat="sentinel in shipmentNew.availableSentinels" ng-if="shipmentNew.availableSentinels.length > 0">
+                                                        <th></th>
+                                                        <td><a role="button" ng-click="shipmentNew.actions.selectSentinel(sentinel)">{{ sentinel.deviceId }}</a></td>
+                                                        <td>{{ sentinel.friendlyName }}</td>
+                                                        <td><span local-datetime utc-datetime="{{ sentinel.timeOfReport }}" date-format="L" time-format="LTS"></td>
+                                                        <td>{{ sentinel.batteryVoltage }}{{ sentinel.batteryVoltage ? '%' : '' }}</td>
+                                                    </tr>
+                                                    <tr ng-if="shipmentNew.availableSentinels.length === 0">
+                                                        <td></td>
+                                                        <td colspan="4">There are no sentinels assigned to this client</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="notes">Notes</label>
+                                        <textarea class="form-control" id="notes" name="notes" ng-model="shipmentNew.shipmentEditor.notes.value" placeholder="Enter notes for this shipment (optional)" rows="3" maxlength="500"></textarea>
+                                    </div>
+                                    <div class="form-group"  ng-class="{'has-error': !shipmentNew.shipmentEditor.shipmentEmails.isPristine && shipmentNew.shipmentEditor.shipmentEmails.hasError()}">
+                                        <label for="subscribers">Tracking notification recipients</label>
+                                        <textarea class="form-control" id="shipmentEmails" name="shipmentEmails" ng-model="shipmentNew.shipmentEditor.shipmentEmails.value" placeholder="Enter a list of email addresses, separated by semi-colons (optional)" rows="3" maxlength="1000" ng-change="shipmentNew.shipmentEditor.shipmentEmails.isPristine = true" spellcheck="false"></textarea>
+                                        <p class="help-block text-right" ng-show="!shipmentNew.shipmentEditor.shipmentEmails.isPristine && shipmentNew.shipmentEditor.shipmentEmails.hasError()"><i class="fa fa-info-circle"></i>&nbsp;An invalid email address exists</p>
+                                        <p class="help-block text-right" ng-hide="!shipmentNew.shipmentEditor.shipmentEmails.isPristine && shipmentNew.shipmentEditor.shipmentEmails.hasError()"><i class="fa fa-info-circle"></i>&nbsp;Recipients listed above will receive departure, arrival, and completion email notifications with an embedded link to your tracking page</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="pull-right">
+                                            <button type="button" class="btn btn-default" ng-click="shipmentNew.actions.next()"><i class="fa fa-arrow-circle-right"></i>&nbsp;&nbsp;Next</button>
+                                            <button type="button" class="btn btn-default" ng-click="shipmentNew.actions.close()"><i class="fa fa-times"></i>&nbsp;&nbsp;Close</button>
+                                        </div>
+                                    </div>
+                                </form>
+                                <!-- start -->
+                                <form name="stopsForm" novalidate ng-show="shipmentNew.currentPage === 'stops'">
+                                    <table class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th width="10%"></th>
+                                            <th width="20%">Stop type</th>
+                                            <th width="60%">Location</th>
+                                            <th width="10%"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <!--tr shipment-stop-row label="Origin" stop="shipmentNew.shipmentEditor.stops.origin" geofences="shipmentNew.shipmentEditor.availableGeofences" optional="false" removable="false"></tr -->
+                                        <tr shipment-stop-row label="Stop {{$index + 1}}" stop="stop" geofences="shipmentNew.shipmentEditor.availableGeofences" optional="false" removable="true"
+                                            ng-repeat="stop in shipmentNew.shipmentEditor.stops.other"
+                                            ng-if="shipmentNew.shipmentEditor.stops.other.length > 0"></tr>
+                                        <!--tr shipment-stop-row label="Destination" stop="shipmentNew.shipmentEditor.stops.destination" geofences="shipmentNew.shipmentEditor.availableGeofences" optional="false" removable="false"></tr-->
+                                        </tbody>
+                                    </table>
+                                    <div class="form-group">
+                                        <div class="pull-right">
+                                            <button type="button" class="btn btn-default" ng-click="shipmentNew.actions.back()"><i class="fa fa-arrow-circle-left"></i>&nbsp;&nbsp;Back</button>
+                                            <button type="button" class="btn btn-default" ng-click="shipmentNew.actions.next()"><i class="fa fa-arrow-circle-right"></i>&nbsp;&nbsp;Next</button>
+                                            <button type="button" class="btn btn-default" ng-click="shipmentNew.actions.close()"><i class="fa fa-times"></i>&nbsp;&nbsp;Close</button>
+                                        </div>
+                                    </div>
+                                </form><!-- stops -->
+                                <div ng-show="shipmentNew.currentPage === 'alarms'">
+                                    <div shipment-new-alarms device="shipmentNew.shipmentEditor.device.value" alarms="shipmentNew.alarmsPage.alarms"></div>
+                                    <div class="pull-right">
+                                        <button type="button" class="btn btn-default" ng-click="shipmentNew.actions.back()"><i class="fa fa-arrow-circle-left"></i>&nbsp;&nbsp;Back</button>
+                                        <button type="button" class="btn btn-default" ng-click="shipmentNew.actions.next()"><i class="fa fa-arrow-circle-right"></i>&nbsp;&nbsp;Next</button>
+                                        <button type="button" class="btn btn-default" ng-click="shipmentNew.actions.close()"><i class="fa fa-times"></i>&nbsp;&nbsp;Close</button>
+                                    </div>
+                                </div><!-- alarms -->
+                                <form ng-show="shipmentNew.currentPage === 'finish'">
+                                    <div class="form-group">
+                                        <label>Reference number</label>
+                                        <input type="text" class="form-control" ng-value="(shipmentNew.shipmentEditor.referencePrefix ? shipmentNew.shipmentEditor.referencePrefix : '') + shipmentNew.shipmentEditor.referenceNumber.value" readonly>
+                                    </div>
+                                     <div class="form-group" ng-show="shipmentNew.shipmentEditor.beginTrackingStrategyType.value === 'date/time'">
+                                        <label>Tracking begin date</label>
+                                        <input type="text" class="form-control" ng-value="shipmentNew.shipmentEditor.beginDate.value.toLocaleString()" readonly>
+                                    </div>
+                                    <div class="form-group" ng-show="shipmentNew.shipmentEditor.beginTrackingStrategyType.value === 'ArrivalGeofence'">
+                                        <label>Tracking begin arrival geofence</label>
+                                        <input id="endGeofenceNameText" type="text" class="form-control" ng-model="shipmentNew.startPage.endGeofenceNameText" readonly>
+                                    </div> 
+                                    <div class="form-group" ng-show="shipmentNew.shipmentEditor.beginTrackingStrategyType.value === 'DepartureGeofence'">
+                                        <label>Tracking begin departure geofence</label>
+                                        <input id="beginGeofenceNameText" type="text" class="form-control" ng-model="shipmentNew.startPage.beginGeofenceNameText" readonly>
+                                    </div> 
+                                    <div class="form-group" ng-show="shipmentNew.shipmentEditor.endTrackingStrategyType.value === 'date/time'">
+                                        <label>Tracking end date</label>
+                                        <input type="text" class="form-control" ng-value="shipmentNew.shipmentEditor.endDate.value.toLocaleString()" readonly>
+                                    </div>
+                                    <div class="form-group" ng-show="shipmentNew.shipmentEditor.endTrackingStrategyType.value === 'ArrivalGeofence'">
+                                        <label>Tracking end arrival geofence</label>
+                                        <input id="endGeofence2NameText" type="text" class="form-control" ng-model="shipmentNew.startPage.endGeofence2NameText" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Tracking device</label>
+                                        <input type="text" class="form-control" ng-value="shipmentNew.startPage.deviceNameText" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Tracking sentinels</label>
+                                        <div ng-repeat="s in shipmentNew.shipmentEditor.sentinels">
+                                            <input type="text" class="form-control" ng-value="shipmentNew.actions.formatSentinelValue(s)" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" ng-show="shipmentNew.shipmentEditor.notes.value">
+                                        <label>Notes</label>
+                                        <textarea class="form-control" ng-model="shipmentNew.shipmentEditor.notes.value" rows="3" maxlength="500" readonly></textarea>
+                                    </div>
+                                    <div class="form-group" ng-show="shipmentNew.shipmentEditor.shipmentEmails.value">
+                                        <label>Notification recipients</label>
+                                        <textarea class="form-control" ng-model="shipmentNew.shipmentEditor.shipmentEmails.value" rows="3" maxlength="1000" readonly></textarea>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Stops</label>
+                                        <table class="table">
+                                            <tbody>
+                                            <!--tr>
+                                                <th width="5%">Origin</th>
+                                                <td>
+                                                    {{shipmentNew.shipmentEditor.stops.origin.type === 'geofence' ? shipmentNew.shipmentEditor.stops.origin.geofence.value.name : shipmentNew.shipmentEditor.stops.origin.address.value}}
+                                                </td>
+                                            </tr -->
+                                            <tr ng-repeat="stop in shipmentNew.shipmentEditor.stops.other">
+                                                <th width="5%">Stop {{$index + 1}}</th>
+                                                <td>
+                                                    {{stop.type === 'geofence' ? stop.geofence.value.name : stop.address.value}}
+                                                </td>
+                                            </tr>
+                                            <!--tr>
+                                                <th width="5%">Destination</th>
+                                                <td>
+                                                    {{shipmentNew.shipmentEditor.stops.destination.type === 'geofence' ? shipmentNew.shipmentEditor.stops.destination.geofence.value.name : shipmentNew.shipmentEditor.stops.destination.address.value}}
+                                                </td>
+                                            </tr -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Alarms</label>
+                                        <table class="table">
+                                            <tbody>
+                                            <tr ng-repeat="alarm in filteredAlarms = (shipmentNew.alarmsPage.alarms | filter: shipmentNew.selectedAlarmFilter)">
+                                                <td>{{alarm.alarmName}}</td>
+                                            </tr>
+                                            <tr ng-show="filteredAlarms.length === 0"><td>No alarms were selected for this shipment</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="pull-right">
+                                        <button type="button" class="btn btn-default" ng-click="shipmentNew.actions.back()"><i class="fa fa-arrow-circle-left"></i>&nbsp;&nbsp;Back</button>
+                                        <button type="button" class="btn btn-default" ng-click="shipmentNew.actions.create()"><i class="fa fa-save"></i>&nbsp;&nbsp;Create</button>
+                                        <button type="button" class="btn btn-default" ng-click="shipmentNew.actions.close()"><i class="fa fa-times"></i>&nbsp;&nbsp;Close</button>
+                                    </div>
+                                </form><!-- finish -->
+                            </div>
+                        </div><!-- shipment forms -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

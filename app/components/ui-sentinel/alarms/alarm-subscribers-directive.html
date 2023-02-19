@@ -1,0 +1,142 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <a role="button" ng-click="alarmSubscribers.panel.toggle()">Subscribers</a>
+        <span class="pull-right text-right">
+            <a role="button" ng-click="alarmSubscribers.panel.toggle()">
+                <i class="fa fa-lg" ng-class="{'fa-caret-right': alarmSubscribers.panel.isCollapsed, 'fa-caret-down': !alarmSubscribers.panel.isCollapsed}" title="Expand"></i>
+            </a>
+        </span>
+        <span class="pull-right text-right" ng-show="!alarmSubscribers.panel.isCollapsed"><a role="button" ng-click="alarmSubscribers.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+    </div>
+    <div ng-class="{'collapse': alarmSubscribers.panel.isCollapsed}">
+        <div class="panel-body">
+            <div class="row" style="margin-top: 3px;">
+                <div class="col-sm-8" ng-if="alarmSubscribers.hasPermission.toChange">
+                    <ul class="nav nav-pills">
+                        <li>
+                            <button class="btn btn-default" type="button" title="Finished adding subscribers"
+                                    ng-show="alarmSubscribers.mode.isAdding"
+                                    ng-click="alarmSubscribers.actions.endAdd()">
+                                <i class="fa fa-reply"></i>&nbsp;Finished
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Finished removing subscribers"
+                                    ng-show="alarmSubscribers.mode.isRemoving"
+                                    ng-click="alarmSubscribers.actions.endRemove()">
+                                <i class="fa fa-reply"></i>&nbsp;Finished
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Assign subscribers to the alarm"
+                                    ng-hide="alarmSubscribers.mode.isAdding || alarmSubscribers.mode.isRemoving"
+                                    ng-click="alarmSubscribers.actions.beginAdd()">
+                                <i class="fa fa-plus"></i>&nbsp;Add..
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Remove subscribers from the alarm"
+                                    ng-show="!alarmSubscribers.mode.isAdding && !alarmSubscribers.mode.isRemoving && alarmSubscribers.contacts.assigned.length > 0"
+                                    ng-click="alarmSubscribers.actions.beginRemove()">
+                                <i class="fa fa-minus"></i>&nbsp;Remove..
+                            </button>
+                        </li>
+                    </ul>
+                    <br/><br/>
+                </div>
+            </div><!--nav pills-->
+            <div class="row" ng-if="!alarmSubscribers.mode.isAdding && !alarmSubscribers.mode.isRemoving">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="20">#</th>
+                                    <th width="300">Name</th>
+                                    <th>Email</th>
+                                    <th>Sms Email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-show="alarmSubscribers.contacts.assigned.length != 0" ng-repeat="contact in alarmSubscribers.contacts.assigned | orderBy: ['lastname', 'firstname']">
+                                    <td width="20">{{ $index + 1 }}</td>
+                                    <td width="300"><a role="button" ng-click="alarmSubscribers.actions.goToContact(contact)">{{ contact.lastname}}, {{ contact.firstname}}</a></td>
+                                    <td>{{ contact.emailAddress}}</td>
+                                    <td>{{ contact.smsAddress}}</td>
+                                </tr>
+                                <tr ng-show="alarmSubscribers.contacts.assigned.length === 0" class="warning">
+                                    <td></td>
+                                    <td colspan="3">There are no subscribers assigned to this alarm</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div><!--assigned devices-->
+            <div class="row" ng-if="alarmSubscribers.mode.isAdding">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="20"></th>
+                                    <th width="300">Name</th>
+                                    <th>Email</th>
+                                    <th>Sms Email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-show="alarmSubscribers.contacts.available.length != 0" ng-repeat="contact in alarmSubscribers.contacts.available | orderBy: ['lastname', 'firstname']">
+                                    <td width="20">
+                                        <button class="btn btn-default btn-xs" type="button" ng-click="alarmSubscribers.actions.add(contact)" title="Add {{ contact.lastname}}, {{ contact.firstname}}"  ng-show="!contact.isAdded">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </td>
+                                    <td width="300"><a role="button" ng-click="alarmSubscribers.actions.goToContact(contact)">{{ contact.lastname}}, {{ contact.firstname}}</a></td>
+                                    <td>{{ contact.emailAddress}}</td>
+                                    <td>{{ contact.smsAddress}}</td>
+                                </tr>
+                                <tr ng-show="alarmSubscribers.contacts.available.length === 0" class="warning">
+                                    <td width="20">&nbsp;</td>
+                                    <td colspan="3">There are no available contacts to assign to this alarm</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div><!--available contacts-->
+            <div class="row" ng-if="alarmSubscribers.mode.isRemoving">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="20"></th>
+                                    <th width="300">Name</th>
+                                    <th>Email</th>
+                                    <th>Sms Email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-show="alarmSubscribers.contacts.removable.length != 0" ng-repeat="contact in alarmSubscribers.contacts.removable | orderBy: ['lastname', 'firstname']">
+                                    <td width="20">
+                                        <button class="btn btn-default btn-xs" type="button" ng-click="alarmSubscribers.actions.remove(contact)" title="Remove {{ contact.lastname}}, {{ contact.firstname}}"  ng-show="!contact.isRemoved">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                    </td>
+                                    <td width="300"><a role="button" ng-click="alarmSubscribers.actions.goToContact(contact)">{{ contact.lastname}}, {{ contact.firstname}}</a></td>
+                                    <td>{{ contact.emailAddress}}</td>
+                                    <td>{{ contact.smsAddress}}</td>
+                                </tr>
+                                <tr ng-show="alarmSubscribers.contacts.removable.length === 0" class="warning">
+                                    <td width="20">&nbsp;</td>
+                                    <td colspan="3">There are no subscribers to remove from this alarm</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div><!--removable contacts-->
+        </div>
+    </div>
+</div>

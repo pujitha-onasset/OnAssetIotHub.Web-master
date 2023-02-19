@@ -1,0 +1,137 @@
+<div ng-controller="SightingsForReportController as sightingsForReportUi">
+    <br/>
+    <div ng-if="sightingsForReportUi.errorMessage" class="alert alert-danger">{{ sightingsForReportUi.errorMessage }}</div>
+    <div class="row">
+        <div class="col-sm-2">
+            <br/>
+            <div class="panel panel-default">
+                <div class="panel-heading">Sentry Report Data</div>
+                <div class="panel-body" ng-show="sightingsForReportUi.previousReport || sightingsForReportUi.nextReport">
+                    <button id="btn-details-select-prev" class="btn btn-default btn-sm" title="Select previous report"
+                            ng-disabled="!sightingsForReportUi.previousReport"
+                            ng-click="sightingsForReportUi.gotoSightingsForReport(sightingsForReportUi.previousReport)">
+                        <i class="fa fa-chevron-left"></i>&nbsp;&nbsp;Prev
+                    </button>
+                    <button id="btn-details-select-next" class="btn btn-default btn-sm pull-right" title="Select next report"
+                            ng-disabled="!sightingsForReportUi.nextReport"
+                            ng-click="sightingsForReportUi.gotoSightingsForReport(sightingsForReportUi.nextReport)">
+                        Next&nbsp;&nbsp;<i class="fa fa-chevron-right"></i>
+                    </button>
+                </div>
+                <table class="table table-condensed">
+                    <tr><td><strong>Imei</strong><span class="pull-right">{{ sightingsForReportUi.report.imei }}</span></td></tr>
+                    <tr><td><strong>Time of Report</strong><span class="pull-right" local-datetime utc-datetime="{{sightingsForReportUi.report.timeOfReport}}" date-format="L" time-format="LTS"></span></td></tr>
+                    <tr><td><strong>Time of Receipt</strong><span class="pull-right" local-datetime utc-datetime="{{sightingsForReportUi.report.timeOfReceipt}}" date-format="L" time-format="LTS"></span></td></tr>
+                    <tr><td><strong>Battery</strong><span class="pull-right">{{ sightingsForReportUi.report.battery }}%</span></td></tr>
+                    <tr><td><strong>Light</strong><span class="pull-right">{{ sightingsForReportUi.report.lightValue }} lux</span></td></tr>
+                    <tr><td><strong>Location Method</strong><span class="pull-right">{{ sightingsForReportUi.report.locationMethod | locationMethod: sightingsForReportUi.report.latitude:sightingsForReportUi.report.longitude }}</span></td></tr>
+                    <tr ng-if="sightingsForReportUi.report.latitude">
+                        <td>
+                            <strong>Location (Lat Lng)</strong>
+                            <span class="pull-right text-right">{{ sightingsForReportUi.report.latitude }}<br/>{{ sightingsForReportUi.report.longitude }}</span>
+                        </td>
+                    </tr>
+                    <tr><td><strong>Motion</strong><span class="pull-right">{{  sightingsForReportUi.report.isMotionDetected || sightingsForReportUi.report.isVibrationDetected ? 'Detected' : 'Not detected' }}</span></td></tr>
+                    <tr><td><strong>Pressure</strong><span class="pull-right">{{ sightingsForReportUi.report.pressureValue }} kPa</span></td></tr>
+                    <!--<tr><td><strong>Reporting Interval</strong><span class="pull-right">{{ deviceTrackingMap.secondsService.format(sightingsForReportUi.report.reportInterval) }}</span></td></tr>-->
+                    <tr><td><strong>Shock</strong><span class="pull-right text-right">{{ sightingsForReportUi.report.isShockExceeded ? sightingsForReportUi.report.shockMagnitude  + 'g' : 'Not detected' }}<br/>{{ sightingsForReportUi.report.isShockExceeded ? '(' + sightingsForReportUi.report.shockX + ', ' + sightingsForReportUi.report.shockY + ', ' + sightingsForReportUi.report.shockZ + ')' : null}}</span></td></tr>
+                    <tr><td><strong>Sightings</strong><span class="pull-right text-right">{{ sightingsForReportUi.report.countOfSightings }}</span></td></tr>
+                    <tr><td><strong>Temperature</strong><span class="pull-right">{{ sightingsForReportUi.report.temperatureValueC }}&deg;C<br/>{{ sightingsForReportUi.report.temperatureValueF }}&deg;F</span></td></tr>
+                </table>
+            </div>
+            <!--<button class="btn btn-default" type="button" ng-click="sightingsForReportUi.gotoSightingsByDevice(sightingsForReportUi.report)">Sightings by this Sentry</button>-->
+        </div>
+        <div class="col-sm-10">
+            <div class="col-sm-12" ng-hide="(sightingsForReportUi.report.locationMethod | locationMethod: sightingsForReportUi.report.latitude:sightingsForReportUi.report.longitude)  === 'None'">
+                <div id="sightingsMap" class="sightings-map"></div>
+            </div>
+            <br/>
+            <nav class="pull-right" aria-label="Page navigation" ng-show="sightingsForReportUi.totalPages > 1">
+                <ul class="pagination">
+                    <li ng-class="{'disabled': sightingsForReportUi.page === 1}"><a role="button" aria-label="Previous" ng-click="sightingsForReportUi.previous();"><span aria-hidden="true">&laquo;</span></a></li>
+                    <li ng-repeat="n in sightingsForReportUi.pageArray" ng-class="{'active': n === sightingsForReportUi.page}"><a role="button" ng-click="sightingsForReportUi.gotoPage(n);" aria-label="Page {{n}}"><span aria-hidden="true">{{n}}</span></a></li>
+                    <li ng-class="{'disabled': sightingsForReportUi.page === sightingsForReportUi.totalPages}"><a role="button" aria-label="Next" ng-click="sightingsForReportUi.next();"><span aria-hidden="true">&raquo;</span></a></li>
+                </ul>
+            </nav>
+            <div style="text-align: center;">
+                 <export-table-to file-name="Reports" table-id-to-export="reportsTableList"></export-table-to>
+            </div>
+
+            <table class="table table-striped" id="reportsTableList">
+                <thead>
+                <tr>
+                    <th width="20">#</th>
+                    <th>Sentinel</th>
+                    <th>Beacon Type</th>
+                    <th>Battery (%)</th>
+                    <th>Battery (V)</th>
+                    <th>DewPoint (&deg;C)</th>
+                    <th>DewPoint (&deg;F)</th>
+                    <th>Humidity (%)</th>
+                    <th>Light (lux)</th>
+                    <th>Rssi (db)</th>
+                    <th>Internal Temp (&deg;C)</th>
+                    <th>Internal Temp (&deg;F)</th>
+                    <th>Temp probe 1 (&deg;C)</th>
+                    <th>Temp probe 1 (&deg;F)</th>
+                    <th>Temp probe 2 (&deg;C)</th>
+                    <th>Temp ṕrobe 2 (&deg;F)</th>
+                    <th>Shock Magnitude</th>
+                    <th>Shock Elapsed Time</th>
+                    <th>Shock X</th>
+                    <th>Shock Y</th>
+                    <th>Shock Z</th>
+                    <th>Tilt X</th>
+                    <th>Tilt Y</th>
+                    <th>Tilt Z</th>
+                    <th>First Seen Timestamp</th>
+                    <th>Last Seen Timestamp</th>
+                  
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-show="sightingsForReportUi.list.length === 0" class="warning noExport">
+                    <td></td>
+                    <td colspan="16">There are no records</td>
+                </tr>
+                <tr ng-show="sightingsForReportUi.error" class="danger noExport">
+                    <td></td>
+                    <td colspan="10">Not authorized to view the data for this Sentry</td>
+                </tr>
+                <tr ng-show="sightingsForReportUi.list.length != 0" ng-repeat="item in sightingsForReportUi.list">
+                    <td width="20">{{ (sightingsForReportUi.page > 1) ? ((sightingsForReportUi.page - 1) * sightingsForReportUi.itemsPerPage) + $index + 1 : $index + 1 }}</td>
+                    <td><span ng-if="!item.sentinelFriendlyName">{{item.sightingId}}</span>
+                        <span ng-if="item.sentinelFriendlyName">{{ item.sentinelFriendlyName }}<br/><small>[{{ item.sightingId }}]</small></span></td>
+                    <td>{{ item.beaconType }}</td>
+                    <td>{{ item.batteryVoltage | batteryPercentage }}</td>
+                    <td>{{ item.batteryVoltage }}</td>
+                    <td>{{ item.dewPointC }}</td>
+                    <td>{{ item.dewPointF}}</td>
+                    <td>{{ item.humidity}}</td>
+                    <td>{{ item.lightValue}}</td>
+                    <td>{{ item.rssi }}</td>
+                    <td>{{ item.temperatureValueC }}</td>
+                    <td>{{ item.temperatureValueF}}</td>
+                    <td>{{ item.externalTemperatureC }}</td>
+                    <td>{{ item.externalTemperatureF }}</td>
+                    <td>{{ item.externalTemperatureC_2 }}</td>
+                    <td>{{ item.externalTemperatureF_2 }}</td>
+                    <td>{{ item.shockMagnitude}}</td>
+                    <td>{{ item.shockElapsedTime}}</td>
+                    <td>{{ item.shockX}}</td>
+                    <td>{{ item.shockY}}</td>
+                    <td>{{ item.shockZ}}</td>
+                    <td>{{ item.tiltX}}</td>
+                    <td>{{ item.tiltY}}</td>
+                    <td>{{ item.tiltZ}}</td>
+                    <td><span local-datetime utc-datetime="{{ item.firstSeenTimestamp }}" date-format="L" time-format="LTS"></span></td>
+                    <td><span local-datetime utc-datetime="{{ item.lastSeenTimestamp }}" date-format="L" time-format="LTS"></span></td>
+                   
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

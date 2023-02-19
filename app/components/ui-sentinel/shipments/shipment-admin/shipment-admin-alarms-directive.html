@@ -1,0 +1,159 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <a role="button" ng-click="shipmentAdminAlarms.panel.toggle()">Alarms</a>
+        <span class="pull-right text-right"><a role="button" ng-click="shipmentAdminAlarms.panel.toggle()"><i class="fa fa-lg" ng-class="{'fa-caret-right': shipmentAdminAlarms.panel.isCollapsed, 'fa-caret-down': !shipmentAdminAlarms.panel.isCollapsed}" title="Expand"></i></a></span>
+        <span class="pull-right text-right" ng-show="!shipmentAdminAlarms.panel.isCollapsed"><a role="button" ng-click="shipmentAdminAlarms.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+    </div>
+    <div ng-class="{'collapse': shipmentAdminAlarms.panel.isCollapsed}">
+        <div class="panel-body">
+            <div class="row" style="margin-top: 3px;">
+                <div class="col-sm-8" ng-if="shipmentAdminAlarms.hasPermission.toChange">
+                    <ul class="nav nav-pills">
+                        <li>
+                            <button class="btn btn-default" type="button" title="Finish adding alarms"
+                                    ng-show="shipmentAdminAlarms.mode.isAdding"
+                                    ng-click="shipmentAdminAlarms.actions.endAdd()">
+                                <i class="fa fa-reply"></i>&nbsp;Finished
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Finish removing alarms"
+                                    ng-show="shipmentAdminAlarms.mode.isRemoving"
+                                    ng-click="shipmentAdminAlarms.actions.endRemove()">
+                                <i class="fa fa-reply"></i>&nbsp;Finished
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Add a shipment alarm"
+                                    ng-hide="shipmentAdminAlarms.mode.isAdding || shipmentAdminAlarms.mode.isRemoving || !shipmentAdminAlarms.editor.canEdit"
+                                    ng-click="shipmentAdminAlarms.actions.beginAdd()">
+                                <i class="fa fa-plus"></i>&nbsp;Add..
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Remove alarms from shipment"
+                                    ng-hide="shipmentAdminAlarms.assignedAlarms.length === 0 || shipmentAdminAlarms.mode.isAdding || shipmentAdminAlarms.mode.isRemoving  || !shipmentAdminAlarms.editor.canEdit"
+                                    ng-click="shipmentAdminAlarms.actions.beginRemove()">
+                                <i class="fa fa-minus"></i>&nbsp;Remove..
+                            </button>
+                        </li>
+                    </ul>
+                    <br/>
+                    <br/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="table-responsive" ng-show="!shipmentAdminAlarms.mode.isAdding && !shipmentAdminAlarms.mode.isRemoving">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th width="20">#</th>
+                                <th width="300">Alarm name</th>
+                                <th width="150">Severity</th>
+                                <th width="150" class="text-center">Alarm Type</th>
+                                <th width="150" class="text-center">Email Frequency</th>
+                                <th width="150" class="text-center">Sms Frequency</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-show="shipmentAdminAlarms.assignedAlarms.length != 0" ng-repeat="alarm in shipmentAdminAlarms.assignedAlarms">
+                                <td width="20">{{ $index + 1 }}</td>
+                                <td width="300"><a role="button" ng-click="shipmentAdminAlarms.actions.goToAlarm(alarm.alarmId)">{{ alarm.alarmName }}</a></td>
+                                <td width="150">
+                                        <span class="{{ alarm.isShowAsRedDot ? 'text-danger' : 'text-info' }}">
+                                            <i class="fa {{alarm.isShowAsRedDot ? 'fa-exclamation-circle' : 'fa-info-circle' }} fa-lg" title="{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}"></i>
+                                            &nbsp;{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}
+                                        </span>
+                                </td>
+                                <td width="150" class="text-center"><i class="fa {{ alarm.alarmType == 'shipment' ? 'fa-truck' : alarm.alarmType == 'device' ? 'fa-hdd-o' : 'fa-chain-broken' }}"></i> {{ alarm.isActiveOnShipmentOnly ? 'Shipment' : alarm.isSeparationAlarm ? 'Separation' : 'Device' }}</td>
+                                <td width="150" class="text-center">{{ alarm.emailFrequency }}</td>
+                                <td width="150" class="text-center">{{ alarm.smsFrequency }}</td>
+                            </tr>
+                            <tr ng-show="shipmentAdminAlarms.assignedAlarms.length === 0" class="warning">
+                                <td></td>
+                                <td colspan="5">There are no shipping alarms assigned to this shipment</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-responsive" ng-show="shipmentAdminAlarms.mode.isAdding">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th width="20"></th>
+                                <th width="300">Alarm name</th>
+                                <th width="150">Severity</th>
+                                <th width="150" class="text-center">Alarm Type</th>
+                                <th width="150" class="text-center">Email Frequency</th>
+                                <th width="150" class="text-center">Sms Frequency</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-show="shipmentAdminAlarms.availableAlarms.length != 0" ng-repeat="alarm in shipmentAdminAlarms.availableAlarms">
+                                <td>
+                                    <button class="btn btn-default btn-xs" type="button" ng-click="shipmentAdminAlarms.actions.addAlarm(alarm)" title="Add {{alarm.alarmName}}"  ng-show="!alarm.isAdded">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </td>
+                                <td width="300"><a role="button" ng-click="shipmentAdminAlarms.actions.goToAlarm(alarm.alarmId)">{{ alarm.alarmName }}</a></td>
+                                <td width="150">
+                                        <span class="{{ alarm.isShowAsRedDot ? 'text-danger' : 'text-info' }}">
+                                            <i class="fa {{alarm.isShowAsRedDot ? 'fa-exclamation-circle' : 'fa-info-circle' }} fa-lg" title="{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}"></i>
+                                            &nbsp;{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}
+                                        </span>
+                                </td>
+                                <td width="150" class="text-center"><i class="fa {{ alarm.alarmType == 'shipment' ? 'fa-truck' : alarm.alarmType == 'device' ? 'fa-hdd-o' : 'fa-chain-broken' }}"></i> {{ alarm.isActiveOnShipmentOnly ? 'Shipment' : alarm.isSeparationAlarm ? 'Separation' : 'Device' }}</td>
+                                <td width="150" class="text-center">{{ alarm.emailFrequency }}</td>
+                                <td width="150" class="text-center">{{ alarm.smsFrequency }}</td>
+                            </tr>
+                            <tr ng-show="shipmentAdminAlarms.availableAlarms.length === 0" class="warning">
+                                <td></td>
+                                <td colspan="5">There are no shipping alarms available to add</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-responsive" ng-show="shipmentAdminAlarms.mode.isRemoving">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th width="20"></th>
+                                <th width="300">Alarm name</th>
+                                <th width="150">Severity</th>
+                                <th width="150" class="text-center">Alarm Type</th>
+                                <th width="150" class="text-center">Email Frequency</th>
+                                <th width="150" class="text-center">Sms Frequency</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-show="shipmentAdminAlarms.assignedAlarms.length != 0" ng-repeat="alarm in shipmentAdminAlarms.assignedAlarms">
+                                <td>
+                                    <button class="btn btn-default btn-xs" type="button" ng-click="shipmentAdminAlarms.actions.removeAlarm(alarm)" title="Remove {{alarm.alarmName}}"   ng-show="!alarm.isRemoved">
+                                        <i class="fa fa-minus"></i>
+                                    </button>
+                                </td>
+                                <td width="300"><a role="button" ng-click="shipmentAdminAlarms.actions.goToAlarm(alarm.alarmId)">{{ alarm.alarmName }}</a></td>
+                                <td width="150">
+                                        <span class="{{ alarm.isShowAsRedDot ? 'text-danger' : 'text-info' }}">
+                                            <i class="fa {{alarm.isShowAsRedDot ? 'fa-exclamation-circle' : 'fa-info-circle' }} fa-lg" title="{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}"></i>
+                                            &nbsp;{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}
+                                        </span>
+                                </td>
+                                <td width="150" class="text-center"><i class="fa {{ alarm.alarmType == 'shipment' ? 'fa-truck' : alarm.alarmType == 'device' ? 'fa-hdd-o' : 'fa-chain-broken' }}"></i> {{ alarm.isActiveOnShipmentOnly ? 'Shipment' : alarm.isSeparationAlarm ? 'Separation' : 'Device' }}</td>
+                                <td width="150" class="text-center">{{ alarm.emailFrequency }}</td>
+                                <td width="150" class="text-center">{{ alarm.smsFrequency }}</td>
+                            </tr>
+                            <tr ng-show="shipmentAdminAlarms.assignedAlarms.length === 0" class="warning">
+                                <td></td>
+                                <td width="20">&nbsp;</td>
+                                <td colspan="5">This device is not assigned to any shipping alarms</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

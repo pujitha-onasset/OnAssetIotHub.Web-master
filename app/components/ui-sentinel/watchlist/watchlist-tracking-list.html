@@ -1,0 +1,79 @@
+<div ng-controller="WatchlistTrackingListController as watchlistTrackingList">
+    <div watchlist-tracking-filterbar></div>
+    <div class="row" >
+        <div class="col-sm-12">
+            <div watchlist-report-column-selector></div>
+            <div class="table-responsive">
+                <div style="text-align: center;">
+                    <export-table-to file-name="Reports" table-id-to-export="reportsTableList"></export-table-to>
+                </div>
+                <table class="table table-hover" id="reportsTableList">
+                    <thead>
+                    <tr>
+                        <th width="10">#</th>
+                        <th width="10" class="noExport">Sev</th>
+                        <th>Device</th>
+                        <th class="text-center" ng-if="watchlistTrackingList.columns.age">Age</th>
+                        <th class="text-center" ng-if="watchlistTrackingList.columns.messageTimeStamp">Datetime</th>
+                        <th class="text-center" ng-if="watchlistTrackingList.columns.serverTimeStamp">Datetime Received</th>
+                        <th class="text-center" ng-if="watchlistTrackingList.columns.battery">Battery (%)</th>
+                        <th class="text-center" ng-if="watchlistTrackingList.columns.isButtonPushed">Button Pushed</th>
+                        <th class="text-center" ng-if="watchlistTrackingList.columns.light">Light (lux)</th>
+                        <th class="text-center" ng-if="watchlistTrackingList.columns.humidity">Humidity (%)</th>
+                        <th class="text-center" ng-if="watchlistTrackingList.columns.isMotionDetected">Motion</th>
+                        <th class="text-center" ng-if="watchlistTrackingList.columns.pressure">Pressure (kPa)</th>
+                        <th class="text-center" ng-if="watchlistTrackingList.columns.shockMagnitude">Shock (g)</th>
+                        <th class="text-center" ng-if="watchlistTrackingList.columns.shockXYZ">Shock (x, y, z)</th>
+                        <th class="text-center" ng-if="watchlistTrackingList.columns.temperatureC">Temp (&deg;C)</th>
+                        <th class="text-center" ng-if="watchlistTrackingList.columns.temperatureF">Temp (&deg;F)</th>
+                        <th class="text-center" ng-if="watchlistTrackingList.columns.communicationType">Comm Type</th>
+                        <th class="text-center" ng-if="watchlistTrackingList.columns.signalQuality">Signal (db)</th>
+                        <th class="text-center" ng-if="watchlistTrackingList.columns.locationMethod">Loc Method</th>
+                        <th class="text-center" ng-if="watchlistTrackingList.columns.latLng">Lat/Lng</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="watchlistTrackingList.reportsService.reports.length === 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="{{ watchlistTrackingList.columns.count + 4 }}">There are no device reports for this date range</td>
+                    </tr>
+                    <tr ng-show="watchlistTrackingList.reportsService.reports.length > 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="{{ watchlistTrackingList.columns.count + 4 }}">Showing {{ watchlistTrackingList.filterService.filteredReports.length }} / {{ watchlistTrackingList.reportsService.reports.length }} reports</td>
+                    </tr>
+                    <tr ng-show="watchlistTrackingList.reportsService.reports.length != 0"
+                        ng-repeat="report in watchlistTrackingList.filterService.filteredReports = (watchlistTrackingList.reportsService.reports | filter: watchlistTrackingList.filterService.filter)"
+                        ng-class="{'text-danger': report.severity === 'warning', 'text-info': report.severity === 'info', 'text-ok': report.severity === 'ok', 'selected-report': watchlistTrackingList.selectedGuid === report.sentinelLogDataId}">
+                        <td width="10">{{ $index + 1 }}</td>
+                        <td width="10" class="noExport">
+                            <a data-map-icon-image style="border: none;" role="button" ng-click="watchlistTrackingList.selectReport(report)" data-severity="{{report.severity}}" data-beacon-type="{{report.beaconType}}" data-location-method="{{report.locationMethod | locationMethod: report.latitude:report.longitude}}" selected="{{ watchlistTrackingList.selectedGuid === report.reportGuid }}"></a>
+                        </td>
+                        <td>
+                            {{ report.anchorSightingId != '0000000000000000'?report.anchorSightingId:report.sentinelId }}
+                        </td>
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.age"><span time-from-now utc-datetime="{{report.messageTimeStamp}}"></span></td>
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.messageTimeStamp"><span local-datetime utc-datetime="{{report.messageTimeStamp}}" date-format="L" time-format="LTS"></span></td>
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.serverTimeStamp"><span local-datetime utc-datetime="{{report.timeOfReceipt}}" date-format="L" time-format="LTS"></span></td>
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.reportGuid">{{ report.reportGuid }}</td>
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.sentinelLogDataId">{{ report.sentinelLogDataId }}</td>
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.battery">{{ report.batteryPercent }}</td>
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.isButtonPushed">{{ report.statusFlags_Button1State ? 'Yes' : 'No' }}</td>
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.light">{{ report.light }}</td>
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.humidity">{{ report.humidity }}</td>
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.isMotionDetected">{{ report.statusFlags_Button1State || report.statusFlags_Button1State ? 'Yes' : 'No' }}</td>
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.pressure">{{ report.pressure }}</td>
+                        <!--report.isShockExceeded ?-->
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.shockMagnitude">{{  report.shockMagnitude }}</td>
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.shockXYZ">{{  report.shockX + ', ' + report.shockY + ', ' + report.shockZ  }}</td>
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.temperatureC">{{ report.temperatureValueC }}</td>
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.temperatureF">{{ report.temperatureValueF }}</td>
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.signalQuality">{{ report.signal }}</td>
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.locationMethod">{{ report.locationMethod === 'CellTriangulation' ? 'Network' : report.locationMethod}}</td>
+                        <td class="text-center" ng-if="watchlistTrackingList.columns.latLng">{{ report.locationMethod ?  report.latitude + ', ' + report.longitude : '' }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

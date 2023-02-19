@@ -1,0 +1,145 @@
+<div ng-controller="AlarmAdminController as alarmAdmin">
+    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row" ng-hide="alarmAdmin.isNew" style="margin-top: 3px;" ng-if="alarmAdmin.hasPermission.toChange">
+                        <div class="col-sm-8">
+                            <ul class="nav nav-pills" ng-cloak>
+                                <li>
+                                    <!--<button class="btn btn-default" type="button" title="Copy">-->
+                                        <!--<i class="fa fa-copy"></i> Copy-->
+                                    <!--</button>-->
+                                    <button class="btn btn-default" type="button" title="Delete" ng-click="alarmAdmin.actions.beginRemove()"
+                                            ng-if="alarmAdmin.hasPermission.toDelete" ng-hide="alarmAdmin.isRemoving">
+                                        <i class="fa fa-trash"></i> Delete
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="Yes" ng-click="alarmAdmin.actions.remove()"
+                                            ng-if="alarmAdmin.hasPermission.toDelete" ng-show="alarmAdmin.isRemoving">
+                                        <i class="fa fa-check"></i> Yes
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="No" ng-click="alarmAdmin.actions.cancelRemove()"
+                                            ng-if="alarmAdmin.hasPermission.toDelete" ng-show="alarmAdmin.isRemoving">
+                                        <i class="fa fa-ban"></i> No
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row" ng-show="alarmAdmin.isRemoving">
+                        <div class="col-sm-12">
+                            <br/>
+                            <br/>
+                            <p><i class="fa fa-question-circle fa-lg"></i>  Do you wish to delete <strong>{{ alarmAdmin.alarm.alarmName }}</strong>? </p>
+                        </div>
+                    </div>
+                    <div class="row"  ng-show="!alarmAdmin.isRemoving">
+                        <div class="col-sm-12">
+                            <br/>
+                            <br/>
+                            <div feedback></div>
+                            <form name="alarmAdminForm" id="alarmAdminForm" ng-submit="alarmAdmin.actions.submit()" novalidate>
+                                <div class="form-group" ng-class="{'has-error': !alarmAdmin.alarmName.isPristine && alarmAdmin.alarmName.hasError()}">
+                                    <label for="alarmName">Alarm name *</label>
+                                    <input type="text" class="form-control" id="alarmName" name="alarmName" placeholder="Enter a name for the alarm" maxlength="80" 
+                                        ng-model="alarmAdmin.alarmName.value" ng-readonly="!alarmAdmin.hasPermission.toChange" 
+                                        ng-change="alarmAdmin.alarmName.isPristine = true">
+                                    <p class="help-block text-right" ng-show="!alarmAdmin.alarmName.isPristine && alarmAdmin.alarmName.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Alarm name is required</p>
+                                    <p class="help-block text-right" ng-show="!alarmAdmin.alarmName.isPristine && alarmAdmin.alarmName.errors.isDuplicate"><i class="fa fa-exclamation-circle"></i>&nbsp;Alarm name already exists</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="description">Description</label>
+                                    <textarea class="form-control" id="description" name="description" ng-model="alarmAdmin.description.value"
+                                        ng-readonly="!alarmAdmin.hasPermission.toChange"
+                                        placeholder="Enter a description for this alarm (optional)" rows="3" maxlength="500"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="severity">Severity</label>
+                                    <select id="severity" class="form-control" ng-model="alarmAdmin.severity.value" ng-disabled="!alarmAdmin.hasPermission.toChange"
+                                        ng-change="alarmAdmin.severity.isPristine = true">
+                                        <option value="warning" ng-selected="alarmAdmin.severity.value === 'warning'">Warning</option>
+                                        <option value="info" ng-selected="alarmAdmin.severity.value === 'info'">Information</option>
+                                    </select>
+                                    <p class="help-block text-right" ng-show="!alarmAdmin.severity.isPristine && alarmAdmin.severity.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Severity is required</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="alarmType">Alarm type</label>
+                                    <select id="alarmType" class="form-control" ng-model="alarmAdmin.alarmType.value" ng-disabled="!alarmAdmin.hasPermission.toChange" 
+                                        ng-change="alarmAdmin.alarmType.isPristine = true">
+                                        <option value="device" ng-selected="alarmAdmin.alarmType.value === 'device'">Device alarm</option>
+                                        <option value="shipment" ng-selected="alarmAdmin.alarmType.value === 'shipment'">Shipment alarm</option>
+                                        <option value="separation" ng-selected="alarmAdmin.alarmType.value === 'separation'">Separation alarm</option>
+                                    </select>
+                                    <p class="help-block text-right" ng-show="!alarmAdmin.alarmType.isPristine && alarmAdmin.alarmType.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Alarm type is required</p>
+                                </div>
+                                <div class="form-group" ng-if="alarmAdmin.alarmType.value === 'device'">
+                                    <label>
+                                    <input type="checkbox" name="ActiveOnShipmentOnly" id="ActiveOnShipmentOnly"
+                                        ng-model="alarmAdmin.isActiveOnShipmentOnly"> Alarm Active only on shipment
+                                    </label>
+                                </div>
+                                <div class="form-group" ng-show="alarmAdmin.alarmType.value === 'separation'" ng-class="{'has-error': !alarmAdmin.alarmMisses.isPristine && alarmAdmin.alarmMisses.hasError()}">
+                                    <label for="alarmMisses">Number of misses</label>
+                                    <select id="alarmMisses" class="form-control" ng-model="alarmAdmin.alarmMisses.value" ng-disabled="!alarmAdmin.hasPermission.toChange" ng-change="alarmAdmin.alarmMisses.isPristine = true" ng-options="n for n in [1,2,3,4,5,6,7,8,9,10]"></select>
+                                    <p class="help-block text-right" ng-show="!alarmAdmin.alarmMisses.isPristine && alarmAdmin.alarmMisses.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Number of misses is required</p>
+                                </div>
+                                <div class="form-group" ng-class="{'has-error': !alarmAdmin.alarmEndPoint.isPristine && alarmAdmin.alarmEndPoint.hasError()}">
+                                    <label for="alarmEndPoint">Endpoint URL</label>
+                                    <input type="text" class="form-control" id="alarmEndPoint" name="alarmEndPoint" placeholder="Enter an endpoint for the alarm" ng-model="alarmAdmin.alarmEndPoint.value" ng-readonly="!alarmAdmin.hasPermission.toChange" ng-change="alarmAdmin.alarmEndPoint.isPristine = true">
+                                    <p ng-show="!alarmAdmin.alarmEndPoint.isPristine && alarmAdmin.alarmEndPoint.errors.isBadFormat" class="help-block text-right"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid endpoint URL is required</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="emailFreq">Email frequency</label>
+                                    <select id="emailFreq" class="form-control" ng-model="alarmAdmin.emailFrequency.value" ng-disabled="!alarmAdmin.hasPermission.toChange" 
+                                        ng-change="alarmAdmin.emailFrequency.isPristine = true">
+                                        <option value="Off" ng-selected="alarmAdmin.alarm.emailFrequency === 'Off'">Off</option>
+                                        <option value="EachReport" ng-selected="alarmAdmin.alarm.emailFrequency === 'EachReport'">EachReport</option>
+                                        <option value="FirstReport" ng-selected="alarmAdmin.alarm.emailFrequency === 'FirstReport'">FirstReport</option>
+                                        <option value="OncePerHour" ng-selected="alarmAdmin.alarm.emailFrequency === 'OncePerHour'">OncePerHour</option>
+                                        <option value="OncePer15Min" ng-selected="alarmAdmin.alarm.emailFrequency === 'OncePer15Min'">OncePer15Min</option>
+                                    </select>
+                                    <p class="help-block text-right" ng-show="!alarmAdmin.emailFrequency.isPristine && alarmAdmin.emailFrequency.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Email frequency is required</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="smsFreq">Sms frequency</label>
+                                    <select id="smsFreq" class="form-control" ng-model="alarmAdmin.smsFrequency.value" ng-disabled="!alarmAdmin.hasPermission.toChange"
+                                            ng-change="alarmAdmin.smsFrequency.isPristine = true">
+                                        <option value="Off" ng-selected="alarmAdmin.alarm.smsFrequency === 'Off'">Off</option>
+                                        <option value="EachReport" ng-selected="alarmAdmin.alarm.smsFrequency === 'EachReport'">EachReport</option>
+                                        <option value="FirstReport" ng-selected="alarmAdmin.alarm.smsFrequency === 'FirstReport'">FirstReport</option>
+                                        <option value="OncePerHour" ng-selected="alarmAdmin.alarm.smsFrequency === 'OncePerHour'">OncePerHour</option>
+                                        <option value="OncePer15Min" ng-selected="alarmAdmin.alarm.smsFrequency === 'OncePer15Min'">OncePer15Min</option>
+                                    </select>
+                                    <p class="help-block text-right" ng-show="!alarmAdmin.smsFrequency.isPristine && alarmAdmin.smsFrequency.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Sms frequency is required</p>
+                                </div>
+                                <div class="form-group">
+                                    <div class="pull-right">
+                                        <button type="submit" class="btn btn-default" ng-if="alarmAdmin.hasPermission.toChange"><i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                        <button type="button" class="btn btn-default" ng-click="alarmAdmin.actions.reset()" ng-if="alarmAdmin.hasPermission.toChange"><i class="fa fa-undo"></i>&nbsp;&nbsp;Reset</button>
+                                        <button type="button" class="btn btn-default" ng-click="alarmAdmin.actions.close()"><i class="fa fa-times"></i>&nbsp;&nbsp;Close</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" ng-if="!alarmAdmin.isNew" ng-show="!alarmAdmin.isRemoving &&  alarmAdmin.alarmType.value !== 'separation'">
+            <div alarm-conditions></div>
+        </div><!-- alarm conditions-->
+        <!--<div class="row" ng-if="!alarmAdmin.isNew" ng-show="!alarmAdmin.isRemoving &&  alarmAdmin.alarmType.value !== 'separation'">
+            <div alarm-actions></div>
+        </div>--><!-- alarm actions-->
+        <div class="row" ng-if="!alarmAdmin.isNew" ng-show="!alarmAdmin.isRemoving &&  alarmAdmin.alarmType.value !== 'separation' && alarmAdmin.alarmType.value !== 'shipment'" >
+            <div alarm-devices></div>
+        </div><!-- alarm devices-->
+        <div class="row" ng-if="!alarmAdmin.isNew" ng-show="!alarmAdmin.isRemoving">
+            <div alarm-subscribers></div>
+        </div><!-- alarm subscribers-->
+    </div>
+</div>

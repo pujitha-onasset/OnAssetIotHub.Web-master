@@ -1,0 +1,56 @@
+<div ng-controller="AssetDetailController as assetDetailTracking">
+    <br/>
+    <div class="row">
+         <div class="col-lg-9 col-lg-push-3 col-md-8 col-md-push-4">
+            <div id="assetMap" class="location-map"></div>
+        </div>
+        <div class="col-lg-3 col-lg-pull-9 col-md-4 col-md-pull-8" >
+            
+            <div class="panel panel-default panel-themed"><!-- device details -->
+                <div class="panel-heading">
+                    <strong> Asset Details</strong>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-condensed">
+                        <tr><td><strong>Name</strong><span class="pull-right">{{ assetDetailTracking.asset.assetName }}</span></td></tr>
+                        <tr><td><strong>Type</strong><span class="pull-right">{{ assetDetailTracking.asset.assetType }}</span></td></tr>
+                        <tr><td><strong>Device</strong><span class="pull-right">{{ assetDetailTracking.asset.sentinelId  }}</span></td></tr>
+                         <tr><td><strong>Manufacturer</strong><span class="pull-right">{{ assetDetailTracking.asset.manufacturer  }}</span></td></tr>
+                          <tr><td><strong>Manufacturer Date</strong><span class="pull-right">{{ assetDetailTracking.asset.manufacturerDate  }}</span></td></tr>
+                          <tr><td><strong>Notes</strong><span class="pull-right">{{ assetDetailTracking.asset.assetNotes  }}</span></td></tr>
+                          <tr><td><strong>Latitude</strong><span class="pull-right">{{ assetDetailTracking.asset.latitude  }}</span></td></tr>
+                          <tr><td><strong>Longitude</strong><span class="pull-right">{{ assetDetailTracking.asset.longitude  }}</span></td></tr>
+                          <tr><td><strong>Files</strong><br/>
+                          	<div class="previewData" ng-repeat="image in assetDetailTracking.imagesStored track by $index">
+                                <a href="{{image.url}}" data-lightbox="images-{{zoneDetailTracking.asset.id}}" ><img src="{{image.url}}"></img>
+                                </a>   
+                            </div>
+                          </td></tr>
+                    </table>
+                </div>
+    
+            </div>  
+
+            <div class="panel panel-default panel-themed"><!-- zone on -->
+                <div class="panel-heading">
+                    <strong> Zone </strong>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-condensed">
+                        <tr><td><strong>Name</strong><span class="pull-right">{{ assetDetailTracking.zone.zoneName }}</span></td></tr>
+                        <tr>
+                        <td><strong>Files</strong><br/>
+                            <div class="previewData" ng-repeat="image in assetDetailTracking.zone.imageUrls track by $index">
+                                <a href="{{image}}" data-lightbox="images-zone" ><img src="{{image}}"></img>
+                                </a>   
+                            </div>
+                          </td></tr>
+                    </table>
+                </div>
+    
+            </div>    
+        </div>
+    </div>
+  
+    
+</div>

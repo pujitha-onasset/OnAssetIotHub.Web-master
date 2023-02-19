@@ -1,0 +1,157 @@
+<div class="row">
+    <div class="col-sm-12">
+        <ul class="nav nav-pills">
+            <li role="presentation">
+                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    Change View <i class="fa fa-lg fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu">
+                    <li role="presentation"><a role="button" ng-click="deviceTrackingFilterbar.navToDeviceMap()" ng-hide="$state.current.name === 'device.map'">&nbsp;<i class="fa fa-map-o fa-fw"></i> Map view</a></li>
+                    <li role="presentation"><a role="button" ng-click="deviceTrackingFilterbar.navToDeviceReports()" ng-hide="$state.current.name === 'device.reports'">&nbsp;<i class="fa fa-table fa-fw"></i> Table view</a></li>
+                    <li role="presentation"><a role="button" ng-click="deviceTrackingFilterbar.navToDeviceSummary()" ng-hide="$state.current.name === 'device.summary'">&nbsp;<i class="fa fa-file-text-o fa-fw"></i> Sensor Report</a></li>
+                </ul>
+            </li>
+            <li role="presentation" class="pull-right"><a role="button" ng-click="deviceTrackingFilterbar.refresh()" title="Refresh page"><i class="fa fa-lg fa-refresh"></i></a></li>
+            <li role="presentation" class="pull-right">
+                <a role="button" ng-click="deviceTrackingFilterbar.toggleDateRangeForm()">
+                    Reports between {{ deviceTrackingFilterbar.fromDate.label }} and {{ deviceTrackingFilterbar.toDate.label }} <i class="fa fa-lg fa-caret-down"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+<nav class="navbar navbar-default" ng-show="deviceTrackingFilterbar.showDateRangeForm">
+    <form class="navbar-form" ng-submit="deviceTrackingFilterbar.submitDateRange()">
+        <div class="form-group" ng-class="{'has-error': deviceTrackingFilterbar.fromDate.error}">
+            <label>Load reports between&nbsp;&nbsp;</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="deviceTrackingFromDate" name="deviceTrackingFromDate"
+                       ng-model="deviceTrackingFilterbar.fromDate.date" ng-change="deviceTrackingFilterbar.fromDate.isPristine = true">
+                <span class="input-group-addon">@</span>
+                <input type="text" class="form-control" id="deviceTrackingFromTime" name="deviceTrackingFromTime"
+                       ng-model="deviceTrackingFilterbar.fromDate.time" ng-change="deviceTrackingFilterbar.fromDate.isPristine = true">
+            </div>
+        </div>
+        <div class="form-group" ng-class="{'has-error': deviceTrackingFilterbar.toDate.error}">
+            <label>&nbsp;&nbsp;and&nbsp;&nbsp;</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="deviceTrackingToDate" name="deviceTrackingToDate"
+                       ng-model="deviceTrackingFilterbar.toDate.date" ng-change="deviceTrackingFilterbar.toDate.isPristine = true">
+                <span class="input-group-addon">@</span>
+                <input type="text" class="form-control" id="deviceTrackingToTime" name="deviceTrackingToTime"
+                       ng-model="deviceTrackingFilterbar.toDate.time" ng-change="deviceTrackingFilterbar.toDate.isPristine = true">
+            </div>
+            <label>&nbsp;&nbsp;</label>
+        </div>
+        <button type="submit" class="btn btn-default navbar-btn">Submit</button>
+        <button type="button" class="btn btn-default navbar-btn" ng-click="deviceTrackingFilterbar.resetDateRange()">Reset</button>
+        <button type="button" class="btn btn-default navbar-btn" ng-click="deviceTrackingFilterbar.toggleDateRangeForm()">Cancel</button>
+    </form>
+    <p class="navbar-text" ng-show="deviceTrackingFilterbar.error"><span class="text-danger"><i class="fa fa-exclamation-circle"></i>&nbsp;{{ deviceTrackingFilterbar.error }}</span></p>
+</nav>
+<nav class="navbar navbar-default" ng-show="!deviceTrackingFilterbar.showDateRangeForm">
+    <form class="navbar-form navbar-left">
+        <input type="text" class="form-control" placeholder="Text filter.." ng-model="deviceTrackingFilterbar.filter.searchText">
+    </form>
+    <form class="navbar-form navbar-left">
+        <div class="btn-group" role="group">
+            <button role="button" class="btn btn-default" title="Toggle warning icons" id="btn-warning" ng-click="deviceTrackingFilterbar.toggleSeverity('warning')" ng-class="{'active': !deviceTrackingFilterbar.filter.showWarning}">
+                <img src="../img/warning-gps.png" height="20" ng-show="deviceTrackingFilterbar.filter.showWarning">
+                <img src="../img/warning-disabled.png" height="20" ng-show="!deviceTrackingFilterbar.filter.showWarning">
+                &nbsp;{{deviceTrackingFilterbar.filter.showWarning ? 'On' : 'Off'}}
+            </button>
+            <button role="button" class="btn btn-default" title="Toggle info icons" id="btn-info" ng-click="deviceTrackingFilterbar.toggleSeverity('info')" ng-class="{'active': !deviceTrackingFilterbar.filter.showInfo}">
+                <img src="../img/info-gps.png" height="20" ng-show="deviceTrackingFilterbar.filter.showInfo">
+                <img src="../img/info-disabled.png" height="20" ng-show="!deviceTrackingFilterbar.filter.showInfo">
+                &nbsp;{{deviceTrackingFilterbar.filter.showInfo ? 'On' : 'Off'}}
+            </button>
+            <button role="button" class="btn btn-default" title="Toggle ok icons" id="btn-ok" ng-click="deviceTrackingFilterbar.toggleSeverity('ok')" ng-class="{'active': !deviceTrackingFilterbar.filter.showOk}">
+                <img src="../img/ok-gps.png" height="20" ng-show="deviceTrackingFilterbar.filter.showOk">
+                <img src="../img/ok-disabled.png" height="20" ng-show="!deviceTrackingFilterbar.filter.showOk">
+                &nbsp;{{deviceTrackingFilterbar.filter.showOk ? 'On' : 'Off'}}
+            </button>
+        </div>
+    </form>
+    <form class="navbar-form navbar-left">
+        <div class="btn-group" role="group">
+            <button type="button" id="btn-property" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    title="Showing {{deviceTrackingFilterbar.filter.filterByPropertyName}} values on the timeline">
+                {{deviceTrackingFilterbar.filter.filterByPropertyName}}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.filterByBattery()">Battery (%)</a></li>
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.filterByDewPointC()">DewPoint (&deg;C)</a></li>
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.filterByDewPointF()">DewPoint (&deg;F)</a></li>
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.filterByHumidity()">Humidity (%)</a></li>
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.filterByLight()">Light (lux)</a></li>
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.filterByPressure()">Pressure (kPa)</a></li>
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.filterByShock()">Shock (g)</a></li>
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.filterByTemperatureC()">Temperature (&deg;C)</a></li>
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.filterByTemperatureF()">Temperature (&deg;F)</a></li>
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.filterByTempProbe1C()">Temperature Probe1 (&deg;C)</a></li>
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.filterByTempProbe1F()">Temperature Probe1 (&deg;F)</a></li>
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.filterByTempProbe2C()">Temperature Probe2 (&deg;C)</a></li>
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.filterByTempProbe2F()">Temperature Probe2 (&deg;F)</a></li>
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.filterByTilt()">Tilt (&deg;) </a></li>
+ 
+            </ul>
+        </div>
+        &nbsp;
+        <div class="btn-group" role="group">
+            <button type="button" id="btn-filter-option" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    title="Filter option">
+                values {{ deviceTrackingFilterbar.filter.range.filterOption !== 'none' ? deviceTrackingFilterbar.filter.range.filterOption : '' }}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.range.filterOption = 'none'">values</a></li>
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.range.filterOption = 'above'">values above</a></li>
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.range.filterOption = 'below'">values below</a></li>
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.range.filterOption = 'between'">values between</a></li>
+                <li><a role="button" ng-click="deviceTrackingFilterbar.filter.range.filterOption = 'outside'">values outside</a></li>
+            </ul>
+        </div>
+        &nbsp;
+        <span ng-show="deviceTrackingFilterbar.filter.range.filterOption === 'above'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="deviceTrackingFilterbar.filter.range.min"
+                       max="deviceTrackingFilterbar.filter.range.max"
+                       ng-model="deviceTrackingFilterbar.filter.range.above">
+                <span class="input-group-addon">{{deviceTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        <span ng-show="deviceTrackingFilterbar.filter.range.filterOption === 'below'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="deviceTrackingFilterbar.filter.range.min"
+                       max="deviceTrackingFilterbar.filter.range.max"
+                       ng-model="deviceTrackingFilterbar.filter.range.below">
+                <span class="input-group-addon">{{deviceTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        <span ng-show="deviceTrackingFilterbar.filter.range.filterOption === 'between' || deviceTrackingFilterbar.filter.range.filterOption === 'outside'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="deviceTrackingFilterbar.filter.range.min"
+                       max="deviceTrackingFilterbar.filter.range.max"
+                       ng-model="deviceTrackingFilterbar.filter.range.from">
+                <span class="input-group-addon">{{deviceTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+            &nbsp;&nbsp;and&nbsp;&nbsp;
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="deviceTrackingFilterbar.filter.range.min"
+                       max="deviceTrackingFilterbar.filter.range.max"
+                       ng-model="deviceTrackingFilterbar.filter.range.to">
+                <span class="input-group-addon">{{deviceTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        &nbsp;
+        <button role="button" id="btn-reset-property" class="btn btn-default" title="Reset filter values"
+                ng-click="deviceTrackingFilterbar.resetPropertyFilter()"
+                ng-show="deviceTrackingFilterbar.filter.range.filterOption !== 'none'">
+            <i class="fa fa-undo fa-lg"></i>
+        </button>
+
+    </form>
+</nav>

@@ -1,0 +1,76 @@
+<div ng-controller="DeviceGroupAdminController as deviceGroupAdmin">
+    <br/><br/>
+    <div feedback></div>
+    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row" ng-hide="deviceGroupAdmin.mode.isNew" style="margin-top: 3px;">
+                            <div class="col-sm-8" ng-if="deviceGroupAdmin.hasPermission.toDelete">
+                                <ul class="nav nav-pills" ng-cloak>
+                                    <li>
+                                        <button class="btn btn-default" type="button" title="Delete" ng-click="deviceGroupAdmin.actions.beginRemove()"
+                                            ng-show="!deviceGroupAdmin.mode.isRemoving">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="btn btn-default" type="button" title="Yes" ng-click="deviceGroupAdmin.actions.remove()"
+                                                ng-show="deviceGroupAdmin.mode.isRemoving">
+                                            <i class="fa fa-check"></i> Yes
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="btn btn-default" type="button" title="No" ng-click="deviceGroupAdmin.actions.endRemove()"
+                                                ng-show="deviceGroupAdmin.mode.isRemoving">
+                                            <i class="fa fa-ban"></i> No
+                                        </button>
+                                    </li>
+                                </ul>
+                                <br/>
+                                <br/>
+                            </div>
+                        </div>
+                        <div class="row" ng-show="deviceGroupAdmin.mode.isRemoving">
+                            <div class="col-sm-12">
+                                <p><i class="fa fa-question-circle fa-lg"></i>  Do you wish to delete <strong>{{ deviceGroupAdmin.deviceGroup.groupName }}</strong>? </p>
+                            </div>
+                        </div>
+                        <div class="row"  ng-show="!deviceGroupAdmin.mode.isRemoving">
+                            <div class="col-sm-12">
+                                <form name="groupForm" id="clientForm" ng-submit="deviceGroupAdmin.actions.submit()" novalidate>
+                                    <div class="form-group" ng-class="{'has-error': !deviceGroupAdmin.groupName.isPristine && deviceGroupAdmin.groupName.hasError()}">
+                                        <label for="groupName">Group name *</label>
+                                        <input type="text" class="form-control" id="groupName" name="groupName" placeholder="Enter a name for the group" maxlength="80"
+                                            ng-model="deviceGroupAdmin.groupName.value"
+                                            ng-readonly="!deviceGroupAdmin.hasPermission.toChange"
+                                            ng-change="deviceGroupAdmin.groupName.isPristine = true">
+                                        <p class="help-block text-right" ng-show="!deviceGroupAdmin.groupName.isPristine && deviceGroupAdmin.groupName.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A group name is required</p>
+                                        <p class="help-block text-right" ng-show="!deviceGroupAdmin.groupName.isPristine && deviceGroupAdmin.groupName.errors.isDuplicate">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;This group name already exists</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="pull-right">
+                                            <button type="submit" class="btn btn-default" ng-if="deviceGroupAdmin.hasPermission.toChange"><i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                            <button type="button" class="btn btn-default" ng-if="deviceGroupAdmin.hasPermission.toChange" ng-click="deviceGroupAdmin.actions.reset()"><i class="fa fa-undo"></i>&nbsp;&nbsp;Reset</button>
+                                            <button type="button" class="btn btn-default" ng-click="deviceGroupAdmin.actions.close()"><i class="fa fa-times"></i>&nbsp;&nbsp;Close</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!--form-->
+        <div class="row" ng-if="!deviceGroupAdmin.mode.isNew && !deviceGroupAdmin.mode.isRemoving">
+            <div devicegroup-devices></div>
+        </div><!--devices-->
+        <div class="row" ng-if="!deviceGroupAdmin.deviceGroup.isRootGroup && !deviceGroupAdmin.mode.isNew && !deviceGroupAdmin.mode.isRemoving">
+            <div devicegroup-forwarding></div>
+        </div><!--forwarding-->
+        <div class="row" ng-if="!deviceGroupAdmin.mode.isNew && !deviceGroupAdmin.mode.isRemoving">
+            <div></div>
+        </div><!--configuration-->
+    </div>
+</div>

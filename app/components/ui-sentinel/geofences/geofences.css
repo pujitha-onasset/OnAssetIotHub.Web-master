@@ -1,0 +1,33 @@
+.geofences-map {
+    height: 500px;
+    margin-top: 10px;
+    border: 2px solid #000;
+}
+
+.geofence-map {
+    height: 600px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border: 2px solid #000;
+}
+
+#geofenceTool {
+    margin-top: 20px;
+}
+
+#geofenceNavbar {
+    margin-top: 10px;
+    width: 100%
+}
+
+#drawPolygonHelpTool {
+    margin-top: 2px;
+    margin-right: 2px;
+    padding: 10px 15px;
+    background-color: rgb(248,248,248);
+    border: 1px solid;
+    border-radius: 3px;
+    font-size: larger;
+}
+
+

@@ -1,0 +1,94 @@
+<th><p class="form-control-static">{{shipmentStopRow.label}}</p></th>
+<th>
+    <select class="form-control" ng-model="shipmentStopRow.stop.type" ng-disabled="shipmentStopRow.isReadOnly()" ng-change="shipmentStopRow.actions.changeStopType()">
+        <option value="blank" ng-if="shipmentStopRow.isOptional()"></option>
+        <option value="address" ng-selected="shipmentStopRow.stop.type === 'address'">Address</option>
+        <option value="geofence" ng-selected="shipmentStopRow.stop.type === 'geofence'">Geofence</option>
+    </select>
+</th> 
+<td>
+    <div ng-if="shipmentStopRow.stop.type === 'address'"><!-- address selection -->
+        <div ng-show="!shipmentStopRow.stop.address.isChanging" ng-class="{'has-error': !shipmentStopRow.stop.address.isPristine && shipmentStopRow.stop.address.hasError() }">
+            <div class="input-group">
+                <input type="text" class="form-control" ng-model="shipmentStopRow.stop.address.value" readonly>
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" title="Change location" ng-disabled="shipmentStopRow.isReadOnly()" ng-click="shipmentStopRow.actions.clearLocation()"><i class="fa fa-fw fa-pencil"></i></button>
+                </span>
+            </div>
+            <p class="help-block text-right" ng-show="!shipmentStopRow.stop.address.isPristine && shipmentStopRow.stop.address.errors.isBlank">
+                <i class="fa fa-exclamation-circle"></i>&nbsp;An address is required
+            </p>
+            <!--<p class="help-block text-right" ng-show="!shipmentStopRow.stop.isPristine && shipmentStopRow.stop.isRoundTrip">-->
+                <!--<i class="fa fa-exclamation-circle"></i>&nbsp;The origin and destination cannot be the same-->
+            <!--</p>-->
+        </div>
+        <div ng-show="shipmentStopRow.stop.address.isChanging" class="form-group" ng-class="{'has-error': !shipmentStopRow.stop.locationSearch.isPristine && shipmentStopRow.stop.locationSearch.hasError() }">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search for a location..." ng-model="shipmentStopRow.stop.locationSearch.value" ng-change="shipmentStopRow.stop.locationSearch.isPristine = true">
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" title="Get address locations" ng-click="shipmentStopRow.actions.getLocations()"><i class="fa fa-fw fa-search"></i></button>
+                </span>
+            </div>
+            <p class="help-block text-right" ng-show="!shipmentStopRow.stop.locationSearch.isPristine && shipmentStopRow.stop.locationSearch.errors.isBlank">
+                <i class="fa fa-exclamation-circle"></i>&nbsp;An address is required
+            </p>
+            <p class="help-block text-right" ng-show="!shipmentStopRow.stop.locationSearch.isPristine && shipmentStopRow.stop.locationSearch.errors.isLocationMissing && shipmentStopRow.stop.locationSearch.availableLocations.length === 0">
+                <i class="fa fa-exclamation-circle"></i>&nbsp;Click <i class="fa fa-search"></i> to find locations for this address
+            </p>
+            <p class="help-block text-right" ng-show="!shipmentStopRow.stop.locationSearch.isPristine && shipmentStopRow.stop.locationSearch.errors.isLocationMissing && shipmentStopRow.stop.locationSearch.availableLocations.length > 0">
+                <i class="fa fa-exclamation-circle"></i>&nbsp;Click on one of the locations below
+            </p>
+            <p class="help-block text-right" ng-show="!shipmentStopRow.stop.locationSearch.isPristine && shipmentStopRow.stop.locationSearch.errors.hasZeroResults">
+                <i class="fa fa-exclamation-circle"></i>&nbsp;No locations could be found for your search
+            </p>
+            <ul class="list-unstyled">
+                <li ng-show="shipmentStopRow.stop.locationSearch.availableLocations.length > 0 && shipmentStopRow.stop.locationSearch.availableLocations.length <= shipmentStopRow.geofenceLimit"><i class="fa fa-info-circle"></i>&nbsp;Click a location to use for this stop</li>
+                <li ng-show="shipmentStopRow.stop.locationSearch.availableLocations.length > shipmentStopRow.geofenceLimit"><i class="fa fa-info-circle"></i>&nbsp;Only showing first {{shipmentStopRow.geofenceLimit}} matches.  If you don't see a location, enter a more specific address and try again</li>
+                <li ng-repeat="location in shipmentStopRow.stop.locationSearch.availableLocations | orderBy: 'formatted_address' | limitTo: shipmentStopRow.geofenceLimit">
+                    <a role="button" ng-click="shipmentStopRow.actions.selectLocation(location)">
+                        <strong>{{ location.formatted_address }}</strong>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div><!-- address selection -->
+    <div ng-if="shipmentStopRow.stop.type === 'geofence'"><!-- geofence selection -->
+        <div ng-show="!shipmentStopRow.stop.geofence.isChanging" ng-class="{'has-error': !shipmentStopRow.stop.geofence.isPristine && shipmentStopRow.stop.geofence.hasError() }">
+            <div class="input-group">
+                <input type="text" class="form-control" ng-model="shipmentStopRow.stop.geofence.name" readonly>
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" title="Change geofence" ng-disabled="shipmentStopRow.isReadOnly()" ng-click="shipmentStopRow.actions.clearGeofence()"><i class="fa fa-fw fa-pencil"></i></button>
+                </span>
+            </div>
+            <!--<p class="help-block text-right" ng-show="!shipmentStopRow.stop.isPristine && shipmentStopRow.stop.isRoundTrip">-->
+                <!--<i class="fa fa-exclamation-circle"></i>&nbsp;The origin and destination cannot be the same-->
+            <!--</p>-->
+        </div><!-- selected geofence -->
+        <div ng-show="shipmentStopRow.stop.geofence.isChanging" ng-class="{'has-error': !shipmentStopRow.stop.geofence.isPristine && shipmentStopRow.stop.geofence.hasError() }">
+            <input type="text" class="form-control" placeholder="Enter a geofence name or address information"
+                   ng-model="shipmentStopRow.geofenceFilterText" ng-change="shipmentStopRow.stop.geofence.isPristine = true">
+            <p class="help-block text-right" ng-show="!shipmentStopRow.stop.geofence.isPristine && shipmentStopRow.stop.geofence.errors.isBlank">
+                <i class="fa fa-exclamation-circle"></i>&nbsp;A geofence is required
+            </p>
+            <ul class="list-unstyled">
+                <li ng-show="shipmentStopRow.geofences.length <= shipmentStopRow.geofenceLimit"><i class="fa fa-info-circle"></i>&nbsp;Click a geofence to use</li>
+                <li ng-show="shipmentStopRow.geofences.length > shipmentStopRow.geofenceLimit"><i class="fa fa-info-circle"></i>&nbsp;Only showing first {{shipmentStopRow.geofenceLimit}} matches.  Use the filter to narrow your search and then click a geofence to use</li>
+                <li ng-repeat="geofence in shipmentStopRow.geofences | filter: shipmentStopRow.geofenceFilter | orderBy: 'name' | limitTo: shipmentStopRow.geofenceLimit">
+                    <a role="button" ng-click="shipmentStopRow.actions.selectGeofence(geofence)">
+                        <i class="fa fa-fw" title="{{ geofence.type === 'radius' ? 'This is a radial geofence' : 'This is a polygon geofence' }}"
+                           ng-class="{'fa-circle': geofence.type === 'radius', 'fa-stop': geofence.type === 'polygon' }"></i>
+                        &nbsp;<strong>{{ geofence.name }}</strong> (<small>{{geofence.address}}</small>)
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div><!-- geofence selection-->
+</td>
+<td>
+    <button type="button" class="btn btn-default"
+            ng-if="shipmentStopRow.isRemovable() && !shipmentStopRow.isReadOnly()"
+            ng-click="shipmentStopRow.actions.remove()">
+        <i class="fa fa-trash-o"></i>
+    </button>
+    &nbsp;
+</td>

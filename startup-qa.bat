@@ -1,0 +1,1 @@
+gulp deploy-and-run --apiurl='https://api-sentinel-gateway-qa.onasset.com' --gmapkey=AIzaSyDUF8PFzcPP3a1bJtQVJiYzZgsduRXv8xc

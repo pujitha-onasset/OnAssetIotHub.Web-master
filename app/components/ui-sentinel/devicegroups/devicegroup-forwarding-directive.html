@@ -1,0 +1,167 @@
+    <div class="panel panel-default">
+    <div class="panel-heading">
+        <a role="button" ng-click="devicegroupForwarding.panel.toggle()">Forwarding</a>
+        <span class="pull-right text-right"><a role="button" ng-click="devicegroupForwarding.panel.toggle()"><i class="fa fa-lg" ng-class="{'fa-caret-right': devicegroupForwarding.panel.isCollapsed, 'fa-caret-down': !devicegroupForwarding.panel.isCollapsed}" title="Expand"></i></a></span>
+        <span class="pull-right text-right" ng-show="!devicegroupForwarding.panel.isCollapsed"><a role="button" ng-click="devicegroupForwarding.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+    </div>
+    <div ng-class="{'collapse': devicegroupForwarding.panel.isCollapsed}">
+        <div class="panel-body">
+            <div class="row" style="margin-top: 3px;">
+                <div class="col-sm-8" ng-if="devicegroupForwarding.hasPermission.toAdd || devicegroupForwarding.hasPermission.toChange">
+                    <ul class="nav nav-pills">
+                        <li>
+                            <button class="btn btn-default" type="button" title="Add forwarding to this group"
+                                    ng-if="!devicegroupForwarding.forwardingConfig && devicegroupForwarding.hasPermission.toAdd"
+                                    ng-show="!devicegroupForwarding.mode.isAdding && !devicegroupForwarding.mode.isChanging"
+                                    ng-click="devicegroupForwarding.actions.beginAdd()">
+                                <i class="fa fa-plus"></i>&nbsp;Add..
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Change forwarding"
+                                    ng-if="devicegroupForwarding.forwardingConfig"
+                                    ng-show="!devicegroupForwarding.mode.isAdding && !devicegroupForwarding.mode.isChanging"
+                                    ng-click="devicegroupForwarding.actions.beginChange()">
+                                <i class="fa fa-pencil"></i>&nbsp;Change..
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Remove"
+                                    ng-if="devicegroupForwarding.forwardingConfig"
+                                    ng-show="!devicegroupForwarding.mode.isAdding && !devicegroupForwarding.mode.isChanging"
+                                    ng-click="devicegroupForwarding.actions.remove()">
+                                <i class="fa fa-trash"></i>&nbsp;Remove
+                            </button>
+                        </li>
+                    </ul>
+                    <br/>
+                    <br/>
+                </div>
+            </div>
+            <div class="row" ng-show="!devicegroupForwarding.forwardingConfig && !devicegroupForwarding.mode.isAdding && !devicegroupForwarding.mode.isChanging">
+                <div class="col-sm-12">
+                    <p>Forwarding is not set up for this group</p>
+                </div>
+            </div>
+            <div class="row" ng-show="devicegroupForwarding.forwardingConfig || devicegroupForwarding.mode.isAdding || devicegroupForwarding.mode.isChanging">
+                <div class="col-sm-12">
+                    <form name="devicegroupForwardingForm" id="devicegroupForwardingForm" ng-submit="devicegroupForwarding.actions.submit()">
+                        <div class="form-group" ng-class="{'has-error': !devicegroupForwarding.authMethod.isPristine && devicegroupForwarding.authMethod.hasError() }">
+                            <label for="authenticationMethod">Authentication method *</label>
+                            <select class="form-control" id="authenticationMethod" name="messageFormat"
+                                    ng-model="devicegroupForwarding.authMethod.value"
+                                    ng-readonly="!devicegroupForwarding.mode.isAdding && !devicegroupForwarding.mode.isChanging"
+                                    ng-disabled="!devicegroupForwarding.mode.isAdding && !devicegroupForwarding.mode.isChanging">
+                                <option value="OAuth" ng-selected="devicegroupForwarding.authMethod.value === 'OAuth'">OAuth Resource Owner (username/password)</option>
+                                <option value="OAuth CC" ng-selected="devicegroupForwarding.authMethod.value === 'OAuth CC'">OAuth Client Credentials (client id/client secret)</option>
+                                <option value="BasicAuth" ng-selected="devicegroupForwarding.authMethod.value === 'BasicAuth'">Basic HTTP Authentication (username/password)</option>
+                            </select>
+                            <p class="help-block text-right" ng-show="!devicegroupForwarding.authMethod.isPristine && devicegroupForwarding.authMethod.errors.isBlank">
+                                &nbsp;<i class="fa fa-exclamation-circle"></i>&nbsp;Authentication method is required
+                            </p>
+                        </div>
+                        <div class="form-group" ng-class="{'has-error': !devicegroupForwarding.authEndpoint.isPristine && devicegroupForwarding.authEndpoint.hasError() }"
+                             ng-show="devicegroupForwarding.authMethod.value !== 'BasicAuth'">
+                            <label for="authEndpoint">Authentication endpoint *</label>
+                            <input type="text" class="form-control" id="authEndpoint" name="authEndpoint" maxlength="2048"
+                                   placeholder="Enter the URL for getting a token, i.e. https://api.customer.com/token"
+                                   ng-model="devicegroupForwarding.authEndpoint.value"
+                                   ng-readonly="!devicegroupForwarding.mode.isAdding && !devicegroupForwarding.mode.isChanging">
+                            <p class="help-block text-right" ng-show="!devicegroupForwarding.authEndpoint.isPristine && devicegroupForwarding.authEndpoint.errors.isBlank">
+                                &nbsp;<i class="fa fa-exclamation-circle"></i>&nbsp;An authentication endpoint is required
+                            </p>
+                            <p class="help-block text-right" ng-show="!devicegroupForwarding.authEndpoint.isPristine && devicegroupForwarding.authEndpoint.errors.isMissingHttp">
+                                &nbsp;<i class="fa fa-exclamation-circle"></i>&nbsp;The authentication endpoint must begin with 'http://' or 'https://'
+                            </p>
+                            <p class="help-block text-right" ng-show="!devicegroupForwarding.authEndpoint.isPristine && devicegroupForwarding.authEndpoint.errors.isNotUrl">
+                                &nbsp;<i class="fa fa-exclamation-circle"></i>&nbsp;The authentication endpoint must be a valid URL
+                            </p>
+                        </div>
+                        <div class="form-group" ng-class="{'has-error': !devicegroupForwarding.dataEndpoint.isPristine && devicegroupForwarding.dataEndpoint.hasError() }">
+                            <label for="dataForwardingEndpoint">Data endpoint *</label>
+                            <input type="text" class="form-control" id="dataForwardingEndpoint" name="dataForwardingEndpoint" maxlength="2048"
+                                   placeholder="Enter the URL for submitting a device report, i.e. https://api.customer.com/sentry"
+                                   ng-model="devicegroupForwarding.dataEndpoint.value"
+                                   ng-readonly="!devicegroupForwarding.mode.isAdding && !devicegroupForwarding.mode.isChanging">
+                            <p class="help-block text-right" ng-show="!devicegroupForwarding.dataEndpoint.isPristine && devicegroupForwarding.dataEndpoint.errors.isBlank">
+                                &nbsp;<i class="fa fa-exclamation-circle"></i>&nbsp;A data endpoint is required
+                            </p>
+                            <p class="help-block text-right" ng-show="!devicegroupForwarding.dataEndpoint.isPristine && devicegroupForwarding.dataEndpoint.errors.isMissingHttp">
+                                &nbsp;<i class="fa fa-exclamation-circle"></i>&nbsp;The data endpoint must begin with 'http://' or 'https://'
+                            </p>
+                            <p class="help-block text-right" ng-show="!devicegroupForwarding.dataEndpoint.isPristine && devicegroupForwarding.dataEndpoint.errors.isNotUrl">
+                                &nbsp;<i class="fa fa-exclamation-circle"></i>&nbsp;The data endpoint must be a valid URL
+                            </p>
+                        </div>
+                        <div class="form-group" ng-class="{'has-error': !devicegroupForwarding.alarmEndpoint.isPristine && devicegroupForwarding.alarmEndpoint.hasError() }">
+                            <label for="alarmForwardingEndpoint">Alarm endpoint</label>
+                            <input type="text" class="form-control" id="alarmForwardingEndpoint" name="alarmForwardingEndpoint" maxlength="2048"
+                                   placeholder="Enter the URL for submitting an alarm notification, i.e. https://api.customer.com/alarm"
+                                   ng-model="devicegroupForwarding.alarmEndpoint.value"
+                                   ng-readonly="!devicegroupForwarding.mode.isAdding && !devicegroupForwarding.mode.isChanging">
+                            <p class="help-block text-right" ng-show="!devicegroupForwarding.alarmEndpoint.isPristine && devicegroupForwarding.alarmEndpoint.errors.isMissingHttp">
+                                &nbsp;<i class="fa fa-exclamation-circle"></i>&nbsp;The alarm endpoint must begin with 'http://' or 'https://'
+                            </p>
+                            <p class="help-block text-right" ng-show="!devicegroupForwarding.alarmEndpoint.isPristine && devicegroupForwarding.alarmEndpoint.errors.isNotUrl">
+                                &nbsp;<i class="fa fa-exclamation-circle"></i>&nbsp;The alarm endpoint must be a valid URL
+                            </p>
+                        </div>
+                        <div class="form-group" ng-class="{'has-error': !devicegroupForwarding.messageFormat.isPristine && devicegroupForwarding.messageFormat.hasError()}">
+                            <label for="messageFormat">Message format *</label>
+                            <select class="form-control" id="messageFormat" name="messageFormat"
+                                    ng-model="devicegroupForwarding.messageFormat.value"
+                                    ng-readonly="!devicegroupForwarding.mode.isAdding && !devicegroupForwarding.mode.isChanging"
+                                    ng-disabled="!devicegroupForwarding.mode.isAdding && !devicegroupForwarding.mode.isChanging">
+                                <option value="json" ng-selected="devicegroupForwarding.messageFormat.value === 'json'">JSON</option>
+                                <option value="xml" ng-selected="devicegroupForwarding.messageFormat.value === 'xml'">XML</option>
+                            </select>
+                            <p class="help-block text-right" ng-show="!devicegroupForwarding.messageFormat.isPristine && devicegroupForwarding.messageFormat.errors.isBlank">
+                                &nbsp;<i class="fa fa-exclamation-circle"></i>&nbsp;Message format is required
+                            </p>
+                        </div>
+                        <div class="form-group" ng-class="{'has-error': !devicegroupForwarding.notificationEmails.isPristine && devicegroupForwarding.notificationEmails.hasError()}">
+                            <label for="emails">Notification emails *</label>
+                            <input type="text" class="form-control" id="emails" name="emails"
+                                   placeholder="Enter one or more email addresses, separated by a commas (,) or semicolons (;)"
+                                   ng-model="devicegroupForwarding.notificationEmails.value"
+                                   ng-readonly="!devicegroupForwarding.mode.isAdding && !devicegroupForwarding.mode.isChanging">
+                            <p class="help-block text-right" ng-show="!devicegroupForwarding.notificationEmails.isPristine && devicegroupForwarding.notificationEmails.errors.isBlank">
+                                &nbsp;<i class="fa fa-exclamation-circle"></i>&nbsp;At least one email is required
+                            </p>
+                            <p class="help-block text-right" ng-show="!devicegroupForwarding.notificationEmails.isPristine && devicegroupForwarding.notificationEmails.errors.invalidEmails.length > 0">
+                                &nbsp;<i class="fa fa-exclamation-circle"></i>&nbsp;These emails are formatted incorrectly: {{ devicegroupForwarding.notificationEmails.errors.invalidEmails }}
+                            </p>
+                        </div>
+                        <div class="form-group" ng-class="{'has-error': !devicegroupForwarding.username.isPristine && devicegroupForwarding.username.hasError() }">
+                            <label for="username">{{ devicegroupForwarding.authMethod.value === 'OAuth CC' ? 'Client Id' : 'Username' }} *</label>
+                            <input type="text" class="form-control" id="username" name="username"
+                                   placeholder="Enter the {{devicegroupForwarding.authMethod.value === 'OAuth CC' ? 'client_id' : 'username'}}"
+                                   ng-model="devicegroupForwarding.username.value"
+                                   ng-readonly="!devicegroupForwarding.mode.isAdding && !devicegroupForwarding.mode.isChanging">
+                            <p class="help-block text-right" ng-show="!devicegroupForwarding.username.isPristine && devicegroupForwarding.username.errors.isBlank">
+                                &nbsp;<i class="fa fa-exclamation-circle"></i>&nbsp;{{ devicegroupForwarding.authMethod.value === 'OAuth CC' ? 'Client Id' : 'Username' }} is required
+                            </p>
+                        </div>
+                        <div class="form-group" ng-class="{'has-error': !devicegroupForwarding.password.isPristine && devicegroupForwarding.password.hasError()}"
+                             ng-if="devicegroupForwarding.mode.isAdding || devicegroupForwarding.mode.isChanging">
+                            <label for="secret">{{ devicegroupForwarding.authMethod.value === 'OAuth CC' ? 'Client Secret' : 'Password' }}</label>
+                            <input type="password" class="form-control" id="secret" name="secret"
+                                   placeholder="Enter the {{devicegroupForwarding.authMethod.value === 'OAuth CC' ? 'client_secret' : 'password'}}"
+                                   ng-model="devicegroupForwarding.password.value">
+                            <p class="help-block text-right" ng-show="!devicegroupForwarding.password.isPristine && devicegroupForwarding.password.errors.isBadFormat">
+                                &nbsp;<i class="fa fa-exclamation-circle"></i>&nbsp;{{ devicegroupForwarding.authMethod.value === 'OAuth CC' ? 'Client Secret' : 'Password' }} is must be at least 8 characters and contain 1 lowercase letter, 1 uppercase letter, 1 special character and 1 numeric character
+                            </p>
+                        </div>
+                        <div class="form-group" ng-if="devicegroupForwarding.mode.isAdding || devicegroupForwarding.mode.isChanging">
+                            <div class="pull-right">
+                                <button type="submit" class="btn btn-default" ng-if="devicegroupForwarding.hasPermission.toChange"><i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                <button type="button" class="btn btn-default" ng-if="devicegroupForwarding.hasPermission.toChange" ng-click="devicegroupForwarding.actions.reset()"><i class="fa fa-reset"></i>&nbsp;&nbsp;Reset</button>
+                                <button type="button" class="btn btn-default" ng-click="devicegroupForwarding.actions.end()"><i class="fa fa-remove"></i>&nbsp;&nbsp;Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

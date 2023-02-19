@@ -1,0 +1,49 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <a role="button" ng-click="locationZones.panel.toggle(locationZones.location.id)">Zones</a>
+        <span class="pull-right text-right"><a role="button" ng-click="locationZones.panel.toggle(locationZones.location.id)"><i class="fa fa-lg" ng-class="{'fa-caret-right': locationZones.panel.isCollapsed, 'fa-caret-down': !locationZones.panel.isCollapsed}" title="Expand"></i></a></span>
+        <span class="pull-right text-right" ng-show="!locationZones.panel.isCollapsed"><a role="button" ng-click="locationZones.actions.reload(locationZones.location.id)"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+    </div>
+    <div ng-class="{'collapse': locationZones.panel.isCollapsed}">
+        
+        <div class="panel-body">
+        <button class="btn btn-default" type="button" title="Add Zone" ng-click="locationZones.actions.gotoNewZone(locationZones.location.id)">
+            <i class="fa fa-new"></i> Add Zone
+        </button>
+            <div class="row">
+                <div class="col-sm-12">
+                    <br/>
+                    <br/>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th width="20">#</th>
+                                <th width="300">Zone</th>
+                                <th width="150">Device</th>
+                                <th width="150">Type</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-show="locationZones.zones.length != 0" ng-repeat="zone in locationZones.zones">
+                                <td width="20">{{ $index + 1 }}</td>
+                                <td width="300"><a role="button" ng-click="locationZones.actions.goToZone(zone.id)">{{ zone.zoneName }}</a></td>
+                                <td width="150">
+                                    {{zone.deviceId}}
+                                </td>
+                                <td width="150">
+                                    {{zone.deviceType}}
+                                </td>
+                            </tr>
+                            <tr ng-show="locationZones.zones.length === 0" class="warning">
+                                <td></td>
+                                <td colspan="5">This location has not assigned to any zones</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

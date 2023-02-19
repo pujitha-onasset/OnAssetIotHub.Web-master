@@ -1,0 +1,24 @@
+<div class="dashboard-list-item">
+    <a role="button" ng-click="deviceReportToolItem.listItemClicked();">
+        <div class="dashboard-list-item-severity">
+            <i class="fa fa-lg fa-fw" ng-class="{'fa-map-marker': listItemReport.latitude !== null && listItemReport.longitude !== null}"></i>
+        <span ng-class="{'text-danger': listItemReport.severity === 'warning',
+         'text-info': listItemReport.severity === 'info',
+         'text-success': listItemReport.severity === 'ok'}">
+            <i class="fa fa-lg fa-fw" ng-class="{'fa-exclamation-triangle': listItemReport.severity === 'warning',
+             'fa-info-circle': listItemReport.severity === 'info',
+             'fa-check-circle': listItemReport.severity === 'ok'}"></i>
+        </span>
+        </div>
+        <div ng-class="{'dashboard-list-item-hasname': listItemReport.deviceName !== listItemReport.deviceTagId,
+        'dashboard-list-item-noname': listItemReport.deviceName === listItemReport.deviceTagId}">
+            {{listItemReport.deviceName}}
+        <span ng-if="listItemReport.deviceName !== listItemReport.deviceTagId">
+            <br/><small>[{{listItemReport.deviceTagId}}]</small>
+        </span>
+        </div>
+        <div class="dashboard-list-item-right">
+            <span class="dashboard-list-item-value">{{listItemReport[listItemProperty]}}{{listItemReport[listItemProperty] !== null ? listItemSuffix : ''}}</span>
+        </div>
+    </a>
+</div>

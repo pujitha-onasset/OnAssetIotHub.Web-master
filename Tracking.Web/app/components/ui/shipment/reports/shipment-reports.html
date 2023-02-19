@@ -1,0 +1,66 @@
+<div ng-controller="ShipmentReportsController as shipmentReports">
+    <div shipment-reports-filterbar></div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th width="10">Sev</th>
+                        <th>Device</th>
+                        <th>Age</th>
+                        <th>Time</th>
+                        <th>Stored</th>
+                        <th>Battery</th>
+                        <th>Button</th>
+                        <th>Light</th>
+                        <th>Motion</th>
+                        <th>Pressure</th>
+                        <th>Shock</th>
+                        <th>Temp (&deg;C)</th>
+                        <th>Temp (&deg;F)</th>
+                        <th>Probe (&deg;C)</th>
+                        <th>Probe (&deg;F)</th>
+                        <th>Loc Type</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="shipmentReports.reportsService.reports.length === 0" class="warning">
+                        <td></td>
+                        <td colspan="16">There are no device reports for this shipment</td>
+                    </tr>
+                    <tr ng-show="shipmentReports.reportsService.reports.length > 0" class="warning">
+                        <td></td>
+                        <td colspan="16">Showing {{ filteredReports.length }} / {{ shipmentReports.reportsService.reports.length }} reports</td>
+                    </tr>
+                    <tr ng-show="shipmentReports.reports.length != 0"
+                        ng-repeat="report in filteredReports = (shipmentReports.reportsService.reports | filter: shipmentReports.filterService.filter)"
+                        ng-class="{'selected-report': shipmentReports.selectedGuid === report.reportGuid}">
+                        <td>{{ $index + 1 }}</td>
+                        <td width="10">
+                            <a map-icon-image style="border: none;" role="button" ng-click="shipmentReports.selectReport(report)" severity="ok" location-method="{{report.locationMethod}}" selected="{{ shipmentReports.selectedGuid === report.reportGuid }}"></a>
+                        </td>
+                        <td>{{ report.deviceTagId }}</td>
+                        <td><span time-from-now utc-datetime="{{report.messageTimeStamp}}"></span></td>
+                        <td><span local-datetime utc-datetime="{{report.messageTimeStamp}}" date-format="L" time-format="LTS"></span></td>
+                        <td>{{ report.isStoreAndForward ? 'Yes' : 'No' }}</td>
+                        <td>{{ report.batteryPercent }}</td>
+                        <td>{{ report.isButtonPushed ? 'Yes' : 'No' }}</td>
+                        <td>{{ report.light }}</td>
+                        <td>{{ report.isMotionDetected || report.isVibrationDetected ? 'Yes' : 'No' }}</td>
+                        <td>{{ report.pressure }}</td>
+                        <td>{{ report.isShockExceeded ? report.shockMagnitude : '' }}</td>
+                        <td>{{ report.temperatureC }}</td>
+                        <td>{{ report.temperatureF }}</td>
+                        <td>{{ report.temperatureProbeC }}</td>
+                        <td>{{ report.temperatureProbeF }}</td>
+                        <td>{{ report.locationMethod === 'CellTriangulation' ? 'Network' : report.locationMethod}}</td>
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,50 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <a role="button" ng-click="geofenceAlarms.panel.toggle()">Alarms</a>
+        <span class="pull-right text-right"><a role="button" ng-click="geofenceAlarms.panel.toggle()"><i class="fa fa-lg" ng-class="{'fa-caret-right': geofenceAlarms.panel.isCollapsed, 'fa-caret-down': !geofenceAlarms.panel.isCollapsed}" title="Expand"></i></a></span>
+        <span class="pull-right text-right" ng-show="!geofenceAlarms.panel.isCollapsed"><a role="button" ng-click="geofenceAlarms.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+    </div>
+    <div ng-class="{'collapse': geofenceAlarms.panel.isCollapsed}">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-sm-12">
+                    <br/>
+                    <br/>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th width="20">#</th>
+                                <th width="300">Alarm name</th>
+                                <th width="150">Severity</th>
+                                <th width="150" class="text-center">Alarm Type</th>
+                                <th width="150" class="text-center">Email Frequency</th>
+                                <th width="150" class="text-center">Sms Frequency</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-show="geofenceAlarms.alarms.length != 0" ng-repeat="alarm in geofenceAlarms.alarms">
+                                <td width="20">{{ $index + 1 }}</td>
+                                <td width="300"><a role="button" ng-click="geofenceAlarms.actions.goToAlarm(alarm.alarmId)">{{ alarm.alarmName }}</a></td>
+                                <td width="150">
+                                        <span class="{{ alarm.isShowAsRedDot ? 'text-danger' : 'text-info' }}">
+                                            <i class="fa {{alarm.isShowAsRedDot ? 'fa-exclamation-circle' : 'fa-info-circle' }} fa-lg" title="{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}"></i>
+                                            &nbsp;{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}
+                                        </span>
+                                </td>
+                                <td width="150" class="text-center"><i class="fa {{ alarm.isActiveOnShipmentOnly ? 'fa-truck' : 'fa-hdd-o' }}"></i> {{ alarm.isActiveOnShipmentOnly ? 'Shipment' : 'Device' }}</td>
+                                <td width="150" class="text-center">{{ alarm.emailFrequency }}</td>
+                                <td width="150" class="text-center">{{ alarm.smsFrequency }}</td>
+                            </tr>
+                            <tr ng-show="geofenceAlarms.alarms.length === 0" class="warning">
+                                <td></td>
+                                <td colspan="5">This geofence is not assigned to any alarms</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,319 @@
+
+
+html, body {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    /* Margin bottom by footer height */
+    /*padding-top: 70px;*/
+    /*margin-bottom: 60px;*/
+}
+
+@media (min-width: 1200px) {
+    .container {
+        width: 100%;
+    }
+}
+
+@media (min-width: 768px) {
+  .search {
+    min-width: 250px;
+  }
+}
+
+.main-content {
+    padding-top: 40px;
+}
+
+.font-bold {
+    font-weight: bold;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 60px;
+    background-color: #f8f8f8;
+    padding-top: 20px;
+    text-align: right;
+}
+
+/* Form elements */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #469d53;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #469d53;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.modal {
+    text-align: center;
+    padding: 0!important;
+}
+
+.modal:before {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin-right: -4px;
+}
+
+.modal-dialog {
+    display: inline-block;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.modal .panel-heading {
+    border-top-left-radius: inherit; 
+    border-top-right-radius: inherit;
+}
+
+.navigation-dropdown-menu {
+    margin: 15px 15px 0 0;
+    background: transparent;
+}
+
+.navigation-dropdown-menu a,
+.navigation-dropdown-menu a:hover,
+.navigation-dropdown-menu a:visited,
+.navigation-dropdown-menu a:focus,
+.navigation-dropdown-menu.open>a,
+.navigation-dropdown-menu.open>a:hover {
+    color: #333;
+    text-decoration: none;
+    background: transparent;
+}
+
+.selected-report {
+    font-weight: bold;
+    background-color: #f0f0f0;
+}
+
+.device-link {
+    margin: 3px;
+}
+.text-danger,
+.text-danger a
+{
+    color: #cc0000;
+}
+.text-info,
+.text-info a
+{
+    color: #0099f6;
+}
+.text-ok,
+.text-ok a{
+    color: #00af00;
+}
+.timeline-graph-line {
+    fill: none;
+    stroke: rgb(173, 173, 173);
+    stroke-width: 2px;
+}
+.change-column-pill-list > li > a {
+    padding: 3px 15px;
+}
+.text-error-horizontal {
+  margin: 15px;
+}
+
+.clearfix-multi-upload-file{
+	overflow: auto;
+}	
+.dropzone {
+  position: relative;
+  height: 40px;
+  border: 2px dashed #b3b3b3;
+  border-radius: 4px;
+  background-color: #f3f3f3;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.dropzone .msg{
+	font-size: 20px;
+	font-weight: bold;
+	color: #c3c3c3;
+	padding: 0 10px;
+}
+input.fileUpload{
+	display: none;
+}
+.preview{
+	margin: 10px 0;
+	padding: 5px;
+}
+.previewData img{
+	width: 100px;
+	height: 100px;
+	float: left;
+	margin: 5px;
+} 
+.previewDetails{
+	 display: inline-block;
+    float: left;
+    margin: 5px;
+    padding: 8px;
+}
+.detail{
+	  font-family: arial;
+    padding: 5px;
+    overflow: hidden;
+    max-width: 200px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.previewControls{
+	display: inline-block;
+	float: left;
+	margin: 40px 30px;
+}
+.circle{
+	border: 2px solid #5B93F5;
+    border-radius: 20px;
+    display: inline-block;
+    height: 25px;
+    width: 25px;
+    margin: 5px;
+    cursor: pointer;
+    color: #5B93F5;
+}
+.circle.upload:hover{
+	border: 2px solid green;	
+}
+.circle.upload:hover i.fa-check{
+	color: green;
+}
+.circle.remove:hover{
+	border: 2px solid red;	
+}
+.circle.remove:hover i.fa-close{
+	color: red;
+}
+.circle i{
+	position: relative;
+	font-size: 14px;
+}
+.circle i.fa-check{
+	top: 3px;
+	left: 5px;
+}
+.circle i.fa-close{	
+	top: 2px;
+	left: 7px;
+}
+
+.user-menu{
+  float: right;
+  top: 5px;
+}
+
+.sidebar{
+  z-index: 1001 !important;
+}
+
+.dropzone{
+  height: 60px;
+}
+
+.sortcolumn {
+  cursor: pointer;
+}
+
+.sortorder:after {
+  content: '\25b2';   // BLACK UP-POINTING TRIANGLE
+}
+.sortorder.reverse:after {
+  content: '\25bc';   // BLACK DOWN-POINTING TRIANGLE
+}
+
+/* #### Mobile Phones Portrait #### */
+@media screen and (max-device-width: 600px) {
+  .menu-margin{
+    margin: 0px;
+  }
+
+  .menu-shipment{
+    float: left;
+    margin-left: 1px;
+  }
+
+  .menu-shipment-steps{
+    font-size: 12px;
+    float: left;
+  }
+
+  .filter-alarm{
+    margin-left:10px;
+  }
+}
+
+.header-nav{
+   position: fixed;
+   width: 100%;
+   display: block;
+}
+.main-container{
+  margin-top:50px; 
+}

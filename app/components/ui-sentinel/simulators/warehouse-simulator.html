@@ -1,0 +1,160 @@
+<div ng-controller="WarehouseSimulatorController as warehouseSimUi">
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <div ng-if="warehouseSimUi.errorMessage" class="alert alert-danger">{{ warehouseSimUi.errorMessage }}</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-3" ng-hide="warehouseSimUi.hideParams">
+            <br/>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Select data for</label>
+                    <div class="col-sm-8">
+                        <select class="form-control" ng-model="warehouseSimUi.selectBy">
+                            <option value="hours" ng-selected="warehouseSimUi.selectBy === 'hours'">the last few hours</option>
+                            <option value="range" ng-selected="warehouseSimUi.selectBy === 'range'">a specific date range</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="warehouseSimUi.selectBy === 'hours'">
+                    <label class="col-sm-4 control-label">Number of hours</label>
+                    <div class="col-sm-8">
+                        <input type="number" class="form-control" ng-model="warehouseSimUi.hoursSinceNow">
+                        <p class="help-block">Enter the number of hours since current time</p>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="warehouseSimUi.selectBy === 'range'">
+                    <label class="col-sm-4 control-label">From</label>
+                    <div class="col-sm-8">
+                        <input type="text" data-date-time-picker data-format="YYYY-MM-DDTHH:mm:ss" class="form-control datetimepicker" ng-model="warehouseSimUi.from" placeholder="yyyy-mm-ddThh:mm">
+                        <p class="help-block">Enter the earliest date to validate against</p>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="warehouseSimUi.selectBy === 'range'">
+                    <label class="col-sm-4 control-label">To</label>
+                    <div class="col-sm-8">
+                        <input type="text" data-date-time-picker data-format="YYYY-MM-DDTHH:mm:ss" class="form-control datetimepicker" ng-model="warehouseSimUi.to" placeholder="yyyy-mm-ddThh:mm">
+                        <p class="help-block">Enter the most recent date to validate against</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Decision window</label>
+                    <div class="col-sm-8">
+                        <select class="form-control" ng-model="warehouseSimUi.decisionWindow">
+                            <option value="5" ng-selected="warehouseSimUi.decisionWindow === 5">5 minutes</option>
+                            <option value="10" ng-selected="warehouseSimUi.decisionWindow === 10">10 minutes</option>
+                            <option value="15" ng-selected="warehouseSimUi.decisionWindow === 15">15 minutes</option>
+                            <option value="30" ng-selected="warehouseSimUi.decisionWindow === 30">30 minutes</option>
+                            <option value="60" ng-selected="warehouseSimUi.decisionWindow === 60">60 minutes</option>
+                        </select>
+                        <p class="help-block">Select the window used to determine the nearest Sentry</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Location algorithm</label>
+                    <div class="col-sm-8">
+                        <select class="form-control" ng-model="warehouseSimUi.algorithm">
+                            <option value="mobileApp" ng-selected="warehouseSimUi.algorithm === 'mobileApp'">Mobile app emulator</option>
+                            <option value="lookBack5" ng-selected="warehouseSimUi.algorithm === 'lookBack5'">5 minute look back</option>
+                            <option value="lookBack10" ng-selected="warehouseSimUi.algorithm === 'lookBack10'">10 minute look back</option>
+                            <option value="lookBack15" ng-selected="warehouseSimUi.algorithm === 'lookBack15'">15 minute look back</option>
+                        </select>
+                        <p class="help-block">Select the algorithm used to determine warehouse location</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Sentinel</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" ng-model="warehouseSimUi.mac">
+                        <p class="help-block">Enter/scan the Sentinel MAC to locate</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Determine location using</label>
+                    <div class="col-sm-8">
+                        <select class="form-control" ng-model="warehouseSimUi.locateFor">
+                            <option value="any" ng-selected="warehouseSimUi.locateFor === 'any'">any Sentries seen</option>
+                            <option value="list" ng-selected="warehouseSimUi.locateFor === 'list'">a list of Sentries</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group"  ng-show="warehouseSimUi.locateFor === 'list'">
+                    <label class="col-sm-4 control-label">List of Sentries</label>
+                    <div class="col-sm-8">
+                        <textarea class="form-control" rows="10" ng-model="warehouseSimUi.imeiList"></textarea>
+                        <p class="help-block">Enter/scan up to 10 Sentry IMEIs; one IMEI per row</p>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <button type="button" class="btn btn-default pull-right" ng-click="warehouseSimUi.submit()">Submit</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm-9" ng-hide="warehouseSimUi.selectedResult">
+            <h3>Location Results</h3>
+            <div class="table-responsive">
+                <table class="table table-condensed table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th width="20">#</th>
+                        <th width="30"></th>
+                        <th>Result Time</th>
+                        <th>Nearest Sentry</th>
+                        <th>Time of Sighting</th>
+                        <th>Rssi (db)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="warehouseSimUi.locationResults.length === 0" class="warning">
+                        <td></td>
+                        <td colspan="5">No records loaded or found</td>
+                    </tr>
+                    <tr ng-show="warehouseSimUi.locationResults.length != 0"
+                        ng-repeat="result in warehouseSimUi.locationResults">
+                        <td width="20">{{ $index + 1 }}</td>
+                        <td width="30"><button role="button" class="btn btn-sm btn-default" title="Show sightings" ng-click="warehouseSimUi.showSightings($index + 1, result)"><i class="fa fa-search"></i></button></td>
+                        <td><span local-datetime utc-datetime="{{result.window}}" date-format="L" time-format="LTS"></span></td>
+                        <td>{{ result.imei }}</td>
+                        <td><span local-datetime utc-datetime="{{result.timeOfSighting}}" date-format="L" time-format="LTS"></span></td>
+                        <td>{{ result.rssi }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>            
+        </div>
+        <div class="col-sm-9" ng-show="warehouseSimUi.selectedResult">
+            <h3><button role="button" class="btn btn-sm btn-default" title="Back to results" ng-click="warehouseSimUi.hideSightings()"><i class="fa fa-arrow-left"></i></button>&nbsp;Sightings</h3>
+            <div class="table-responsive">
+                <table class="table table-condensed table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Result Time</th>
+                        <th>Sentry</th>
+                        <th>Time of Sighting</th>
+                        <th>Time of Receipt</th>
+                        <th>Rssi (db)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="warehouseSimUi.sightings.length === 0" class="warning">
+                        <td></td>
+                        <td colspan="5">No records loaded or found</td>
+                    </tr>
+                    <tr ng-show="warehouseSimUi.sightings.length != 0"
+                        ng-repeat="sighting in warehouseSimUi.sightings" ng-class="{'info': sighting.window === warehouseSimUi.selectedResult.result.window}">
+                        <td>{{ $index + 1 }}</td>
+                        <td><span local-datetime utc-datetime="{{sighting.window}}" date-format="L" time-format="LTS"  ng-if="sighting.window"></span></td>
+                        <td>{{ sighting.imei }}</td>
+                        <td><span local-datetime utc-datetime="{{sighting.timeOfSighting}}" date-format="L" time-format="LTS"></span></td>
+                        <td><span local-datetime utc-datetime="{{sighting.timeOfReceipt}}" date-format="L" time-format="LTS"></span></td>
+                        <td>{{ sighting.rssi }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

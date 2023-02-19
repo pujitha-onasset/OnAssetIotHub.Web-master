@@ -1,0 +1,288 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <a role="button" ng-click="alarmDevices.panel.toggle()">Devices</a>
+        <span class="pull-right text-right">
+            <a role="button" ng-click="alarmDevices.panel.toggle()">
+                <i class="fa fa-lg" ng-class="{'fa-caret-right': alarmDevices.panel.isCollapsed, 'fa-caret-down': !alarmDevices.panel.isCollapsed}" title="Expand"></i>
+            </a>
+        </span>
+        <span class="pull-right text-right" ng-show="!alarmDevices.panel.isCollapsed"><a role="button" ng-click="alarmDevices.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+
+    </div>
+    <div ng-class="{'collapse': alarmDevices.panel.isCollapsed}">
+        <div class="panel-body">
+            <div class="row" style="margin-top: 3px;">
+                <div class="col-sm-8" ng-if="alarmDevices.hasPermission.toChange">
+                    <ul class="nav nav-pills">
+                        <li>
+                            <button class="btn btn-default" type="button" title="Finished adding devices"
+                                    ng-show="alarmDevices.mode.isAdding"
+                                    ng-click="alarmDevices.actions.endAdd()">
+                                <i class="fa fa-reply"></i>&nbsp;Finished
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Add all devices"
+                                    ng-show="alarmDevices.mode.isAdding"
+                                    ng-click="alarmDevices.actions.addAll()">
+                                <i class="fa fa-plus"></i>&nbsp;Add all
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Finished removing devices"
+                                    ng-show="alarmDevices.mode.isRemoving"
+                                    ng-click="alarmDevices.actions.endRemove()">
+                                <i class="fa fa-reply"></i>&nbsp;Finished
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Remove all devices"
+                                    ng-show="alarmDevices.mode.isRemoving"
+                                    ng-click="alarmDevices.actions.removeAll()">
+                                <i class="fa fa-trash-o"></i>&nbsp;Remove all
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Assign devices to the alarm"
+                                    ng-show="!alarmDevices.mode.isAdding && !alarmDevices.mode.isRemoving"
+                                    ng-click="alarmDevices.actions.beginAdd()">
+                                <i class="fa fa-plus"></i>&nbsp;Add..
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Remove devices from the alarm"
+                                    ng-show="!alarmDevices.mode.isAdding && !alarmDevices.mode.isRemoving && (alarmDevices.devices.assigned.length > 0 || alarmDevices.sentinels.assigned.length > 0)"
+                                    ng-click="alarmDevices.actions.beginRemove()">
+                                <i class="fa fa-trash-o"></i>&nbsp;Remove..
+                            </button>
+                        </li>                        
+                    </ul>
+                    <br/><br/>
+                </div>
+            </div><!--nav pills-->
+            <div class="row" ng-if="!alarmDevices.mode.isAdding && !alarmDevices.mode.isRemoving">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="20">#</th>
+                                    <th>Sentry</th>
+                                    <th>Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-show="alarmDevices.devices.assigned.length != 0" ng-repeat="device in alarmDevices.devices.assigned">
+                                    <td width="20">{{ $index + 1 }}</td>
+                                    <td>{{ device.deviceTagId }}</td>
+                                    <td>{{ device.deviceName }}</td>
+                                </tr>
+                                <tr ng-show="alarmDevices.devices.assigned.length === 0" class="warning">
+                                    <td width="20">&nbsp;</td>
+                                    <td colspan="3">There are no sentries assigned to this alarm</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="20">#</th>
+                                    <th>Sentinel</th>
+                                    <th>Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-show="alarmDevices.sentinels.assigned.length != 0" ng-repeat="device in alarmDevices.sentinels.assigned">
+                                    <td width="20">{{ $index + 1 }}</td>
+                                    <td>{{ device.deviceTagId }}</td>
+                                    <td>{{ device.deviceName }}</td>
+                                </tr>
+                                <tr ng-show="alarmDevices.sentinels.assigned.length === 0" class="warning">
+                                    <td width="20">&nbsp;</td>
+                                    <td colspan="3">There are no sentinels assigned to this alarm</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div><!--assigned devices-->
+            <div class="row" ng-if="alarmDevices.mode.isAdding">
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form">
+                                <!--<div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-lg fa-filter"></i></span>
+                                    <input type="text" class="form-control" placeholder="Filter.." ng-model="deviceListFilterText"><br/><br/>
+                                </div>-->
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Enter text to filter the device list..." ng-model="alarmDevices.deviceSearchText">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default" title="Search sentry" ng-click="alarmDevices.getDevicesByFilter(alarmDevices.deviceSearchText)">Search sentry</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th width="20"></th>
+                                        <th>Device</th>
+                                        <th>Name</th>
+                                        <th>Last Reported</th>
+                                        <th>Last Battery %</th>
+                                        <th style="text-align: center;">Ready for Use</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-show="alarmDevices.devices.available.length != 0" ng-repeat="device in alarmDevices.devices.available | filter: deviceListFilterText">
+                                        <td width="20">
+                                            <button class="btn btn-default btn-xs" type="button" ng-click="alarmDevices.actions.add(device)" title="Add {{ device.deviceTagId }}"  ng-show="!device.isAdded">
+                                                <i class="fa fa-plus"></i>
+                                            </button>
+                                        </td>
+
+                                        <td>{{ device.imei }}</td>
+                                        <td>{{ device.friendlyName }}</td>
+                                        <td><span local-datetime utc-datetime="{{ device.timeOfReport }}" date-format="L" time-format="LTS"></td>
+                                        <td>{{device.batteryVoltage}}{{device.batteryVoltage ? '%' : ''}}</td>
+                                        <td class="{{device.readyForUse === true ? 'text-success' : 'text-danger'}}" style="text-align: center;"><b>{{device.readyForUse ? 'YES' : 'NO'}}</b></td>
+                                    </tr>
+                                    <tr ng-show="alarmDevices.devices.available.length === 0" class="warning">
+                                        <td width="20">&nbsp;</td>
+                                        <td colspan="6">There are no available devices to assign to this alarm</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Enter text to filter the sentinel list..." ng-model="alarmDevices.sentinelSearchText">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default" title="Search sentinel" ng-click="alarmDevices.getSentinelsByFilter(alarmDevices.sentinelSearchText)">Search sentinel</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th width="20"></th>
+                                        <th>Device</th>
+                                        <th>Name</th>
+                                        <th>Last Reported</th>
+                                        <th>Last Battery %</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-show="alarmDevices.sentinels.available.length != 0" ng-repeat="sentinel in alarmDevices.sentinels.available | filter: deviceListFilterText">
+                                        <td width="20">
+                                            <button class="btn btn-default btn-xs" type="button" ng-click="alarmDevices.actions.addSentinel(sentinel)" title="Add {{ sentinel.deviceTagId }}"  ng-show="!sentinel.isAdded">
+                                                <i class="fa fa-plus"></i>
+                                            </button>
+                                        </td>
+
+                                        <td>{{ sentinel.deviceId }}</td>
+                                        <td>{{ sentinel.friendlyName }}</td>
+                                        <td><span local-datetime utc-datetime="{{ sentinel.timeOfReport }}" date-format="L" time-format="LTS"></td>
+                                        <td>{{sentinel.batteryVoltage}}{{sentinel.batteryVoltage ? '%' : ''}}</td>
+                                    </tr>
+                                    <tr ng-show="alarmDevices.sentinels.available.length === 0" class="warning">
+                                        <td width="20">&nbsp;</td>
+                                        <td colspan="5">There are no available sentinels to assign to this alarm</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!--available devices-->
+            <div class="row" ng-if="alarmDevices.mode.isRemoving">
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" placeholder="Filter.." ng-model="deviceListFilterText"><br/><br/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th width="20"></th>
+                                        <th>Sentry</th>
+                                        <th>Name</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-show="alarmDevices.devices.removable.length != 0" ng-repeat="device in alarmDevices.devices.removable | filter: deviceListFilterText">
+                                        <td width="20">
+                                            <button class="btn btn-default btn-xs" type="button" ng-click="alarmDevices.actions.remove(device)" title="Remove {{ device.deviceTagId }}"  ng-show="!device.isRemoved">
+                                                <i class="fa fa-minus"></i>
+                                            </button>
+                                        </td>
+
+                                        <td>{{ device.deviceTagId }}</td>
+                                        <td>{{ device.deviceName }}</td>
+                                    </tr>
+                                    <tr ng-show="alarmDevices.devices.removable.length === 0" class="warning">
+                                        <td width="20">&nbsp;</td>
+                                        <td colspan="6">There are no devices to remove from this alarm</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th width="20"></th>
+                                        <th>Sentinel</th>
+                                        <th>Name</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-show="alarmDevices.sentinels.removable.length != 0" ng-repeat="sentinel in alarmDevices.sentinels.removable | filter: deviceListFilterText">
+                                        <td width="20">
+                                            <button class="btn btn-default btn-xs" type="button" ng-click="alarmDevices.actions.removeSentinel(sentinel)" title="Remove {{ sentinel.deviceTagId }}"  ng-show="!sentinel.isRemoved">
+                                                <i class="fa fa-minus"></i>
+                                            </button>
+                                        </td>
+
+                                        <td>{{ sentinel.deviceTagId }}</td>
+                                        <td>{{ sentinel.deviceName }}</td>
+                                    </tr>
+                                    <tr ng-show="alarmDevices.sentinels.removable.length === 0" class="warning">
+                                        <td width="20">&nbsp;</td>
+                                        <td colspan="6">There are no sentinels to remove from this alarm</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!--removable devices-->
+        </div>
+    </div>
+</div>

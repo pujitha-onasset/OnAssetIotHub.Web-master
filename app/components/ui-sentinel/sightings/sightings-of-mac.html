@@ -1,0 +1,157 @@
+<div ng-controller="SightingsOfMacController as sightingsOfMacUi">
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <nav class="navbar navbar-default col-sm-12">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa {{sightingsOfMacUi.currentPageView.icon}}"></i>&nbsp;&nbsp;{{ sightingsOfMacUi.currentPageView.title}} <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="view in sightingsOfMacUi.pageViews"><a type="button" ng-click="sightingsOfMacUi.changeView(view.name)"><i class="fa {{view.icon}}"></i>&nbsp;&nbsp;{{view.title}}</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="navbar-form" ng-show="sightingsOfMacUi.currentPageView.name === 'hours'">
+                    <div class="form-group">
+                        <label>Hours&nbsp;</label>
+                        <input type="number" class="form-control" ng-model="sightingsOfMacUi.hoursText">
+                    </div>
+                    <div class="form-group">
+                        &nbsp;
+                        <button class="btn btn-default" type="button" ng-click="sightingsOfMacUi.load()">Load</button>
+                    </div>&nbsp;
+                     <export-table-to file-name="Reports" table-id-to-export="reportsTableList"></export-table-to>
+                </form>
+                <form class="navbar-form" ng-show="sightingsOfMacUi.currentPageView.name === 'range'">
+                    <div class="form-group">
+                        <label>From&nbsp;</label>
+                        <input type='text' data-date-time-picker data-format="YYYY-MM-DDTHH:mm:ss" class="form-control datetimepicker" ng-model="sightingsOfMacUi.fromText" placeholder="yyyy-mm-ddThh:mm:ss" ng-change="sightingsOfMacUi.validateDateRange()"/>
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;&nbsp;To&nbsp;</label>
+                        <input type="text" data-date-time-picker data-format="YYYY-MM-DDTHH:mm:ss" class="form-control datetimepicker" ng-model="sightingsOfMacUi.toText" placeholder="yyyy-mm-ddThh:mm:ss" ng-change="sightingsOfMacUi.validateDateRange()" data-nomax="true">
+                    </div>
+                    <div class="form-group">
+                        &nbsp;
+                        <button class="btn btn-default" type="button" ng-click="sightingsOfMacUi.load()">Load</button>
+                        &nbsp;
+                         <export-table-to file-name="Reports" table-id-to-export="reportsTableList"></export-table-to>
+                    </div>
+                </form>
+            </nav>
+        </div>
+    </div>    
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <nav class="pull-right" aria-label="Page navigation" ng-show="sightingsOfMacUi.totalPages > 1">
+                <ul class="pagination">
+                    <li ng-class="{'disabled': sightingsOfMacUi.page === 1}"><a role="button" aria-label="Previous" ng-click="sightingsOfMacUi.previous();"><span aria-hidden="true">&laquo;</span></a></li>
+                    <li ng-repeat="n in sightingsOfMacUi.pageArray" ng-class="{'active': n === sightingsOfMacUi.page}"><a role="button" ng-click="sightingsOfMacUi.gotoPage(n);" aria-label="Page {{n}}"><span aria-hidden="true">{{n}}</span></a></li>
+                    <li ng-class="{'disabled': sightingsOfMacUi.page === sightingsOfMacUi.totalPages}"><a role="button" aria-label="Next" ng-click="sightingsOfMacUi.next();"><span aria-hidden="true">&raquo;</span></a></li>
+                </ul>
+            </nav>
+            <div ng-if="sightingsOfMacUi.errorMessage" class="alert alert-danger">{{ sightingsOfMacUi.errorMessage }}</div>
+            <table class="table table-striped" id="reportsTableList">
+                <thead>
+                <tr>
+                    <th width="20">#</th>
+                    <th class="noExport"></th>
+                    <th>Sentry</th>
+                    <th>Sentinel</th>
+                    <th>Sequence</th>
+                    <th>Beacon Type</th>
+                    <th>Time of Receipt</th>
+                    <th>Time of Report</th>
+                    <th>Battery (%)</th>
+                    <th>Battery (V)</th>
+                    <th>Humidity (%)</th>
+                    <th>Light (lux)</th>
+                    <th>Rssi (db)</th>
+                    <th>Internal Temp (&deg;C)</th>
+                    <th>Internal Temp (&deg;F)</th>
+                    <th>Temp probe 1 (&deg;C)</th>
+                    <th>Temp probe 1 (&deg;F)</th>
+                    <th>Temp probe 2 (&deg;C)</th>
+                    <th>Temp ṕrobe 2 (&deg;F)</th>
+                    <th>Shock Magnitude</th>
+                    <th>Shock Elapsed Time</th>
+                    <th>Shock X</th>
+                    <th>Shock Y</th>
+                    <th>Shock Z</th>
+                    <th>Tilt X</th>
+                    <th>Tilt Y</th>
+                    <th>Tilt Z</th>
+                    <th>Pressure</th>
+                    <th>Power Source</th>
+                    <th>First Seen Timestamp</th>
+                    <th>Last Seen Timestamp</th>
+                   
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-show="sightingsOfMacUi.list.length === 0" class="warning noExport" >
+                    <td></td>
+                    <td colspan="28">There are no records</td>
+                </tr>
+                <tr ng-show="sightingsOfMacUi.list.length != 0" ng-repeat="item in sightingsOfMacUi.list">
+                    <td width="20">{{ (sightingsOfMacUi.page > 1) ? ((sightingsOfMacUi.page - 1) * sightingsOfMacUi.itemsPerPage) + $index + 1 : $index + 1 }}</td>
+                    <td class="noExport">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-default dropdown-toggle" type="button" id="dropdown{{$index}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdown{{$index}}">
+                                <li><a ng-click="sightingsOfMacUi.gotoSightingsForReport(item)"><i class="fa fa-sm fa-search"></i>&nbsp;Sightings for this report</a></li>
+                                <!--<li role="separator" class="divider"></li>-->
+                                <!--<li><a ng-click="latestSentryReportUi.gotoDeviceReports(item)"><i class="fa fa-sm fa-search"></i>&nbsp;Reports from this Sentry</a></li>-->
+                                <!--<li><a ng-click="latestSentryReportUi.gotoSightingsByDevice(item)"><i class="fa fa-sm fa-search"></i>&nbsp;Sightings by this Sentry</a></li>-->
+                                <!--<li><a ng-click="latestSentryReportUi.gotoSightingsPivotForDevice(item)"><i class="fa fa-sm fa-search"></i>&nbsp;Sightings Pivot for this Sentry</a></li>-->
+                                <!--<li role="separator" class="divider"></li>-->
+                                <!--<li><a ng-click="latestSentryReportUi.gotoSeparationSimulator(item)"><i class="fa fa-sm fa-arrow-circle-right"></i>&nbsp;Separation simulator</a></li>-->
+                                <!--<li role="separator" class="divider"></li>-->
+                                <!--<li><a ng-click="latestSentryReportUi.goToReportSightings(item)"><i class="fa fa-sm fa-arrow-circle-right"></i>&nbsp;Warehouse simulator</a></li>-->
+                                <!--<li><a ng-click="latestSentryReportUi.goToReportSightings(item)"><i class="fa fa-sm fa-plus-square"></i>&nbsp;Add to warehouse simulator</a></li>-->
+                                <!--<li><a ng-click="latestSentryReportUi.goToReportSightings(item)"><i class="fa fa-sm fa-minus-square"></i>&nbsp;Remove from warehouse simulator</a></li>-->
+                            </ul>
+                        </div>
+                    </td>
+                    <td>{{ item.imei }}</td>
+                    <td>{{ item.sightingId }}</td>
+                    <td>{{ item.sequenceNumber }}</td>
+                    <td>{{ item.beaconType }}</td>
+                    <td><span local-datetime utc-datetime="{{ item.timeOfReceipt }}" date-format="L" time-format="LTS"></span></td>
+                    <td><span local-datetime utc-datetime="{{ item.timeOfReport }}" date-format="L" time-format="LTS"></span></td>
+                    <td>{{ item.batteryVoltage | batteryPercentage }}</td>
+                    <td>{{ item.batteryVoltage }}</td>
+                    <td>{{ item.humidity}}</td>
+                    <td>{{ item.lightValue}}</td>
+                    <td>{{ item.rssi }}</td>
+                    <td>{{ item.temperatureValueC }}</td>
+                    <td>{{ item.temperatureValueF }}</td>
+                    <td>{{ item.externalTemperatureC }}</td>
+                    <td>{{ item.externalTemperatureF }}</td>
+                    <td>{{ item.externalTemperatureC_2 }}</td>
+                    <td>{{ item.externalTemperatureF_2 }}</td>
+                    <td>{{ item.shockMagnitude}}</td>
+                    <td>{{ item.shockElapsedTime}}</td>
+                    <td>{{ item.shockX}}</td>
+                    <td>{{ item.shockY}}</td>
+                    <td>{{ item.shockZ}}</td>
+                    <td>{{ item.tiltX}}</td>
+                    <td>{{ item.tiltY}}</td>
+                    <td>{{ item.tiltZ}}</td>
+                    <td>{{ item.pressureValue}}</td>
+                    <td>{{ item.statusFlags_PowerSource}}</td>
+                    <td><span local-datetime utc-datetime="{{ item.firstSeenTimestamp }}" date-format="L" time-format="LTS"></span></td>
+                    <td><span local-datetime utc-datetime="{{ item.lastSeenTimestamp }}" date-format="L" time-format="LTS"></span></td>
+                    
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

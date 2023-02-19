@@ -1,0 +1,43 @@
+<div ng-controller="ZoneListController as zonesList">
+    <div zones-filter-bar></div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="zones">
+                    <thead>
+                    <tr>
+                        <th width="20">#</th>
+                        <th width="300" class="sortcolumn" ng-click="zonesList.sortBy('zoneName')">Name<span class="sortorder" ng-show="zonesList.propertyName === 'zoneName'" ng-class="{reverse: zonesList.reverse}"></span></th>
+                        <th width="100" class="sortcolumn" ng-click="zonesList.sortBy('deviceType')">Type<span class="sortorder" ng-show="zonesList.propertyName === 'deviceType'" ng-class="{reverse: zonesList.reverse}"></span></th>
+                        <th width="100" class="sortcolumn" ng-click="zonesList.sortBy('deviceId')">Device<span class="sortorder" ng-show="zonesList.propertyName === 'deviceId'" ng-class="{reverse: zonesList.reverse}"></span></th>
+                        <th width="300" class="sortcolumn" ng-click="zonesList.sortBy('location.name')">Location<span class="sortorder" ng-show="zonesList.propertyName === 'location.name'" ng-class="{reverse: zonesList.reverse}"></span></th>
+                        <th width="300" class="sortcolumn" ng-click="zonesList.sortBy('zoneNotes')">Comments<span class="sortorder" ng-show="zonesList.propertyName === 'zoneNotes'" ng-class="{reverse: zonesList.reverse}"></span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="zonesList.zones.all.length === 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">There are no zones for this client</td>
+                    </tr>
+                    <tr ng-show="zonesList.zones.all.length > 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">Showing {{ filteredList.length }} / {{ zonesList.zones.all.length }} zones</td>
+                    </tr>
+                    <tr ng-show="zonesList.zones.all.length != 0" ng-repeat="zone in filteredList = (zonesList.zones.all | orderBy:zonesList.propertyName:zonesList.reverse | filter: zonesList.filterService.filter)">
+                        <td width="20">{{ $index + 1 }}</td>
+                        <td width="300">
+                            <a ui-sref="zone.admin({ zoneId: zone.id})">{{ zone.zoneName }}</a>
+                        </td>
+                        <td width="100">{{ zone.deviceType }}</td>
+                        <td width="100">{{ zone.deviceId }}</td>
+                        <td width="300">{{ zone.location.name }}</td>
+                        <td width="300">{{ zone.zoneNotes }}</td>
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div><!--list-->
+

@@ -1,0 +1,44 @@
+<div ng-controller="GeofenceListController as geofencesList">
+    <div geofences-filter-bar></div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="geofecesList">
+                    <thead>
+                    <tr>
+                        <th width="20">#</th>
+                        <th width="10" class="sortcolumn" ng-click="geofencesList.sortBy('type')">Type<span class="sortorder" ng-show="geofencesList.propertyName === 'type'" ng-class="{reverse: geofencesList.reverse}"></span></th>
+                        <th width="300" class="sortcolumn" ng-click="geofencesList.sortBy('name')">Name<span class="sortorder" ng-show="geofencesList.propertyName === 'name'" ng-class="{reverse: geofencesList.reverse}"></span></th>
+                        <th width="300" class="sortcolumn" ng-click="geofencesList.sortBy('address')">Address<span class="sortorder" ng-show="geofencesList.propertyName === 'address'" ng-class="{reverse: geofencesList.reverse}"></span></th>
+                        <th class="sortcolumn" ng-click="geofencesList.sortBy('comments')">Comments<span class="sortorder" ng-show="geofencesList.propertyName === 'comments'" ng-class="{reverse: geofencesList.reverse}"></span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="geofencesList.geofences.all.length === 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">There are no geofences for this client</td>
+                    </tr>
+                    <tr ng-show="geofencesList.geofences.all.length > 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">Showing {{ filteredList.length }} / {{ geofencesList.geofences.all.length }} geofences</td>
+                    </tr>
+                    <tr ng-show="geofencesList.geofences.all.length != 0" ng-repeat="geofence in filteredList = (geofencesList.geofences.all | orderBy:geofencesList.propertyName:geofencesList.reverse | filter: geofencesList.filterService.filter)">
+                        <td width="20">{{ $index + 1 }}</td>
+                        <td width="10">
+                            {{ geofence.type === 'radius' ? 'Radial' : 'Polygon' }}
+                        </td>
+                        <td width="300">
+                            <a ui-sref="geofence.radial({ geofenceId: geofence.id})" ng-if="geofence.type === 'radius'">{{ geofence.name }}</a>
+                            <a ui-sref="geofence.polygon({ geofenceId: geofence.id})" ng-if="geofence.type === 'polygon'">{{ geofence.name }}</a>
+                        </td>
+                        <td width="300">{{ geofence.address }}</td>
+                        <td>{{ geofence.comments }}</td>
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div><!--list-->
+

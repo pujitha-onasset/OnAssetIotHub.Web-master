@@ -1,0 +1,155 @@
+<div class="row">
+    <div class="col-sm-12">
+        <ul class="nav nav-pills">
+            <li role="presentation">
+                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    Change View <i class="fa fa-lg fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu">
+                    <li role="presentation"><a role="button" ng-click="sentinelTrackingFilterbar.navToDeviceMap()" ng-hide="$state.current.name === 'device.sentinelmap'">&nbsp;<i class="fa fa-map-o fa-fw"></i> Map view</a></li>
+                    <li role="presentation"><a role="button" ng-click="sentinelTrackingFilterbar.navToDeviceReports()" ng-hide="$state.current.name === 'device.sentinelreports'">&nbsp;<i class="fa fa-table fa-fw"></i> Table view</a></li>
+                    <li role="presentation"><a role="button" ng-click="sentinelTrackingFilterbar.navToDeviceSummary()" ng-hide="$state.current.name === 'device.sentinelsummary'">&nbsp;<i class="fa fa-file-text-o fa-fw"></i> Sensor Report</a></li>
+                </ul>
+            </li>
+            <li role="presentation" class="pull-right"><a role="button" ng-click="sentinelTrackingFilterbar.refresh()" title="Refresh page"><i class="fa fa-lg fa-refresh"></i></a></li>
+            <li role="presentation" class="pull-right">
+                <a role="button" ng-click="sentinelTrackingFilterbar.toggleDateRangeForm()">
+                    Reports between {{ sentinelTrackingFilterbar.fromDate.label }} and {{ sentinelTrackingFilterbar.toDate.label }} <i class="fa fa-lg fa-caret-down"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+<nav class="navbar navbar-default" ng-show="sentinelTrackingFilterbar.showDateRangeForm">
+    <form class="navbar-form" ng-submit="sentinelTrackingFilterbar.submitDateRange()">
+        <div class="form-group" ng-class="{'has-error': sentinelTrackingFilterbar.fromDate.error}">
+            <label>Load reports between&nbsp;&nbsp;</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="sentinelTrackingFromDate" name="sentinelTrackingFromDate"
+                       ng-model="sentinelTrackingFilterbar.fromDate.date" ng-change="sentinelTrackingFilterbar.fromDate.isPristine = true">
+                <span class="input-group-addon">@</span>
+                <input type="text" class="form-control" id="sentinelTrackingFromTime" name="sentinelTrackingFromTime"
+                       ng-model="sentinelTrackingFilterbar.fromDate.time" ng-change="sentinelTrackingFilterbar.fromDate.isPristine = true">
+            </div>
+        </div>
+        <div class="form-group" ng-class="{'has-error': sentinelTrackingFilterbar.toDate.error}">
+            <label>&nbsp;&nbsp;and&nbsp;&nbsp;</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="sentinelTrackingToDate" name="sentinelTrackingToDate"
+                       ng-model="sentinelTrackingFilterbar.toDate.date" ng-change="sentinelTrackingFilterbar.toDate.isPristine = true">
+                <span class="input-group-addon">@</span>
+                <input type="text" class="form-control" id="sentinelTrackingToTime" name="sentinelTrackingToTime"
+                       ng-model="sentinelTrackingFilterbar.toDate.time" ng-change="sentinelTrackingFilterbar.toDate.isPristine = true">
+            </div>
+            <label>&nbsp;&nbsp;</label>
+        </div>
+        <button type="submit" class="btn btn-default navbar-btn">Submit</button>
+        <button type="button" class="btn btn-default navbar-btn" ng-click="sentinelTrackingFilterbar.resetDateRange()">Reset</button>
+        <button type="button" class="btn btn-default navbar-btn" ng-click="sentinelTrackingFilterbar.toggleDateRangeForm()">Cancel</button>
+    </form>
+    <p class="navbar-text" ng-show="sentinelTrackingFilterbar.error"><span class="text-danger"><i class="fa fa-exclamation-circle"></i>&nbsp;{{ sentinelTrackingFilterbar.error }}</span></p>
+</nav>
+<nav class="navbar navbar-default" ng-show="!sentinelTrackingFilterbar.showDateRangeForm">
+    <form class="navbar-form navbar-left">
+        <input type="text" class="form-control" placeholder="Text filter.." ng-model="sentinelTrackingFilterbar.filter.searchText">
+    </form>
+    <form class="navbar-form navbar-left">
+        <div class="btn-group" role="group">
+            <button role="button" class="btn btn-default" title="Toggle warning icons" id="btn-warning" ng-click="sentinelTrackingFilterbar.toggleSeverity('warning')" ng-class="{'active': !sentinelTrackingFilterbar.filter.showWarning}">
+                <img src="../img/warning-gps.png" height="20" ng-show="sentinelTrackingFilterbar.filter.showWarning">
+                <img src="../img/warning-disabled.png" height="20" ng-show="!sentinelTrackingFilterbar.filter.showWarning">
+                &nbsp;{{sentinelTrackingFilterbar.filter.showWarning ? 'On' : 'Off'}}
+            </button>
+            <button role="button" class="btn btn-default" title="Toggle info icons" id="btn-info" ng-click="sentinelTrackingFilterbar.toggleSeverity('info')" ng-class="{'active': !sentinelTrackingFilterbar.filter.showInfo}">
+                <img src="../img/info-gps.png" height="20" ng-show="sentinelTrackingFilterbar.filter.showInfo">
+                <img src="../img/info-disabled.png" height="20" ng-show="!sentinelTrackingFilterbar.filter.showInfo">
+                &nbsp;{{sentinelTrackingFilterbar.filter.showInfo ? 'On' : 'Off'}}
+            </button>
+            <button role="button" class="btn btn-default" title="Toggle ok icons" id="btn-ok" ng-click="sentinelTrackingFilterbar.toggleSeverity('ok')" ng-class="{'active': !sentinelTrackingFilterbar.filter.showOk}">
+                <img src="../img/ok-gps.png" height="20" ng-show="sentinelTrackingFilterbar.filter.showOk">
+                <img src="../img/ok-disabled.png" height="20" ng-show="!sentinelTrackingFilterbar.filter.showOk">
+                &nbsp;{{sentinelTrackingFilterbar.filter.showOk ? 'On' : 'Off'}}
+            </button>
+        </div>
+    </form>
+    <form class="navbar-form navbar-left">
+        <div class="btn-group" role="group">
+            <button type="button" id="btn-property" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    title="Showing {{sentinelTrackingFilterbar.filter.filterByPropertyName}} values on the timeline">
+                {{sentinelTrackingFilterbar.filter.filterByPropertyName}}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.filterByBattery()">Battery (%)</a></li>
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.filterByDewPointC()">DewPoint (&deg;C)</a></li>
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.filterByDewPointF()()">DewPoint (&deg;F)</a></li>
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.filterByHumidity()">Humidity (%)</a></li>
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.filterByLight()">Light (lux)</a></li>
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.filterByPressure()">Pressure (kPa)</a></li>
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.filterByShock()">Shock (g)</a></li>
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.filterByTemperatureC()">Temperature (&deg;C)</a></li>
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.filterByTemperatureF()">Temperature (&deg;F)</a></li>
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.filterByTempProbeC()">Temperature Probe 1 (&deg;C)</a></li>
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.filterByTempProbeF()">Temperature Probe 1 (&deg;F)</a></li>
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.filterByTempProbe2C()">Temperature Probe 2 (&deg;C)</a></li>
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.filterByTempProbe2F()">Temperature Probe 2 (&deg;F)</a></li>
+            </ul>
+        </div>
+        &nbsp;
+        <div class="btn-group" role="group">
+            <button type="button" id="btn-filter-option" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    title="Filter option">
+                values {{ sentinelTrackingFilterbar.filter.range.filterOption !== 'none' ? sentinelTrackingFilterbar.filter.range.filterOption : '' }}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.range.filterOption = 'none'">values</a></li>
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.range.filterOption = 'above'">values above</a></li>
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.range.filterOption = 'below'">values below</a></li>
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.range.filterOption = 'between'">values between</a></li>
+                <li><a role="button" ng-click="sentinelTrackingFilterbar.filter.range.filterOption = 'outside'">values outside</a></li>
+            </ul>
+        </div>
+        &nbsp;
+        <span ng-show="sentinelTrackingFilterbar.filter.range.filterOption === 'above'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="sentinelTrackingFilterbar.filter.range.min"
+                       max="sentinelTrackingFilterbar.filter.range.max"
+                       ng-model="sentinelTrackingFilterbar.filter.range.above">
+                <span class="input-group-addon">{{sentinelTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        <span ng-show="sentinelTrackingFilterbar.filter.range.filterOption === 'below'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="sentinelTrackingFilterbar.filter.range.min"
+                       max="sentinelTrackingFilterbar.filter.range.max"
+                       ng-model="sentinelTrackingFilterbar.filter.range.below">
+                <span class="input-group-addon">{{sentinelTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        <span ng-show="sentinelTrackingFilterbar.filter.range.filterOption === 'between' || sentinelTrackingFilterbar.filter.range.filterOption === 'outside'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="sentinelTrackingFilterbar.filter.range.min"
+                       max="sentinelTrackingFilterbar.filter.range.max"
+                       ng-model="sentinelTrackingFilterbar.filter.range.from">
+                <span class="input-group-addon">{{sentinelTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+            &nbsp;&nbsp;and&nbsp;&nbsp;
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="sentinelTrackingFilterbar.filter.range.min"
+                       max="sentinelTrackingFilterbar.filter.range.max"
+                       ng-model="sentinelTrackingFilterbar.filter.range.to">
+                <span class="input-group-addon">{{sentinelTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        &nbsp;
+        <button role="button" id="btn-reset-property" class="btn btn-default" title="Reset filter values"
+                ng-click="sentinelTrackingFilterbar.resetPropertyFilter()"
+                ng-show="sentinelTrackingFilterbar.filter.range.filterOption !== 'none'">
+            <i class="fa fa-undo fa-lg"></i>
+        </button>
+
+    </form>
+</nav>

@@ -1,0 +1,84 @@
+<div ng-controller="AlarmsByDeviceController as alarmsByDevice">
+    <nav class="navbar navbar-default" style="margin-top: 10px" >
+        <div class="row filter-alarm" >
+            <form class="navbar-form navbar-left col-sm-4 col-xs-12">
+                <div class="col-xs-1 col-sm-1">
+                   <label><i class="fa fa-lg fa-filter"></i></label>
+                </div>
+                <div class="col-xs-10 col-sm-10">
+                  <input type="text" class="form-control" placeholder="Filter.." ng-model="alarmsByDevice.filterText">
+                </div>
+            </form>
+            <form class="navbar-form navbar-left  col-sm-4 col-xs-12">
+                <div class="btn-group" role="group">
+                    <button role="button" class="btn btn-default" title="Toggle show warning" id="btn-warning" ng-click="alarmsByDevice.toggleWarnings()" ng-class="{'active': alarmsByDevice.showWarnings}">
+                        <i class="fa fa-exclamation-circle fa-lg text-danger"></i>
+                    </button>
+                    <button role="button" class="btn btn-default" title="Toggle show info" id="btn-info" ng-click="alarmsByDevice.toggleInfos()" ng-class="{'active': alarmsByDevice.showInfos}">
+                        <i class="fa fa-info-circle fa-lg text-info"></i>
+                    </button>
+                </div>
+            </form>
+            <form class="navbar-form navbar-left  col-sm-4 col-xs-12">
+                <div class="btn-group" role="group">
+                    <button role="button" class="btn btn-default" title="Toggle show shipment alarms" id="btn-shipmentAlarms" ng-click="alarmsByDevice.toggleShipmentAlarms()" ng-class="{'active': alarmsByDevice.showShipmentAlarms}">
+                        <i class="fa fa-truck fa-lg"></i>
+                    </button>
+                    <button role="button" class="btn btn-default" title="Toggle show device alarms" id="btn-deviceAlarms" ng-click="alarmsByDevice.toggleDeviceAlarms()" ng-class="{'active': alarmsByDevice.showDeviceAlarms}">
+                        <i class="fa fa-hdd-o fa-lg"></i>
+                    </button>
+                    <button role="button" class="btn btn-default" title="Toggle show separation alarms" id="btn-separationAlarms" ng-click="alarmsByDevice.toggleSeparationAlarms()" ng-class="{'active': alarmsByDevice.showSeparationAlarms}">
+                        <i class="fa fa-chain-broken fa-lg"></i>
+                    </button>
+                </div>
+            </form>
+            <form class="navbar-form navbar-left  col-sm-4 col-xs-12">
+
+                         <export-table-to file-name="Alarms" table-id-to-export="alarmsByDevice"></export-table-to>
+            </form>
+
+        </div>
+    </nav>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="table-responsive">
+                <table class="table table-striped" id="alarmsByDevice">
+                    <thead>
+                    <tr>
+                        <th width="20">#</th>
+                        <th width="300" class="sortcolumn" ng-click="alarmsByDevice.sortBy('alarmName')">Alarm name<span class="sortorder" ng-show="alarmsByDevice.propertyName === 'alarmName'" ng-class="{reverse: alarmsByDevice.reverse}"></span></th>
+                        <th width="150" class="sortcolumn" ng-click="alarmsByDevice.sortBy('isShowAsRedDot')">Severity<span class="sortorder" ng-show="alarmsByDevice.propertyName === 'isShowAsRedDot'" ng-class="{reverse: alarmsByDevice.reverse}"></span></th>
+                        <th width="150" class="text-center sortcolumn" ng-click="alarmsByDevice.sortBy('alarmType')">Alarm Type<span class="sortorder" ng-show="alarmsByDevice.propertyName === 'alarmType'" ng-class="{reverse: alarmsByDevice.reverse}"></span></th>
+                        <th width="150" class="text-center sortcolumn" ng-click="alarmsByDevice.sortBy('emailFrequency')">Email Frequency<span class="sortorder" ng-show="alarmsByDevice.propertyName === 'emailFrequency'" ng-class="{reverse: alarmsByDevice.reverse}"></span></th>
+                        <th width="150" class="text-center sortcolumn" ng-click="alarmsByDevice.sortBy('smsFrequency')">Sms Frequency<span class="sortorder" ng-show="alarmsByDevice.propertyName === 'smsFrequency'" ng-class="{reverse: alarmsByDevice.reverse}"></span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="alarmsByDevice.list.length === 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">There are no alarms for this sentry</td>
+                    </tr>
+                    <tr ng-show="alarmsByDevice.list.length > 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">Showing {{ filteredList.length }} / {{ alarmsByDevice.list.length }} alarms</td>
+                    </tr>
+                    <tr ng-show="alarmsByDevice.list.length != 0" ng-repeat="alarm in filteredList = (alarmsByDevice.list | filter: alarmsByDevice.filter | orderBy:alarmsByDevice.propertyName:alarmsByDevice.reverse)">
+                        <td width="20">{{ $index + 1 }}</td>
+                        <td width="300"><a ui-sref="alarm.admin({ alarmId: alarm.alarmId })">{{ alarm.alarmName }}</a></td>
+                        <td width="150">
+                        <span class="{{ alarm.isShowAsRedDot ? 'text-danger' : 'text-info' }}">
+                            <i class="fa {{alarm.isShowAsRedDot ? 'fa-exclamation-circle' : 'fa-info-circle' }} fa-lg" title="{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}"></i>
+                            &nbsp;{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}
+                        </span>
+                        </td>
+                        <td width="150" class="text-center"><i class="fa {{ alarm.alarmType == 'shipment' ? 'fa-truck' : alarm.alarmType == 'device' ? 'fa-hdd-o' : 'fa-chain-broken' }}"></i> {{ alarm.isActiveOnShipmentOnly ? 'Shipment' : alarm.isSeparationAlarm ? 'Separation' : 'Device' }}</td>
+                        <td width="150" class="text-center">{{ alarm.emailFrequency }}</td>
+                        <td width="150" class="text-center">{{ alarm.smsFrequency }}</td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

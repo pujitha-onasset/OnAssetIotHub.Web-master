@@ -1,0 +1,25 @@
+<div id="sentinelTrackingTimeline"></div>
+<nav class="navbar navbar-default large-map-timeline">
+    <div class="collapse navbar-collapse" id="sentinelTrackingTimelineNav">
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <form class="navbar-form">
+                    <div class="btn-group" role="group">
+                        <button role="button" class="btn btn-default btn-sm" title="Move to last report" id="btn-timeline-last" ng-click="sentinelTrackingTimeline.moveToLastReport()" ng-disabled="!sentinelTrackingTimeline.hasLastReport">
+                            Last Report
+                        </button>
+                        <button role="button" class="btn btn-default btn-sm" title="Show last 30 days" id="btn-timeline-month" ng-click="sentinelTrackingTimeline.moveToCurrentMonth()">
+                            Last 30 days
+                        </button>
+                        <button role="button" class="btn btn-default btn-sm" title="Show last 7 days" id="btn-timeline-week" ng-click="sentinelTrackingTimeline.moveToCurrentWeek()">
+                            Last 7 days
+                        </button>
+                        <button role="button" class="btn btn-default btn-sm" title="Show last 24 hours" id="btn-timeline-day" ng-click="sentinelTrackingTimeline.moveToCurrentDay()">
+                            Last 24 hours
+                        </button>
+                    </div>
+                </form>
+            </li>
+        </ul>
+    </div>
+</nav>

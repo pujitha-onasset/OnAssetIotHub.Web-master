@@ -1,0 +1,256 @@
+<div class="spinner" ng-show="loading" style="z-index:1051; position: fixed; width:100%; top: 0; bottom: 0; background: rgba(0, 0, 0, 0.65) url('./img/loading.svg')no-repeat fixed center;"></div>
+<div ng-controller="HeaderController as header" class="clearfix">
+    <nav class="navbar navbar-default navbar-static-top header-nav" ng-hide="header.showNavigation() || header.showLogout()">
+        <div class="container">
+            <div class="navbar-header navbar-right" >
+                <a class="navbar-brand brand-narrow" ui-sref="login"><img class="brand-logo" src="{{ header.references.logo }}" /></a>
+            </div>
+        </div>
+    </nav>
+    <nav class="navbar navbar-default navbar-static-top header-nav " ng-show="header.showNavigation() || header.showLogout()">
+        <div class="container">
+            
+             <div class="navigation-dropdown-menu dropdown user-menu" >
+                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" title="Current User"><i class="fa fa-user fa-lg"></i>&nbsp;<span class="caret"></span></a>
+                <ul class="dropdown-menu dropdown-menu-right" >
+                    <li ng-hide="header.showLogout()"><a role="button" ng-click="header.changeUsername()"><i class="fa fa-user fa-fw"></i>&nbsp;&nbsp;Change My Username</a></li>
+                    <li ng-hide="header.showLogout()"><a role="button" ng-click="header.changePassword()"><i class="fa fa-lock fa-fw"></i>&nbsp;&nbsp;Change My Password</a></li>
+                    <li ng-hide="header.showLogout()" role="separator" class="divider"></li>
+                    <li><a role="button" ng-click="header.logout()" title="Logout"><i class="fa fa-sign-out fa-fw"></i>&nbsp;&nbsp;Logout</a></li>
+                </ul>
+            </div>
+            <div class="navigation-dropdown-menu dropdown user-menu" ng-hide="header.showLogout()">
+                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-eye"></i>&nbsp;&nbsp;{{ header.focusName  || header.accountName}} <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li><a role="button" ng-click="header.clearFocus()" ng-show="header.focusName">Clear</a></li>
+                    <li><a role="button" ng-click="header.changeFocus()">Change Focus</a></li>
+                </ul>
+            </div>
+            <div ng-show="header.showNavigation()">
+                <button id="btn-toggle-menu" type="button" class="btn btn-default navbar-btn" ng-click="header.toggleMenu()" ng-class="{'active': header.showMenu}">
+                    <i class="fa fa-bars"></i>
+                </button>
+                <div class="header-title">
+                    <a role="button" ng-show="$state.current.data.parentState" ng-click="header.navigateToParent()">{{ $state.current.data.pageTitle }}</a>
+                    <span ng-show="!$state.current.data.parentState">{{ $state.current.data.pageTitle }}</span>
+                    <span ng-show="$state.current.data.subTitle">&nbsp;/&nbsp;{{ $state.current.data.subTitle }}</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar sidebar-default" ng-show="header.showMenu">
+        <nav class="sidebar-nav">
+            <ul class="metismenu" id="menu">
+                <li class="active">
+                    <a role="button" ng-click="header.go('home')">
+                        <span class="sidebar-nav-item-icon fa fa-home fa-lg fa-fw"></span>
+                        <span class="sidebar-nav-item">Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" aria-expanded="true"><span class="sidebar-nav-item-icon fa fa-eye fa-lg fa-fw"></span>
+                        <span class="sidebar-nav-item">Track..</span><span class="fa arrow fa-fw"></span>
+                    </a>
+                    <ul aria-expanded="true">
+                        <li ng-show="header.session.showCalibrationModule()"><a role="button" ng-click="header.go('calibrations.controlcenter')" aria-disabled="true">Calibrations</a></li>
+                        <li><a role="button" ng-click="header.go('devices.map')" aria-disabled="true">Devices</a></li>
+                        <li ng-show="header.session.showWarehouseModule()"><a role="button" ng-click="header.go('locations.tracking')" aria-disabled="true">Locations</a></li>
+                        <!--<li><a role="button" ng-click="nav.go('reverselogistics.map')" aria-disabled="true">Returning Devices</a></li>
+                    -->
+                        <li><a role="button" ng-click="header.go('shipments.map')" aria-disabled="true">Shipments</a></li>
+                        <li><a role="button" ng-click="header.go('watchlist.tracking')" aria-disabled="true">Watchlist</a></li>
+                    </ul>
+                </li>
+                <li ng-show="header.showSystemAdminMenu() || header.showAdminMenu() || header.showSupportAdminMenu() || header.showAccountAdminMenu()">
+                    <a href="#" aria-expanded="false"><span class="sidebar-nav-item-icon fa fa-plus-square fa-lg fa-fw"></span>
+                        <span class="sidebar-nav-item">New..</span><span class="fa arrow fa-fw"></span>
+                    </a>
+                    <ul aria-expanded="false">
+                        <li ng-if="header.showAdminMenu() || header.showAccountAdminMenu()"><a role="button" ng-click="header.go('alarm.new')">Alarm</a></li>
+                        <li ng-if="header.showAdminMenu() || header.showAccountAdminMenu()"><a role="button" ng-click="header.go('alarmcontact.new')">Alarm Contact</a></li>
+                        <li ng-if="header.session.showWarehouseModule() && (header.showAdminMenu() || header.showAccountAdminMenu())"><a role="button" ng-click="header.go('asset.new')">Asset</a></li>
+                        <!--
+                        <li ng-if="nav.session.user.isSystemAdmin || nav.session.user.isAccountAdmin || nav.session.user.isAccountEditor"><a role="button" ng-click="nav.go('client.new')">Client</a></li>
+                        -->
+                        <li ng-if="header.showAdminMenu() || header.showAccountAdminMenu() ||  header.showAccountEditor()"><a role="button" ng-click="header.go('devicegroup.new')">Device Group</a></li>                        
+                        <li ng-if="header.showAdminMenu() || header.showAccountAdminMenu()"><a role="button" ng-click="header.go('geofence.polygonNew')">Geofence (Polygon)</a></li>
+                        <li ng-if="header.showAdminMenu() || header.showAccountAdminMenu()"><a role="button" ng-click="header.go('geofence.radialNew')">Geofence (Radial)</a></li>
+                        <li ng-if="header.session.showWarehouseModule() && (header.showAdminMenu() || header.showAccountAdminMenu())"><a role="button" ng-click="header.go('location.new')">Location</a></li>
+                        <!--
+                        <li ng-if="nav.session.user.isSystemAdmin || nav.session.user.isAccountAdmin || nav.session.user.isAccountEditor"><a role="button" ng-click="nav.go('route.new')">Route</a></li>
+                       -->
+                        <li ng-if="header.showAdminMenu() || header.showAccountAdminMenu()"><a role="button" ng-click="header.go('shipment-new')">Shipment</a></li>
+                        <li ng-show="header.showAdminMenu() || header.showAccountAdminMenu()"><a role="button" ng-click="header.go('shipment-notification-subscriber.new')">Shipping Notification Subscriber</a></li>
+                        <li ng-if="header.showAdminMenu() || header.showAccountAdminMenu()"><a role="button" ng-click="header.go('shipmenttemplate.new')">Shipping Template</a></li>
+                
+                        <!--
+                        <li ng-if="header.showAdminMenu() || header.showAccountAdminMenu() || header.showAccountEditorMenu()"><a role="button" ng-click="header.go('user.new')">User</a></li>
+                    -->
+                    </ul>
+                </li>
+                <li ng-show="header.showSystemAdminMenu() || header.showAdminMenu() || header.showAccountAdminMenu() || header.showAccountEditorMenu() || header.showAccountObserverMenu()">
+                    <a href="#" aria-expanded="false"><span class="sidebar-nav-item-icon fa fa-cog fa-lg fa-fw"></span>
+                        <span class="sidebar-nav-item">Manage..</span><span class="fa arrow fa-fw"></span>
+                    </a>
+                    <ul aria-expanded="false">
+                        <li><a role="button" ng-click="header.go('accounts.list')">Accounts</a></li>
+                        <li><a role="button" ng-click="header.go('alarmcontacts.list')">Alarm Contacts</a></li>
+                        <li><a role="button" ng-click="header.go('alarms.list')">Alarms</a></li>
+                        <li ng-show="header.session.showWarehouseModule()"><a role="button" ng-click="header.go('assets.list')">Assets</a></li>
+                        <li ng-show="header.session.showCalibrationModule()"><a role="button" ng-click="header.go('calibrations.alerts')">Calibration Alerts</a></li>
+                        <li><a role="button" ng-click="header.go('devicegroups.list')">Device Groups</a></li>
+                        <li><a role="button" ng-click="header.go('geofences.list')">Geofences</a></li>
+                        <li ng-show="header.session.showWarehouseModule()"><a role="button" ng-click="header.go('locations.list')">Locations</a></li>
+                        <li><a role="button" ng-click="header.go('logins.list')" ng-if="(header.showSystemAdminMenu() || header.showAdminMenu() || header.showAccountAdminMenu())">Logins</a></li>
+                        <li><a role="button" ng-click="header.go('sentinel-admin.list')" ng-if="(header.showSystemAdminMenu() || header.showAdminMenu() || header.showAccountAdminMenu())">Sentinels</a></li>
+                        <li><a role="button" ng-click="header.go('sentry-admin.list')" ng-if="(header.showSystemAdminMenu() || header.showAdminMenu() || header.showAccountAdminMenu())">SENTRYs</a></li>
+                        <li><a role="button" ng-click="header.go('shipments.list')">Shipments</a></li>
+                        <li><a role="button" ng-click="header.go('shipmentnotifications.admin')">Shipping Notifications</a></li>
+                        <li><a role="button" ng-click="header.go('shipmenttemplates.list')">Shipping Templates</a></li>
+                        <li ng-show="header.session.showWarehouseModule()"><a role="button" ng-click="header.go('zones.list')">Zones</a></li>
+                    </ul>
+                </li>
+                <li ng-show="header.showSystemAdminMenu() || header.showAdminMenu() || header.showAccountMenu()">
+                    <a href="#" aria-expanded="false"><span class="sidebar-nav-item-icon fa fa-binoculars fa-lg fa-fw"></span>
+                        <span class="sidebar-nav-item">View..</span><span class="fa arrow fa-fw"></span>
+                    </a>
+                    <ul aria-expanded="false">
+                        <li><a role="button" ng-click="header.go('sightings.latest')">Sentinel Sightings</a></li>
+                        <li><a role="button" ng-click="header.go('sentinel-assignment.list')">Sentinels</a></li>
+                        <li><a role="button" ng-click="header.go('sentry-reports.latest')">SENTRY Reports</a></li>
+                        <li><a role="button" ng-click="header.go('sentry-assignment.list')">SENTRYs</a></li>
+                    </ul>
+                </li>
+                <li ng-show="header.showSystemAdminMenu()">
+                    <a href="#" aria-expanded="false"><span class="sidebar-nav-item-icon fa fa-cogs fa-lg fa-fw"></span>
+                        <span class="sidebar-nav-item">Fulfillment..</span><span class="fa arrow fa-fw"></span>
+                    </a>
+                    <ul aria-expanded="false">
+                        <li><a role="button" ng-click="header.go('sentinel-reports-by-list')">Sentinel check</a></li>
+                        <li><a role="button" ng-click="header.go('sentry-reports-by-list')">Sentry check</a></li>
+                        <li><a role="button" ng-click="header.go('fulfillment.config')">Sentry configurator</a></li>
+                    </ul>
+                </li>
+                <li ng-show="header.session.showPivotModule()">
+                    <a href="#" aria-expanded="false"><span class="sidebar-nav-item-icon fa fa-cogs fa-lg fa-fw"></span>
+                        <span class="sidebar-nav-item">Reports..</span><span class="fa arrow fa-fw"></span>
+                    </a>
+                    <ul aria-expanded="false">
+                        <li><a role="button" ng-click="header.go('devices.sentinelreport')">Sentinel report</a></li>
+                        <li><a role="button" ng-click="header.go('devices.devicereport')">Sentry report</a></li>
+                    </ul>
+                </li>
+                <!--
+                <li ng-show="header.showAdminMenu() || header.showAccountMenu()">
+                    <a href="#" aria-expanded="false"><span class="sidebar-nav-item-icon fa fa-wrench fa-lg fa-fw"></span>
+                        <span class="sidebar-nav-item">Simulators..</span><span class="fa arrow fa-fw"></span>
+                    </a>
+                    <ul aria-expanded="false">
+                        <li><a role="button" ng-click="header.go('simulators.separation')">Separation</a></li>
+                        <li><a role="button" ng-click="header.go('simulators.warehouse')">Warehouse</a></li>
+                    </ul>
+                </li>
+            -->
+            </ul>
+        </nav>
+    </div>
+    <!--<nav class="navbar navbar-default navbar-static-top header-nav" ng-show="header.showHeader">-->
+        <!--<div class="container">-->
+            <!--<div class="navbar-header">-->
+                <!--<a class="navbar-brand brand-narrow" ui-sref="{{ header.references.home }}"><img class="brand-logo" src="{{ header.references.logo }}" /></a>-->
+                <!--<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">-->
+                    <!--<span class="sr-only">Toggle navigation</span>-->
+                    <!--<span class="icon-bar"></span>-->
+                    <!--<span class="icon-bar"></span>-->
+                    <!--<span class="icon-bar"></span>-->
+                <!--</button>-->
+            <!--</div>-->
+            <!--<div class="collapse navbar-collapse" id="navbar-collapse-1">-->
+                <!--<ul class="nav navbar-nav">-->
+                    <!--&lt;!&ndash;<li ng-class="{'active': $state.current.name === 'home' }"><a ui-sref="home"><i class="fa fa-home fa-lg"></i></a></li>&ndash;&gt;-->
+                    <!--<li class="dropdown">-->
+                        <!--<a class="dropdown-toggle" data-toggle="dropdown" role="button">Admin <span class="caret"></span></a>-->
+                        <!--<ul class="dropdown-menu">-->
+                            <!--<li><a ui-sref="admin-new-account" title="New account">Account</a></li>-->
+                            <!--<li><a ui-sref="admin-new-login" title="New login">Login</a></li>-->
+                        <!--</ul>-->
+                    <!--</li>-->
+                    <!--<li class="dropdown">-->
+                        <!--<a class="dropdown-toggle" data-toggle="dropdown" role="button">New <span class="caret"></span></a>-->
+                        <!--<ul class="dropdown-menu">-->
+                            <!--<li><a ui-sref="admin-new-account" title="New account">Account</a></li>-->
+                            <!--<li><a ui-sref="admin-new-login" title="New login">Login</a></li>-->
+                        <!--</ul>-->
+                    <!--</li>-->
+                    <!--<li class="dropdown">-->
+                        <!--<a class="dropdown-toggle" data-toggle="dropdown" role="button">Assign <span class="caret"></span></a>-->
+                        <!--<ul class="dropdown-menu">-->
+                            <!--<li><a ui-sref="admin-assign-sentry-500s" title="Assign Sentry 500s">Sentry 500s</a></li>-->
+                            <!--<li><a ui-sref="admin-assign-sentinels" title="Assign Sentinels">Sentinels</a></li>-->
+                        <!--</ul>-->
+                    <!--</li>-->
+                    <!--<li class="dropdown">-->
+                        <!--<a class="dropdown-toggle" data-toggle="dropdown" role="button">Explore <span class="caret"></span></a>-->
+                        <!--<ul class="dropdown-menu">-->
+                            <!--<li><a ui-sref="admin-list-accounts" title="Accounts">Accounts</a></li>-->
+                            <!--<li><a ui-sref="admin-list-logins" title="Logins">Logins</a></li>-->
+                            <!--<li><a ui-sref="admin-list-sentinels" title="Sentinels">Sentinels</a></li>-->
+                            <!--<li><a ui-sref="admin-list-sightings" title="Sentinel Sightings">Sentinel Sightings</a></li>-->
+                            <!--<li><a ui-sref="admin-list-sentry-500s" title="Sentry 500s">Sentry 500s</a></li>-->
+                            <!--<li><a ui-sref="admin-list-sentry-500-reports" title="Sentry 500 Reports">Sentry 500 Reports</a></li>-->
+                        <!--</ul>-->
+                    <!--</li>-->
+                    <!--<li class="dropdown">-->
+                        <!--<a class="dropdown-toggle" data-toggle="dropdown" role="button">Admin <span class="caret"></span></a>-->
+                        <!--<ul class="dropdown-menu">-->
+                            <!--<li><a ui-sref="admin-accounts" title="Accounts">Accounts</a></li>-->
+                            <!--<li><a ui-sref="admin-logins" title="Logins">Logins</a></li>-->
+                            <!--<li><a ui-sref="admin-sentinels" title="Sentinels">Sentinels</a></li>-->
+                            <!--<li><a ui-sref="admin-sentinel-sightings" title="Sentinel Sightings">Sentinel Sightings</a></li>-->
+                            <!--<li><a ui-sref="admin-sentry-500s" title="Sentry 500s">Sentry 500s</a></li>-->
+                            <!--<li><a ui-sref="admin-sentry-500-reports" title="Sentry 500 Reports">Sentry 500 Reports</a></li>-->
+                        <!--</ul>-->
+                    <!--</li>-->
+                    <!--<li class="dropdown">-->
+                        <!--<a class="dropdown-toggle" data-toggle="dropdown" role="button">Sentry 500s <span class="caret"></span></a>-->
+                        <!--<ul class="dropdown-menu">-->
+                            <!--<li><a ui-sref="sightings-comparison" title="Rssi Comparison">Rssi Comparison</a></li>-->
+                            <!--<li><a ui-sref="sightings" title="Sighting List">Sighting List</a></li>-->
+                            <!--<li><a ui-sref="sightings-summary" title="Sighting Summary">Sighting Summary</a></li>-->
+                        <!--</ul>-->
+                    <!--</li>-->
+                    <!--<li class="dropdown">-->
+                        <!--<a class="dropdown-toggle" data-toggle="dropdown" role="button">Sentinels <span class="caret"></span></a>-->
+                        <!--<ul class="dropdown-menu">-->
+                            <!--<li><a ui-sref="sightings-comparison" title="Rssi Comparison">Rssi Comparison</a></li>-->
+                            <!--<li><a ui-sref="sightings" title="Sighting List">Sighting List</a></li>-->
+                            <!--<li><a ui-sref="sightings-summary" title="Sighting Summary">Sighting Summary</a></li>-->
+                        <!--</ul>-->
+                    <!--</li>-->
+                    <!--<li class="dropdown">-->
+                        <!--<a class="dropdown-toggle" data-toggle="dropdown" role="button">Emulators <span class="caret"></span></a>-->
+                        <!--<ul class="dropdown-menu">-->
+                            <!--<li><a ui-sref="emulator-version-1" title="Version 1">Version 1</a></li>-->
+                        <!--</ul>-->
+                    <!--</li>-->
+                    <!--&lt;!&ndash;<li class="dropdown">&ndash;&gt;-->
+                        <!--&lt;!&ndash;<a class="dropdown-toggle" data-toggle="dropdown" role="button">Sentries <span class="caret"></span></a>&ndash;&gt;-->
+                        <!--&lt;!&ndash;<ul class="dropdown-menu">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<li><a ui-sref="sentry-reports" title="Sightings">Reports</a></li>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<li><a ui-sref="sightings-variance" title="Summary">Variance</a></li>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</ul>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</li>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<li ng-class="{'active': $state.current.name.startsWith('sentries') }"><a ui-sref="sentry" title="Sentries"><i class="fa fa-hdd-o fa-lg"></i> Sentries</a></li>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<li ng-class="{'active': $state.current.name.startsWith('beacon') }"><a ui-sref="beacon" title="Beacons"><i class="fa fa-bluetooth-b fa-lg"></i> Beacons</a></li>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<li ng-class="{'active': $state.current.name.startsWith('exception') }"><a ui-sref="exception" title="Exceptions"><i class="fa fa-exclamation-triangle fa-lg"></i> Exceptions</a></li>&ndash;&gt;-->
+                <!--</ul>-->
+                <!--<ul class="nav navbar-nav navbar-right">-->
+                    <!--<li><a role="button" ng-click="header.logout()" title="Logout"><i class="fa fa-sign-out fa-fw"></i>&nbsp;&nbsp;Logout</a></li>-->
+                <!--</ul>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</nav>-->
+</div>
+

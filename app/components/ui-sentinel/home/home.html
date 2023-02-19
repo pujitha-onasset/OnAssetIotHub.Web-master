@@ -1,0 +1,251 @@
+<div  ng-controller="HomeController as home">
+	<div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1 col-sm-12">
+        <div class="row" style="padding-top: 20px">
+            <div class="col-lg-4 col-md-4 col-sm-12" >
+                <div class="panel panel-default panel-themed">
+                    <div class="panel-heading"><h3 class="panel-title">Shipments <span ng-show="home.counts.activeShipments > -1">({{home.counts.activeShipments}} active)</span></h3></div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <ul class="nav nav-pills">
+                                    <li role="presentation"><a role="button" ui-sref="shipments.map"><i class="fa fa-map-o"></i> Track</a></li>
+                                    <li role="presentation"><a role="button" ui-sref="shipments.reports"><i class="fa fa-table"></i> Reports</a></li>
+                                    <li role="presentation" ng-if="home.hasPermissionTo.createShipment"><a role="button" ui-sref="shipment-new"><i class="fa fa-plus-square"></i> Create new</a></li>
+                                </ul>
+                                <br/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <form>
+                                    <div class="form-group form-group-sm" ng-class="{'has-error': !home.shipmentSearch.isPristine && home.shipmentSearch.hasError()}">
+                                        <label>Go to a shipment</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="searchShipments" name="searchShipments"
+                                               placeholder="Enter a shipment reference number"
+                                               ng-model="home.shipmentSearch.text"
+                                               ng-change="home.beginShipmentSearch()"
+                                               >
+                                            <span class="input-group-btn" ng-if="home.showFindButton">
+                                                <button type="button" class="btn btn-default btn-sm" title="Search shipments"
+                                                    ng-click="home.searchShipments()">
+                                                    <i class="fa fa-binoculars"></i>&nbsp;Find
+                                                </button>
+                                            </span>
+                                        </div>
+                                        <p class="help-block text-right" ng-show="!home.shipmentSearch.isPristine && home.shipmentSearch.errors.isBlank"><i class="fa fa-exclamation-triangle"></i>&nbsp;Reference number is required</p>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-12" ng-show="home.session.showWarehouseModule()">
+                <div class="panel panel-default panel-themed">
+                    <div class="panel-heading"><h3 class="panel-title">Locations  <span ng-show="home.counts.locations > -1">({{home.counts.locations}})</span></h3></div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <ul class="nav nav-pills">
+                                    <li role="presentation"><a role="button" ui-sref="locations.tracking"><i class="fa fa-map-o"></i> Track</a></li>
+                                    <li role="presentation"><a role="button" ui-sref="locations.list"><i class="fa fa-list"></i> List</a></li>
+                                </ul>
+                                <br/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <form ng-submit="home.location.submit()">
+                                    <div class="form-group form-group-sm" ng-class="{'has-error': !home.location.isPristine && home.location.hasError()}">
+                                        <label>Go to a location</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="location" name="location"
+                                                   placeholder="Enter a location name"
+                                                   ng-model="home.location.text"
+                                                   ng-change="home.beginlocationsearch()">
+                                            <span class="input-group-btn" ng-if="home.showFindButton">
+                                                <button type="button" class="btn btn-default btn-sm" title="Search locations"
+                                                    ng-click="home.searchLocations()">
+                                                    <i class="fa fa-binoculars"></i>&nbsp;Find
+                                                </button>
+                                            </span>
+                                        </div>
+                                        <p class="help-block text-right" ng-show="!home.location.isPristine && home.location.errors.isBlank"><i class="fa fa-exclamation-triangle"></i>&nbsp;Location name is required</p>
+                                        <p class="help-block text-right" ng-show="!home.location.isPristine && home.location.errors.isNotFound"><i class="fa fa-exclamation-triangle"></i>&nbsp;Location not found</p>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-12">
+                <div class="panel panel-default panel-themed">
+                    <div class="panel-heading"><h3 class="panel-title">Devices  <span ng-show="home.counts.devices > -1">({{home.counts.devices}})</span></h3></div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <ul class="nav nav-pills">
+                                    <li role="presentation"><a role="button" ui-sref="devices.map"><i class="fa fa-map-o"></i> Track</a></li>
+                                    <li role="presentation"><a role="button" ui-sref="devices.reports"><i class="fa fa-table"></i> Reports</a></li>
+                                </ul>
+                                <br/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <form>
+                                    <div class="form-group form-group-sm" ng-class="{'has-error': !home.deviceSearch.isPristine && home.deviceSearch.hasError()}">
+                                        <label>Go to a device</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="searchDevices" name="searchDevices"
+                                                   placeholder="Enter a device tag"
+                                                   ng-model="home.deviceSearch.text"
+                                                   ng-change="home.beginDeviceSearch()">
+                                            <span class="input-group-btn" ng-if="home.showFindButton">
+                                                <button type="button" class="btn btn-default btn-sm" title="Search across all clients"
+                                                    ng-click="home.searchAllDevices()">
+                                                    <i class="fa fa-binoculars"></i>&nbsp;Find
+                                                </button>
+                                            </span>
+                                        </div>
+                                        <p class="help-block text-right" ng-show="!home.deviceSearch.isPristine && home.deviceSearch.errors.isBlank"><i class="fa fa-exclamation-triangle"></i>&nbsp;Device tag is required</p>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <div class="row" ng-if="home.shipmentSearch.text && home.shipments.length > 0">
+            <div class="col-sm-12">
+                <div class="panel panel-default panel-themed">
+                    <div class="panel-heading"><h3 class="panel-title">Go to shipment results</h3></div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <th width="20">#</th>
+                                <th width="160">Reference No.</th>
+                                <th></th>
+                                <th>Status</th>
+                                <th>Start Tracking</th>
+                                <th>End Tracking</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-show="home.shipments.length === 0" class="warning">
+                                <td width="20">&nbsp;</td>
+                                <td colspan="5">There are no active shipments for this client</td>
+                            </tr>
+                            <tr ng-repeat="shipment in home.shipments">
+                                <td width="20">{{ $index + 1 }}</td>
+                                <td width="160">{{ shipment.referenceNumber }}</td>
+                                <td>
+                                    <a role="button" class="device-link" ng-click="home.goToShipmentMap(shipment)" title="Track Shipment"><i class="fa fa-map-o fa-fw"></i> Track</a>
+                                    <a role="button" class="device-link" ng-click="home.goToShipmentReports(shipment)" title="Shipment Reports"><i class="fa fa-table fa-fw"></i> Reports</a>
+                                    <a role="button" class="device-link" ng-click="home.goToShipmentAdmin(shipment)" title="Manage Shipment"><i class="fa fa-pencil fa-fw"></i> Manage</a>
+                                </td>
+                                <td>{{ shipment.status }}</td>
+                                <td>
+                                    <span ng-show="shipment.status == 'Pending' && (shipment.beginTrackingStrategyType=='ArrivalGeofence' || shipment.beginTrackingStrategyType=='DepartureGeofence')">Geofence</span>
+                                    <span ng-hide="shipment.status == 'Pending' && (shipment.beginTrackingStrategyType=='ArrivalGeofence' || shipment.beginTrackingStrategyType=='DepartureGeofence')">{{ shipment.trackingBeginDate }}</span>
+                                </td>
+                                <td>
+                                    <span ng-show="(shipment.status == 'Pending' || shipment.status == 'Active') && (shipment.endTrackingStrategyType == 'ArrivalGeofence') ">Geofence</span>
+                                    <span ng-hide="(shipment.status == 'Pending' || shipment.status == 'Active') && (shipment.endTrackingStrategyType == 'ArrivalGeofence') ">{{ shipment.trackingEndDate }}</span>
+                                </td>
+                                <td></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" ng-if="home.location.text && home.locations.length > 0">
+            <div class="col-sm-12">
+                <div class="panel panel-default panel-themed">
+                    <div class="panel-heading"><h3 class="panel-title">Go to Locations results</h3></div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <th width="20">#</th>
+                                <th width="160">Name</th>
+                                <th></th>
+                                <th>Description</th>
+                                <th>Address</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-show="home.locations.length === 0" class="warning">
+                                <td width="20">&nbsp;</td>
+                                <td colspan="5">There are not locations for this client</td>
+                            </tr>
+                            <tr ng-repeat="location in home.locations">
+                                <td width="20">{{ $index + 1 }}</td>
+                                <td width="160">{{ location.name }}</td>
+                                <td>
+                                    <a role="button" class="device-link" ui-sref="locations.tracking" title="Track Location"><i class="fa fa-map-o fa-fw"></i> Track</a>
+                                    <a role="button" class="device-link" ng-click="home.goToLocationAdmin(location)" title="Manage Location"><i class="fa fa-pencil fa-fw"></i> Manage</a>
+                                </td>
+                                <td>{{ location.description }}</td>
+                                <td>{{ location.address }}</td>
+                                <td></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row" ng-if="home.deviceSearch.text && home.devices.length > 0">
+            <div class="col-sm-12">
+                <div class="panel panel-default panel-themed">
+                    <div class="panel-heading"><h3 class="panel-title">Go to device search results</h3></div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <th width="20">#</th>
+                                <th width="160">Tag ID</th>
+                                <th>Name</th>
+                                <th></th>
+                                <th>Description</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-show="home.devices.length === 0" class="warning">
+                                <td width="20">&nbsp;</td>
+                                <td colspan="5">There are no devices assigned to this client</td>
+                            </tr>
+                            <tr ng-show="home.devices.length !== 0"
+                                ng-repeat="device in home.devices">
+                                <td width="20">{{ $index + 1 }}</td>
+                                <td width="160">{{ device.tagId }}</td>
+                                <td>{{ device.name }}</td>
+                                <td>
+                                    <a role="button" class="device-link" ng-click="home.goToDeviceMap(device)" title="Track Device" ng-show="device.deviceDescription === 'Sentry'"><i class="fa fa-map-o fa-fw"></i> Track</a>
+                                    <a role="button" class="device-link" ng-click="home.goToSentinelMap(device)" title="Track Device" ng-show="device.deviceDescription === 'Sentinel'"><i class="fa fa-map-o fa-fw"></i> Track</a>
+                                    <a role="button" class="device-link" ng-click="home.goToDeviceReports(device)" title="Device Reports"><i class="fa fa-table fa-fw"></i> Reports</a>
+                                    <a role="button" class="device-link" title="Device Admin" ng-click="home.goToDeviceAdmin(device)" ng-show="device.deviceDescription === 'Sentry'"><i class="fa fa-pencil fa-fw"></i> Manage</a>
+                                </td>
+                                <td>{{device.deviceDescription}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+             <div class="col-sm-12" style="text-align: center;padding-top: 20px">
+		        <img src="./img/OnAssetHeaderLogo.png">
+		    </div>
+        </div>
+       
+    </div>
+    
+</div>

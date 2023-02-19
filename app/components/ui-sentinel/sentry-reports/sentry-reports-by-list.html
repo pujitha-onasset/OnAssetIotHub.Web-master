@@ -1,0 +1,260 @@
+<div ng-controller="SentryReportsByList as reportUi">
+    <div class="row">
+        <div class="col-sm-12">
+            <h3>SENTRY Checks</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <ul class="nav nav-tabs">
+                <li role="presentation" ng-class="{'active': reportUi.currentTab === 'params'}"><a role="button" ng-click="reportUi.goToParams()">Parameters</a></li>
+                <li role="presentation" ng-class="{'active': reportUi.currentTab === 'sentrys'}"><a role="button" ng-click="reportUi.goToSentrys()">Sentry list</a></li>
+                <li role="presentation" ng-class="{'active': reportUi.currentTab === 'results', 'disabled': !reportUi.results}"><a role="button" ng-click="reportUi.goToResults()">Results</a></li>
+            </ul>
+        </div>
+    </div>   
+    <div class="row" ng-show="reportUi.currentTab === 'params'">
+        <div class="col-sm-12">
+            <br/>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Select reports from</label>
+                    <div class="col-sm-4">
+                        <select class="form-control" ng-model="reportUi.selectBy">
+                            <option value="hours" ng-selected="reportUi.selectBy === 'hours'">the last few hours</option>
+                            <option value="range" ng-selected="reportUi.selectBy === 'range'">a specific date range</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="reportUi.selectBy === 'hours'">
+                    <label class="col-sm-2 control-label">Number of hours</label>
+                    <div class="col-sm-4">
+                        <input type="number" class="form-control" ng-model="reportUi.hoursSinceNow">
+                        <p class="help-block">Enter the number of hours since current time</p>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="reportUi.selectBy === 'range'">
+                    <label class="col-sm-2 control-label">From</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" ng-model="reportUi.from" placeholder="yyyy-mm-ddThh:mm">
+                        <p class="help-block">Enter the earliest date to validate against</p>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="reportUi.selectBy === 'range'">
+                    <label class="col-sm-2 control-label">To</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" ng-model="reportUi.to" placeholder="yyyy-mm-ddThh:mm">
+                        <p class="help-block">Enter the most recent date to validate against</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Minimum number of reports</label>
+                    <div class="col-sm-4">
+                        <input type="number" class="form-control" ng-model="reportUi.reportNumberMin">
+                        <p class="help-block">Enter the minimum number of reports that a device needs to transmit during the date range</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Minimum number Gps locations</label>
+                    <div class="col-sm-4">
+                        <input type="number" class="form-control" ng-model="reportUi.gpsLocationMin">
+                        <p class="help-block">Enter the minimum number of Gps reports that a device needs to transmit during the date range</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Current report ratio minimum</label>
+                    <div class="col-sm-4">
+                        <div class="input-group col-sm-12">
+                            <input type="number" class="form-control" ng-model="reportUi.storeAndForwardRatio">
+                            <span class="input-group-addon">%</span>
+                        </div>
+                        <p class="help-block">Enter the minimum ratio of Realtime vs. store & forward reports that a device should transmit during the date range</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Battery minimum</label>
+                    <div class="col-sm-4">
+                        <div class="input-group col-sm-12">
+                            <input type="number" class="form-control" ng-model="reportUi.batteryMin">
+                            <span class="input-group-addon">%</span>
+                        </div>
+                        <p class="help-block">Enter the minimum battery % that a device can transmit during the date range</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Light minimum</label>
+                    <div class="col-sm-4">
+                        <div class="input-group col-sm-12">
+                            <input type="number" class="form-control" ng-model="reportUi.lightMin">
+                            <span class="input-group-addon">lux</span>
+                        </div>
+                        <p class="help-block">Enter the minimum light value that a device can transmit during the date range</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Pressure minimum</label>
+                    <div class="col-sm-4">
+                        <div class="input-group col-sm-12">
+                            <input type="number" class="form-control" ng-model="reportUi.pressureMin">
+                            <span class="input-group-addon">kPa</span>
+                        </div>
+                        <p class="help-block">Enter the minimum pressure value that a device can transmit during the date range</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Pressure maximum</label>
+                    <div class="col-sm-4">
+                        <div class="input-group col-sm-12">
+                            <input type="number" class="form-control" ng-model="reportUi.pressureMax">
+                            <span class="input-group-addon">kPa</span>
+                        </div>
+                        <p class="help-block">Enter the maximum battery % that a device can transmit during the date range</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Temperature minimum</label>
+                    <div class="col-sm-4">
+                        <div class="input-group col-sm-12">
+                            <input type="number" class="form-control" ng-model="reportUi.temperatureMin">
+                            <span class="input-group-addon">&deg;C</span>
+                        </div>
+                        <p class="help-block">Enter the minimum temperature &deg;C value that a device can transmit during the date range</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Temperature maximum</label>
+                    <div class="col-sm-4">
+                        <div class="input-group col-sm-12">
+                            <input type="number" class="form-control" ng-model="reportUi.temperatureMax">
+                            <span class="input-group-addon">&deg;C</span>
+                        </div>
+                        <p class="help-block">Enter the maximum temperature &deg;C value that a device can transmit during the date range</p>
+                    </div>
+                </div>
+                 <div class="form-group">
+                    <label class="col-sm-2 control-label">Firmware version to match</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" ng-model="reportUi.firmwareToMatch">
+                        <p class="help-block">Enter the firmware version to match.  Leave blank to skip this test.</p>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <button type="button" class="btn btn-default pull-right" ng-click="reportUi.goToSentrys()">Next</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row" ng-show="reportUi.currentTab === 'sentrys'">
+        <div class="col-sm-12">
+            <br/>
+            <form class="form-horizontal">
+                <div class="form-group" ng-show="reportUi.configBy === 'list'">
+                    <label class="col-sm-2 control-label">List of SENTRYS</label>
+                    <div class="col-sm-4">
+                        <textarea class="form-control" rows="10" ng-model="reportUi.sentryText"></textarea>
+                        <p class="help-block">Enter one SENTRY per row</p>
+                    </div>
+                </div>
+                <!--<div class="form-group" ng-show="reportUi.configBy === 'group'">
+                    <label class="col-sm-2 control-label">Device group</label>
+                    <div class="col-sm-4">
+                        <select class="form-control" ng-model="reportUi.groupId">
+                            <option></option>
+                            <option ng-repeat="group in reportUi.groups" ng-value="group.groupId">{{group.groupName}}</option>
+                        </select>
+                        <p class="help-block">Select the device group to configure.  If necessary, change the focus group to list the correct device groups.</p>
+                    </div>
+                </div>-->
+                <div class="col-sm-6">
+                    <button type="button" class="btn btn-default pull-right" ng-click="reportUi.start()">Start</button>
+                    <button type="button" class="btn btn-default pull-right" style="margin-right: 10px;" ng-click="reportUi.clear()">Clear</button>                    
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row" ng-show="reportUi.currentTab === 'results'">
+        <div class="col-sm-12" ng-show="reportUi.list.length != 0" >
+            <div class="col-sm-5" ></div>
+            <div class="col-sm-7">
+                <form class="navbar-form navbar-left">
+                    <export-table-to file-name="sightings" table-id-to-export="sightings"></export-table-to>
+                </form>
+            </div>
+           
+        </div>
+        <div class="col-sm-12">
+            <div class="table-responsive">
+               <table class="table table-striped" id="sightings">
+                <thead>
+                <tr>
+                    <th width="10">#</th>
+                    <th width="10">Imei</th>
+                    <th width="10" class="text-center">Reports</th>
+                    <th width="10" class="text-center">Gps</th>
+                    <th width="10" class="text-center">Realtime</th>
+                    <th width="10" class="text-center">Battery</th>
+                    <th width="10" class="text-center">Light</th>
+                    <th width="10" class="text-center">Pressure</th>
+                    <th width="10" class="text-center">Temperature</th>
+                    <th width="10" class="text-center">Firmware</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-show="reportUi.results.length === 0" class="warning noExport">
+                    <td></td>
+                    <td colspan="28">There are no records</td>
+                </tr>
+                <tr ng-show="reportUi.results.length != 0" ng-repeat="result in reportUi.results track by $index">
+                    <td width="10">{{ $index + 1 }}</td>
+                        <td><a role="button" ng-click="reportUi.goToDeviceReports(result)">{{ result.imei }}</a></td>
+                        <td class="text-center">
+                            <i class="fa fa-question" ng-show="result.reports === null"></i>
+                            <i class="fa fa-lg fa-check-circle text-success" ng-show="result.reports"></i>
+                            <i class="fa fa-lg fa-times-circle text-danger" ng-show="result.reports !== null && !result.reports"></i>
+                        </td>
+                        <td class="text-center">
+                            <i class="fa fa-question" ng-show="result.gps === null"></i>
+                            <i class="fa fa-lg fa-check-circle text-success" ng-show="result.gps"></i>
+                            <i class="fa fa-lg fa-times-circle text-danger" ng-show="result.gps !== null && !result.gps"></i>
+                        </td>
+                        <td class="text-center">
+                            <i class="fa fa-question" ng-show="result.storeAndForward === null"></i>
+                            <i class="fa fa-lg fa-check-circle text-success" ng-show="result.storeAndForward"></i>
+                            <i class="fa fa-lg fa-times-circle text-danger" ng-show="result.storeAndForward !== null && !result.storeAndForward"></i>
+                        </td>
+                        <td class="text-center">
+                            <i class="fa fa-question" ng-show="result.battery === null"></i>
+                            <i class="fa fa-lg fa-check-circle text-success" ng-show="result.battery"></i>
+                            <i class="fa fa-lg fa-times-circle text-danger" ng-show="result.battery !== null && !result.battery"></i>
+                        </td>
+                        <td class="text-center">
+                            <i class="fa fa-question" ng-show="result.light === null"></i>
+                            <i class="fa fa-lg fa-check-circle text-success" ng-show="result.light"></i>
+                            <i class="fa fa-lg fa-times-circle text-danger" ng-show="result.light !== null && !result.light"></i>
+                        </td>
+                        <td class="text-center">
+                            <i class="fa fa-question" ng-show="result.pressure === null"></i>
+                            <i class="fa fa-lg fa-check-circle text-success" ng-show="result.pressure"></i>
+                            <i class="fa fa-lg fa-times-circle text-danger" ng-show="result.pressure !== null && !result.pressure"></i>
+                        </td>
+                        <td class="text-center">
+                            <i class="fa fa-question" ng-show="result.temperature === null"></i>
+                            <i class="fa fa-lg fa-check-circle text-success" ng-show="result.temperature"></i>
+                            <i class="fa fa-lg fa-times-circle text-danger" ng-show="result.temperature !== null && !result.temperature"></i>
+                        </td>
+                        <td class="text-center" ng-show="reportUi.firmwareToMatch">
+                            <i class="fa fa-question" ng-show="result.firmware === null"></i>
+                            <i class="fa fa-lg fa-check-circle text-success" ng-show="result.firmware"></i>
+                            <i class="fa fa-lg fa-times-circle text-danger" ng-show="result.firmware !== null && !result.firmware"></i>
+                        </td>
+                        <td class="text-center" ng-show="!reportUi.firmwareToMatch">
+                            n/a
+                        </td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+        </div>
+    </div>
+</div>

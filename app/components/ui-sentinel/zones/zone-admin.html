@@ -1,0 +1,242 @@
+<div ng-controller="ZoneAdminController as zoneAdmin">
+    <div feedback></div>
+    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row" ng-if="!zoneAdmin.mode.isNew" style="margin-top: 3px;">
+                        <div class="col-sm-8" ng-if="zoneAdmin.hasPermission.toSave">
+                            <ul class="nav nav-pills" ng-cloak>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="Delete" ng-click="zoneAdmin.actions.beginRemove()"
+                                            ng-show="!zoneAdmin.mode.isRemoving">
+                                        <i class="fa fa-trash"></i> Delete
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="Yes" ng-click="zoneAdmin.actions.remove()"
+                                            ng-show="zoneAdmin.mode.isRemoving">
+                                        <i class="fa fa-check"></i> Yes
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="No" ng-click="zoneAdmin.actions.cancelRemove()"
+                                            ng-show="zoneAdmin.mode.isRemoving">
+                                        <i class="fa fa-ban"></i> No
+                                    </button>
+                                </li>
+                            </ul>
+                            <br/>
+                            <br/>
+                        </div>
+                    </div>
+                    <div class="row" ng-show="zoneAdmin.mode.isRemoving">
+                        <div class="col-sm-12">
+                            <p><i class="fa fa-question-circle fa-lg"></i>  Do you wish to delete <strong>{{ zoneAdmin.location.name }}</strong>? </p>
+                        </div>
+                    </div>
+                    <div class="row" ng-hide="zoneAdmin.mode.isRemoving">
+                        <div class="col-sm-12">
+                            <form name="zoneForm" id="clientForm" ng-submit="zoneAdmin.actions.submit()" novalidate>
+                                <div class="form-group" ng-class="{'has-error': !zoneAdmin.zoneName.isPristine && zoneAdmin.zoneName.hasError()}">
+                                    <label>Name *</label>
+                                    <input type="text" class="form-control" id="zoneName" name="zoneName" placeholder="Enter a name for the zone" maxlength="80"
+                                           ng-model="zoneAdmin.zoneName.value"
+                                           ng-readonly="!zoneAdmin.hasPermission.toSave"
+                                           ng-change="zoneAdmin.zoneName.isPristine = true">
+                                    <p class="help-block text-right" ng-show="!zoneAdmin.zoneName.isPristine && zoneAdmin.zoneName.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A location name is required</p>
+                                    <p class="help-block text-right" ng-show="!zoneAdmin.zoneName.isPristine && zoneAdmin.zoneName.errors.isDuplicate">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;The location name is already in use</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="comments">Description</label>
+                                    <textarea class="form-control" id="comments" name="comments"
+                                              ng-model="zoneAdmin.zoneDescription.value"
+                                              ng-readonly="!zoneAdmin.hasPermission.toSave"
+                                              placeholder="Enter a description for this zone (optional)" rows="3" maxlength="500">
+                                    </textarea>
+                                </div>
+                                <div class="form-group">
+                                    <form class="navbar-form navbar-left">
+                                        <div class="btn-group" role="group">
+                                            <label>Type of Device&nbsp;&nbsp;</label>
+                                            <button type="button" id="btn-status" style="float:none" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                                    title="Type of Device">
+                                                {{zoneAdmin.device.type}}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a role="button" ng-click="zoneAdmin.actions.changeDeviceType('sentry')">Sentry</a></li>
+                                                <li><a role="button" ng-click="zoneAdmin.actions.changeDeviceType('anchor')">Anchor</a></li>
+                                            </ul>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="form-group">
+                                    <label for="device">Device *</label>
+                                    <div ng-if="zoneAdmin.device.value !== null">
+                                        <div class="input-group">
+                                            <input id="device" type="text" class="form-control" ng-model="zoneAdmin.device.valueText" readonly>
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default" title="Change device" ng-click="zoneAdmin.actions.clearDevice()"><i class="fa fa-fw fa-pencil"></i></button>
+                                        </span>
+                                        </div>
+                                    </div>
+                                    <div ng-if="zoneAdmin.device.value === null" ng-class="{'has-error': !zoneAdmin.device.isPristine && zoneAdmin.device.value === null}">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Enter text to filter the device list..." ng-model="zoneAdmin.device.searchText">
+                                            <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default" title="Search device" ng-click="zoneAdmin.actions.changeDeviceFilter(zoneAdmin.device.searchText)">Search device</button>
+                                        </span>
+                                        </div>
+                                        <p class="help-block text-right" ng-show="!zoneAdmin.device.isPristine && zoneAdmin.device.value === null"><i class="fa fa-exclamation-circle"></i>&nbsp;A device is required</p>
+                                        <p ng-show="zoneAdmin.availableDevices.length>0"><i class="fa fa-info-circle"></i>&nbsp;Click a device to use</p>
+                                        <p ng-show="zoneAdmin.availableDevices.length>0"><i class="fa fa-info-circle"></i>&nbsp;Showing first {{zoneAdmin.locationLimit}} matches.  Use the filter to narrow your search and then click a device to use</p>
+                                        <div class="table-responsive" ng-show="zoneAdmin.availableDevices.length == 0">
+                                            <table class="table table-striped">
+                                                <tbody><tr class="warning"><td>This device does not exist in this account</td></tr></tbody>
+                                            </table>
+                                        </div>
+                                        <div class="table-responsive" ng-show="zoneAdmin.availableDevices.length>0">
+                                            <table class="table table-striped" ng-show="zoneAdmin.device.type.toLowerCase() == 'sentry'">
+                                                <thead>
+                                                <tr>
+                                                    <th></th>
+                                                    <th>Device</th>
+                                                    <th>Name</th>
+                                                    <th>Last Reported</th>
+                                                    <th>Last Battery %</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr ng-repeat="device in zoneAdmin.availableDevices" ng-if="zoneAdmin.availableDevices.length > 0">
+                                                    <th></th>
+                                                    <td><a role="button" ng-click="zoneAdmin.actions.selectDevice(device)">{{ device.imei }}</a></td>
+                                                    <td>{{device.friendlyName}}</td>
+                                                    <td>
+                                                    <span local-datetime utc-datetime="{{device.timeOfReport}}" date-format="L" time-format="LTS"></span></td>
+                                                    <td>{{ device.batteryVoltage }}{{ device.batteryVoltage ? '%' : '' }}</td>
+                                                </tr>
+                                                <tr ng-if="zoneAdmin.availableDevices.length === 0">
+                                                    <td></td>
+                                                    <td colspan="4">There are no devices assigned to this client</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                            <table class="table table-striped" ng-show="zoneAdmin.device.type.toLowerCase() == 'anchor'">
+                                                <thead>
+                                                <tr>
+                                                    <th></th>
+                                                    <th>Device</th>
+                                                    <th>Name</th>
+                                                    <th>Model</th>
+                                                    <th>Last Reported</th>
+                                                    <th>Last Battery %</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr ng-repeat="device in zoneAdmin.availableDevices" ng-if="zoneAdmin.availableDevices.length > 0">
+                                                    <th></th>
+                                                    <td><a role="button" ng-click="zoneAdmin.actions.selectDevice(device)">{{ device.mac }}</a></td>
+                                                    <td>{{ device.anchorName }}</td>
+                                                    <td>{{ device.model }}</td>
+                                                    <td><span local-datetime utc-datetime="{{ device.timeOfReport }}" date-format="L" time-format="LTS"></td>
+                                                    <td>{{ device.batteryVoltage }}{{ device.batteryVoltage ? '%' : '' }}</td>
+                                                   
+                                                </tr>
+                                                <tr ng-if="zoneAdmin.availableDevices.length === 0">
+                                                    <td></td>
+                                                    <td colspan="4">There are no devices assigned to this client</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--
+                                <div class="form-group" ng-if="!zoneAdmin.mode.isChangingLocation" ng-class="{'has-error': !zoneAdmin.zoneAddress.isPristine && zoneAdmin.zoneAddress.hasError() }">
+                                    <label>Address *</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" ng-model="zoneAdmin.zoneAddress.value" readonly>
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default" title="Change location"
+                                                ng-click="zoneAdmin.actions.changeLocation()"
+                                                ng-disabled="!zoneAdmin.hasPermission.toSave"><i class="fa fa-fw fa-pencil"></i>
+                                        </button>
+                                    </span>
+                                    </div>
+                                    <p class="help-block text-right" ng-show="!zoneAdmin.zoneAddress.isPristine && zoneAdmin.zoneAddress.hasError() "><i class="fa fa-info-circle"></i>&nbsp;A location is required</p>
+                                </div>
+                                <div class="form-group" ng-if="zoneAdmin.mode.isChangingLocation"  ng-class="{'has-error': (!zoneAdmin.zoneAddress.isPristine && zoneAdmin.zoneAddress.hasError()) || (!zoneAdmin.locationSearch.isPristine && zoneAdmin.locationSearch.hasError()) }">
+                                    <label>Address *</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="Enter an address and search for a zone" ng-model="zoneAdmin.locationSearch.value"  ng-change="zoneAdmin.actions.locationSearchChanged()"  maxlength="128">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default" title="Get address location" ng-click="zoneAdmin.actions.getLocations()"><i class="fa fa-fw fa-search"></i></button>
+                                    </span>
+                                    </div>
+                                    <p class="help-block text-right" ng-show="(!zoneAdmin.zoneAddress.isPristine && zoneAdmin.zoneAddress.errors.isBlank) || (!zoneAdmin.locationSearch.isPristine && zoneAdmin.locationSearch.errors.isBlank) "><i class="fa fa-info-circle"></i>&nbsp;A location is required</p>
+                                    <p class="help-block text-right" ng-show="!zoneAdmin.locationSearch.isPristine && zoneAdmin.locationSearch.value && zoneAdmin.locationSearch.locations.length === 0"><i class="fa fa-exclamation-circle"></i>&nbsp;Click <i class="fa fa-search"></i> to find locations for this address</p>
+                                    <p class="help-block text-right" ng-show="!zoneAdmin.locationSearch.isPristine && zoneAdmin.locationSearch.errors.hasZeroResults"><i class="fa fa-exclamation-circle"></i>&nbsp;Could not find any locations for the address.  Please try again</p>
+                                    <div>
+                                        <ul class="list-unstyled">
+                                            <li ng-show="zoneAdmin.locationSearch.locations.length > 0 && zoneAdmin.locationSearch.locations.length < zoneAdmin.locationLimit"><i class="fa fa-info-circle"></i>&nbsp;Click a location below to use as the starting point for the geofence</li>
+                                            <li ng-show="zoneAdmin.locationSearch.locations.length > 0 && zoneAdmin.locationSearch.locations.length >= zoneAdmin.locationLimit"><i class="fa fa-info-circle"></i>&nbsp;Only showing first {{zoneAdmin.locationLimit}} matches.  If you don't see a location, enter a more specific address and try again</li>
+                                            <li ng-repeat="location in zoneAdmin.locationSearch.locations | orderBy: 'formatted_address' | limitTo: zoneAdmin.locationLimit">
+                                                <a role="button" ng-click="zoneAdmin.actions.selectLocation(location)">
+                                                    <strong>{{ location.formatted_address }}</strong>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>-->
+                                <div class="form-group">
+                                    <div id="locationMap" class="zone-map"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Images Stored</label>
+                                    <div>
+                                        <div class="preview clearfix-multi-upload-file">
+                                        <div class="previewData clearfix-multi-upload-file" ng-repeat="image in zoneAdmin.imagesStored track by $index">
+                                            <a href="{{image.url}}" data-lightbox="images"><img src="{{image.url}}"></img></a>
+                                            <div class="previewDetails">
+                                                <div class="detail"><b>Name : </b>{{image.name}}</div>
+                                                <div class="detail"><b>Size : </b> {{zoneAdmin.actions.calculateSize(image.size)}}</div>
+                                            </div>
+                                            <div class="previewControls">
+                                                <button class="btn btn-default" ng-click="zoneAdmin.actions.removeImage(image, $index)" > <i class="fa fa-close"></i></button>
+                                            </div>
+                                            </div>   
+                                        </div>
+                                    </div>  
+                                </div>
+                               
+                                <div class="form-group">
+                                    <label>Images to Upload</label>
+                                    <div>
+                                        <div img-upload accept="image/*;capture=camera" upload-event-name="zoneUploadImageListener"></div>
+                                    </div>	
+                                </div>
+                                <div class="form-group">
+                                    <br/>
+                                    <br/>
+                                    <div class="pull-right">
+                                        <button type="submit" class="btn btn-default" ng-if="zoneAdmin.hasPermission.toSave" ng-click="zoneAdmin.actions.submit()" ng-disabled="zoneAdmin.loading"> <i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                         <button type="button" class="btn btn-default" ng-show="!zoneAdmin.mode.isNew && !zoneAdmin.mode.isRemoving" 
+                                             ng-click="zoneAdmin.actions.gotoNewZone()"><i class="fa fa-plus"></i>&nbsp;&nbsp;New Zone</button>
+                                        <button type="button" class="btn btn-default" ng-if="zoneAdmin.hasPermission.toSave" ng-click="zoneAdmin.actions.reset()"><i class="fa fa-undo"></i>&nbsp;&nbsp;Reset</button>
+                                        <button type="button" class="btn btn-default" ng-click="zoneAdmin.actions.close()"><i class="fa fa-times"></i>&nbsp;&nbsp;Close</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="centerZoomLabel" class="gmap-control-label gmap-control-left-end" ng-show="zoneAdmin.zone">
+            <strong>Zoom</strong>
+        </div>
+        <div id="locationZoom" class="gmap-control gmap-control-right-end" ng-show="zoneAdmin.zone">
+            <a role="button" ng-click="zoneAdmin.actions.panToLocation()" title="Zoom to this zone">Zone</a>
+        </div>
+    </div>
+</div>

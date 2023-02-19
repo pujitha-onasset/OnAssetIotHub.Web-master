@@ -1,0 +1,141 @@
+<div ng-controller="SeparationSimulatorController as separationSimUi">
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <div ng-if="separationSimUi.errorMessage" class="alert alert-danger">{{ separationSimUi.errorMessage }}</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-3" ng-hide="separationSimUi.hideParams">
+            <br/>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Select data for</label>
+                    <div class="col-sm-8">
+                        <select class="form-control" ng-model="separationSimUi.selectBy">
+                            <option value="hours" ng-selected="separationSimUi.selectBy === 'hours'">the last few hours</option>
+                            <option value="range" ng-selected="separationSimUi.selectBy === 'range'">a specific date range</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="separationSimUi.selectBy === 'hours'">
+                    <label class="col-sm-4 control-label">Number of hours</label>
+                    <div class="col-sm-8">
+                        <input type="number" class="form-control" ng-model="separationSimUi.hoursSinceNow">
+                        <p class="help-block">Enter the number of hours since current time</p>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="separationSimUi.selectBy === 'range'">
+                    <label class="col-sm-4 control-label">From</label>
+                    <div class="col-sm-8">
+                        <input type="text" data-date-time-picker data-format="YYYY-MM-DDTHH:mm:ss" class="form-control datetimepicker" ng-model="separationSimUi.from" placeholder="yyyy-mm-ddThh:mm">
+                        <p class="help-block">Enter the earliest date to validate against</p>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="separationSimUi.selectBy === 'range'">
+                    <label class="col-sm-4 control-label">To</label>
+                    <div class="col-sm-8">
+                        <input type="text" data-date-time-picker data-format="YYYY-MM-DDTHH:mm:ss" class="form-control datetimepicker" ng-model="separationSimUi.to" placeholder="yyyy-mm-ddThh:mm">
+                        <p class="help-block">Enter the most recent date to validate against</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Number of misses</label>
+                    <div class="col-sm-8">
+                        <input type="number" class="form-control" ng-model="separationSimUi.misses">
+                        <p class="help-block">Enter the number of consecutive 'misses' that will trigger a separation event</p>
+                    </div>
+                </div>                <div class="form-group">
+                    <label class="col-sm-4 control-label">Sentry</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" ng-model="separationSimUi.imei">
+                        <p class="help-block">Enter/scan the Sentry IMEI that is monitoring the Sentinels</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Detect separations for</label>
+                    <div class="col-sm-8">
+                        <select class="form-control" ng-model="separationSimUi.detectFor">
+                            <option value="any" ng-selected="separationSimUi.detectFor === 'any'">any Sentinels seen</option>
+                            <option value="list" ng-selected="separationSimUi.detectFor === 'list'">a list of Sentinels</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group"  ng-show="separationSimUi.detectFor === 'list'">
+                    <label class="col-sm-4 control-label">List of Sentinels</label>
+                    <div class="col-sm-8">
+                        <textarea class="form-control" rows="10" ng-model="separationSimUi.macList"></textarea>
+                        <p class="help-block">Enter/scan up to 20 MACs; one MAC per row</p>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <button type="button" class="btn btn-default pull-right" ng-click="separationSimUi.submit()">Submit</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm-9">
+            <div class="row">
+                <div class="col-sm-12">
+                    <br/>
+                    <nav class="navbar navbar-default col-sm-12">
+                        <ul class="nav navbar-nav">
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                    Compare {{ separationSimUi.pivotProperty.label}} <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li ng-repeat="pivotProp in separationSimUi.pivotProperties"><a type="button" ng-click="separationSimUi.changePivotProp(pivotProp.name)">{{pivotProp.label}}</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <!--<br/>-->
+                    <!--<button type="button" class="btn btn-default" ng-click="separationSimUi.toggleParams()">{{ separationSimUi.hideParams ? 'Show parameters  ' : '' }}<i class="fa fa-caret-left" ng-class="{'fa-caret-left': !separationSimUi.hideParams, 'fa-caret-right': separationSimUi.hideParams }"  ></i>{{ !separationSimUi.hideParams ? '  Hide parameters' : '' }}</button>-->
+                    <!--<br/>-->
+                    <nav class="pull-right" aria-label="Page navigation" ng-show="separationSimUi.totalPages > 1">
+                        <ul class="pagination">
+                            <li ng-class="{'disabled': separationSimUi.page === 1}"><a role="button" aria-label="Previous" ng-click="separationSimUi.previous();"><span aria-hidden="true">&laquo;</span></a></li>
+                            <li ng-repeat="n in separationSimUi.pageArray" ng-class="{'active': n === separationSimUi.page}"><a role="button" ng-click="separationSimUi.gotoPage(n);" aria-label="Page {{n}}"><span aria-hidden="true">{{n}}</span></a></li>
+                            <li ng-class="{'disabled': separationSimUi.page === separationSimUi.totalPages}"><a role="button" aria-label="Next" ng-click="separationSimUi.next();"><span aria-hidden="true">&raquo;</span></a></li>
+                        </ul>
+                    </nav>
+                    <br/>
+                    <table class="table table-condensed table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Sentinel</th>
+                            <th ng-repeat="report in separationSimUi.sightingReports">
+                                <a role="button" ng-click="separationSimUi.gotoReport(report)">
+                                    <span local-datetime utc-datetime="{{ report.timeOfReport }}" date-format="L" time-format="LTS"></span>
+                                </a>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-show="!separationSimUi.sightingReports" class="info">
+                            <td></td>
+                            <td>Enter simulator parameters and click Submit</td>
+                        </tr>
+                        <tr ng-show="separationSimUi.sightingReports && separationSimUi.sightingReports.length === 0" class="warning">
+                            <td></td>
+                            <td colspan="{{ 2 + separationSimUi.sightingReports.length}}">{{ separationSimUi.isLoading ? 'Loading..' : 'No records founds' }}</td>
+                        </tr>
+                        <tr ng-show="separationSimUi.sightingReports && separationSimUi.sightingReports.length != 0" ng-repeat="sentinel in separationSimUi.sentinels">
+                            <td width="20">{{ (separationSimUi.page > 1) ? ((separationSimUi.page - 1) * separationSimUi.itemsPerPage) + $index + 1 : $index + 1 }}</td>
+                            <td>{{ sentinel.mac }}</td>
+                            <td ng-repeat="report in separationSimUi.sightingReports" class="text-center {{separationSimUi.sightingClass(sentinel, report) }}">
+                                {{ separationSimUi.sightingValue(sentinel, report) }}
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

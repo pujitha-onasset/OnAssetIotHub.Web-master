@@ -1,0 +1,120 @@
+<div ng-controller="GeofencesMapController as geofencesMap">
+    <nav class="navbar navbar-default large-map-navbar">
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button">
+                        <i class="fa fa-globe fa-lg"></i>&nbsp;&nbsp;{{geofencesMap.mapType.name}} <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a ng-click="geofencesMap.actions.map.setType(geofencesMap.mapTypes.hybrid)">
+                                <i class="fa" ng-class="{'fa-dot-circle-o': geofencesMap.mapType.name === geofencesMap.mapTypes.hybrid.name, 'fa-circle-o': geofencesMap.mapType.name !== geofencesMap.mapTypes.hybrid.name}"></i>
+                                {{geofencesMap.mapTypes.hybrid.name}}
+                            </a>
+                            <a ng-click="geofencesMap.actions.map.setType(geofencesMap.mapTypes.roadmap)">
+                                <i class="fa" ng-class="{'fa-dot-circle-o': geofencesMap.mapType.name === geofencesMap.mapTypes.roadmap.name, 'fa-circle-o': geofencesMap.mapType.name !== geofencesMap.mapTypes.roadmap.name}"></i>
+                                {{geofencesMap.mapTypes.roadmap.name}}
+                            </a>
+                            <a ng-click="geofencesMap.actions.map.setType(geofencesMap.mapTypes.satellite)">
+                                <i class="fa" ng-class="{'fa-dot-circle-o': geofencesMap.mapType.name === geofencesMap.mapTypes.satellite.name, 'fa-circle-o': geofencesMap.mapType.name !== geofencesMap.mapTypes.satellite.name}"></i>
+                                {{geofencesMap.mapTypes.satellite.name}}
+                            </a>
+                            <a ng-click="geofencesMap.actions.map.setType(geofencesMap.mapTypes.terrain)">
+                                <i class="fa" ng-class="{'fa-dot-circle-o': geofencesMap.mapType.name === geofencesMap.mapTypes.terrain.name, 'fa-circle-o': geofencesMap.mapType.name !== geofencesMap.mapTypes.terrain.name}"></i>
+                                {{geofencesMap.mapTypes.terrain.name}}
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button">
+                        <i class="fa fa-crosshairs fa-lg"></i>&nbsp;&nbsp;Zoom To <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a ng-click="geofencesMap.actions.map.setZoom(geofencesMap.mapZooms.europe)">Europe</a></li>
+                        <li><a ng-click="geofencesMap.actions.map.setZoom(geofencesMap.mapZooms.northAmerica)">North America</a></li>
+                        <li><a ng-click="geofencesMap.actions.map.setZoom(geofencesMap.mapZooms.southAmerica)">South America</a></li>
+                        <li><a ng-click="geofencesMap.actions.map.setZoom(geofencesMap.mapZooms.world)">World</a></li>
+                        <li role="separator" class="divider" ng-show="geofencesMap.markers.length"></li>
+                        <li ng-show="geofencesMap.visibleMarkerCount > geofencesMap.listLimit">
+                            <div class="col-sm-12">
+                                <p class="text-muted"><i class="fa fa-info-circle"></i> Showing top 10 matches, use the filter to narrow your search</p>
+                            </div>
+                        </li>
+                        <li ng-repeat="marker in geofencesMap.markers | filter: geofencesMap.isMarkerVisible | orderBy: 'geofence.name' | limitTo: geofencesMap.listLimit">
+                            <a ng-click="geofencesMap.actions.geofence.panTo(marker)" ng-if="marker.map">
+                                <i class="fa fa-fw text-muted" ng-class="{'fa-circle': marker.geofence.isRadial, 'fa-stop': !marker.geofence.isRadial }"
+                                   title="{{ marker.geofence.isRadial ? 'This is a radial geofence' : 'This is a polygon geofence' }}"></i>&nbsp;
+                                {{marker.geofence.name}}
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a ng-click="geofencesMap.actions.showMapData()"><i class="fa fa-info-circle fa-lg"></i></a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="geofencesMap" class="large-map"></div>
+        </div>
+    </div><!--map-->
+    <div id="geofenceTool" class="col-sm-3" >
+        <div id="geofenceList" class="col-sm-12" ng-show="false">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h5 class="panel-title"><strong><i class="fa fa-map-marker fa-lg"></i>&nbsp;&nbsp;Geofences</strong></h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <tbody>
+                        <tr ng-show="geofencesMap.markers.length != 0 && marker.getMap() !== null" ng-repeat="marker in geofencesMap.markers | orderBy: 'geofence.name'">
+                            <td><a role="button" ng-click="geofencesMap.actions.panToMarker(marker)">{{ marker.geofence.name }}</a></td>
+                        </tr>
+                        <tr ng-show="geofencesMap.markers.length === 0">
+                            <td>There are no geofences assigned to this client</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="geofenceDetails" class="col-sm-12" ng-show="geofencesMap.selected !== null">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h5 class="panel-title"><strong><i class="fa fa-map-marker fa-lg"></i>&nbsp;&nbsp;Geofence Details</strong>
+                    <span class="pull-right text-right">
+                        <a role="button" ng-click="geofencesMap.actions.geofence.unSelect()"><i class="fa fa-lg fa-close" title="Close"></i></a>
+                    </span></h5>
+                </div>
+                <div class="panel-body">
+                    <strong>Name</strong><br/>
+                    {{ geofencesMap.selected.geofence.name }}<br/>
+                    <br/>
+                    <strong>Address</strong><br/>
+                    {{ geofencesMap.selected.geofence.address }}<br/>
+                    <br/>
+                <span ng-if="geofencesMap.selected.geofence.comments">
+                    <strong>Comments</strong><br/>
+                    {{ geofencesMap.selected.geofence.comments }}<br/>
+                    <br/>
+                </span>
+                </div>
+                <div class="panel-footer">
+                    <div class="text-right">
+                        <button class="btn btn-default btn-sm" title="Zoom" ng-click="geofencesMap.actions.geofence.panTo(geofencesMap.selected)"><i class="fa fa-crosshairs"></i></button>
+                        <button class="btn btn-default btn-sm" title="Edit" ng-click="geofencesMap.actions.geofence.edit(geofencesMap.selected)"><i class="fa fa-pencil"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="hoverLabel" ng-show="geofencesMap.hover !== null">
+        <strong><i class="fa fa-map-marker fa-lg"></i>&nbsp;&nbsp;{{ geofencesMap.hover.geofence.name }}</strong><br/>
+        <small>{{ geofencesMap.hover.geofence.address }}</small>
+    </div>
+</div>

@@ -1,0 +1,155 @@
+<div class="row">
+    <div class="col-sm-12">
+        <ul class="nav nav-pills">
+            <li role="presentation">
+                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    Change View <i class="fa fa-lg fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu">
+                    <li role="presentation"><a role="button" ng-click="shipmentTrackingFilterbar.navToShipmentAdmin()">&nbsp;<i class="fa fa-pencil fa-fw"></i> Admin view</a></li>
+                    <li role="presentation"><a role="button" ng-click="shipmentTrackingFilterbar.navToShipmentMap()" ng-hide="$state.current.name === 'shipment.map'">&nbsp;<i class="fa fa-map-o fa-fw"></i> Map view</a></li>
+                    <li role="presentation"><a role="button" ng-click="shipmentTrackingFilterbar.navToShipmentReports()" ng-hide="$state.current.name === 'shipment.reports'">&nbsp;<i class="fa fa-table fa-fw"></i> Table view</a></li>
+                    <li role="presentation"><a role="button" ng-click="shipmentTrackingFilterbar.navToShipmentSummary()" ng-hide="$state.current.name === 'shipment.summary'">&nbsp;<i class="fa fa-file-text-o fa-fw"></i> Sensor Report</a></li>
+                </ul>
+            </li>
+            <li role="presentation" class="pull-right"><a role="button" ng-click="shipmentTrackingFilterbar.refresh()" title="Refresh page"><i class="fa fa-lg fa-refresh"></i></a></li>
+            <li role="presentation" class="pull-right">
+                <a role="button" ng-click="shipmentTrackingFilterbar.toggleDateRangeForm()">
+                    Reports between {{ shipmentTrackingFilterbar.fromDate.label }} and {{ shipmentTrackingFilterbar.toDate.label }} <i class="fa fa-lg fa-caret-down"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+<nav class="navbar navbar-default" ng-show="shipmentTrackingFilterbar.showDateRangeForm">
+    <form class="navbar-form" ng-submit="shipmentTrackingFilterbar.submitDateRange()">
+        <div class="form-group" ng-class="{'has-error': shipmentTrackingFilterbar.fromDate.error}">
+            <label>Load reports between&nbsp;&nbsp;</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="shipmentTrackingFromDate" name="shipmentTrackingFromDate"
+                       ng-model="shipmentTrackingFilterbar.fromDate.date" ng-change="shipmentTrackingFilterbar.fromDate.isPristine = true">
+                <span class="input-group-addon">@</span>
+                <input type="text" class="form-control" id="shipmentTrackingFromTime" name="shipmentTrackingFromTime"
+                       ng-model="shipmentTrackingFilterbar.fromDate.time" ng-change="shipmentTrackingFilterbar.fromDate.isPristine = true">
+            </div>
+        </div>
+        <div class="form-group" ng-class="{'has-error': shipmentTrackingFilterbar.toDate.error}">
+            <label>&nbsp;&nbsp;and&nbsp;&nbsp;</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="shipmentTrackingToDate" name="shipmentTrackingToDate"
+                       ng-model="shipmentTrackingFilterbar.toDate.date" ng-change="shipmentTrackingFilterbar.toDate.isPristine = true">
+                <span class="input-group-addon">@</span>
+                <input type="text" class="form-control" id="shipmentTrackingToTime" name="shipmentTrackingToTime"
+                       ng-model="shipmentTrackingFilterbar.toDate.time" ng-change="shipmentTrackingFilterbar.toDate.isPristine = true">
+            </div>
+            <label>&nbsp;&nbsp;</label>
+        </div>
+        <button type="submit" class="btn btn-default navbar-btn">Submit</button>
+        <button type="button" class="btn btn-default navbar-btn" ng-click="shipmentTrackingFilterbar.resetDateRange()">Reset</button>
+        <button type="button" class="btn btn-default navbar-btn" ng-click="shipmentTrackingFilterbar.toggleDateRangeForm()">Cancel</button>
+    </form>
+    <p class="navbar-text" ng-show="shipmentTrackingFilterbar.error"><span class="text-danger"><i class="fa fa-exclamation-circle"></i>&nbsp;{{ shipmentTrackingFilterbar.error }}</span></p>
+</nav>
+<nav class="navbar navbar-default" ng-show="!shipmentTrackingFilterbar.showDateRangeForm">
+    <form class="navbar-form navbar-left">
+        <input type="text" class="form-control" placeholder="Text filter.." ng-model="shipmentTrackingFilterbar.filter.searchText">
+    </form>
+    <form class="navbar-form navbar-left">
+        <div class="btn-group" role="group">
+            <button role="button" class="btn btn-default" title="Toggle warning icons" id="btn-warning" ng-click="shipmentTrackingFilterbar.toggleSeverity('warning')" ng-class="{'active': !shipmentTrackingFilterbar.filter.showWarning}">
+                <img src="../img/warning-gps.png" height="20" ng-show="shipmentTrackingFilterbar.filter.showWarning">
+                <img src="../img/warning-disabled.png" height="20" ng-show="!shipmentTrackingFilterbar.filter.showWarning">
+                &nbsp;{{shipmentTrackingFilterbar.filter.showWarning ? 'On' : 'Off'}}
+            </button>
+            <button role="button" class="btn btn-default" title="Toggle info icons" id="btn-info" ng-click="shipmentTrackingFilterbar.toggleSeverity('info')" ng-class="{'active': !shipmentTrackingFilterbar.filter.showInfo}">
+                <img src="../img/info-gps.png" height="20" ng-show="shipmentTrackingFilterbar.filter.showInfo">
+                <img src="../img/info-disabled.png" height="20" ng-show="!shipmentTrackingFilterbar.filter.showInfo">
+                &nbsp;{{shipmentTrackingFilterbar.filter.showInfo ? 'On' : 'Off'}}
+            </button>
+            <button role="button" class="btn btn-default" title="Toggle ok icons" id="btn-ok" ng-click="shipmentTrackingFilterbar.toggleSeverity('ok')" ng-class="{'active': !shipmentTrackingFilterbar.filter.showOk}">
+                <img src="../img/ok-gps.png" height="20" ng-show="shipmentTrackingFilterbar.filter.showOk">
+                <img src="../img/ok-disabled.png" height="20" ng-show="!shipmentTrackingFilterbar.filter.showOk">
+                &nbsp;{{shipmentTrackingFilterbar.filter.showOk ? 'On' : 'Off'}}
+            </button>
+        </div>
+    </form>
+    <form class="navbar-form navbar-left">
+        <div class="btn-group" role="group">
+            <button type="button" id="btn-property" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    title="Showing {{shipmentTrackingFilterbar.filter.filterByPropertyName}} values on the timeline">
+                {{shipmentTrackingFilterbar.filter.filterByPropertyName}}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a role="button" ng-click="shipmentTrackingFilterbar.filter.filterByBattery()">Battery (%)</a></li>
+                <li><a role="button" ng-click="shipmentTrackingFilterbar.filter.filterByHumidity()">Humidity (%)</a></li>
+                <li><a role="button" ng-click="shipmentTrackingFilterbar.filter.filterByLight()">Light (lux)</a></li>
+                <li><a role="button" ng-click="shipmentTrackingFilterbar.filter.filterByPressure()">Pressure (kPa)</a></li>
+                <li><a role="button" ng-click="shipmentTrackingFilterbar.filter.filterByShock()">Shock (g)</a></li>
+                <li><a role="button" ng-click="shipmentTrackingFilterbar.filter.filterByTemperatureC()">Temperature (&deg;C)</a></li>
+                <li><a role="button" ng-click="shipmentTrackingFilterbar.filter.filterByTemperatureF()">Temperature (&deg;F)</a></li>
+                <li><a role="button" ng-click="shipmentTrackingFilterbar.filter.filterByTempProbe1C()">Temperature Probe 1 (&deg;C)</a></li>
+                <li><a role="button" ng-click="shipmentTrackingFilterbar.filter.filterByTempProbe1F()">Temperature Probe 1 (&deg;F)</a></li>
+                <li><a role="button" ng-click="shipmentTrackingFilterbar.filter.filterByTempProbe2C()">Temperature Probe 2 (&deg;C)</a></li>
+                <li><a role="button" ng-click="shipmentTrackingFilterbar.filter.filterByTempProbe2F()">Temperature Probe 2 (&deg;F)</a></li>
+                <li><a role="button" ng-click="shipmentTrackingFilterbar.filter.filterByTilt()">Tilt (&deg;)</a></li>
+            </ul>
+
+        </div>
+        &nbsp;
+        <div class="btn-group" role="group">
+            <button type="button" id="btn-filter-option" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    title="Filter option">
+                values {{ shipmentTrackingFilterbar.filter.range.filterOption !== 'none' ? shipmentTrackingFilterbar.filter.range.filterOption : '' }}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a role="button" ng-click="shipmentTrackingFilterbar.filter.range.filterOption = 'none'">values</a></li>
+                <li><a role="button" ng-click="shipmentTrackingFilterbar.filter.range.filterOption = 'above'">values above</a></li>
+                <li><a role="button" ng-click="shipmentTrackingFilterbar.filter.range.filterOption = 'below'">values below</a></li>
+                <li><a role="button" ng-click="shipmentTrackingFilterbar.filter.range.filterOption = 'between'">values between</a></li>
+                <li><a role="button" ng-click="shipmentTrackingFilterbar.filter.range.filterOption = 'outside'">values outside</a></li>
+            </ul>
+        </div>
+        &nbsp;
+        <span ng-show="shipmentTrackingFilterbar.filter.range.filterOption === 'above'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="shipmentTrackingFilterbar.filter.range.min"
+                       max="shipmentTrackingFilterbar.filter.range.max"
+                       ng-model="shipmentTrackingFilterbar.filter.range.above">
+                <span class="input-group-addon">{{shipmentTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        <span ng-show="shipmentTrackingFilterbar.filter.range.filterOption === 'below'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="shipmentTrackingFilterbar.filter.range.min"
+                       max="shipmentTrackingFilterbar.filter.range.max"
+                       ng-model="shipmentTrackingFilterbar.filter.range.below">
+                <span class="input-group-addon">{{shipmentTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        <span ng-show="shipmentTrackingFilterbar.filter.range.filterOption === 'between' || shipmentTrackingFilterbar.filter.range.filterOption === 'outside'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="shipmentTrackingFilterbar.filter.range.min"
+                       max="shipmentTrackingFilterbar.filter.range.max"
+                       ng-model="shipmentTrackingFilterbar.filter.range.from">
+                <span class="input-group-addon">{{shipmentTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+            &nbsp;&nbsp;and&nbsp;&nbsp;
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="shipmentTrackingFilterbar.filter.range.min"
+                       max="shipmentTrackingFilterbar.filter.range.max"
+                       ng-model="shipmentTrackingFilterbar.filter.range.to">
+                <span class="input-group-addon">{{shipmentTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        &nbsp;
+        <button role="button" id="btn-reset-property" class="btn btn-default" title="Reset filter values"
+                ng-click="shipmentTrackingFilterbar.resetPropertyFilter()"
+                ng-show="shipmentTrackingFilterbar.filter.range.filterOption !== 'none'">
+            <i class="fa fa-undo fa-lg"></i>
+        </button>
+    </form>
+</nav>

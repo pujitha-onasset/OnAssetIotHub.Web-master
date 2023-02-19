@@ -1,0 +1,105 @@
+<div ng-controller="ShipmentsMapController as shipmentsMap">
+    <div shipments-filter-bar></div>
+    <div class="row">
+        <div class="col-lg-3 col-md-4 col-sm-5">
+            <div class="panel panel-default" ng-show="!shipmentsMap.shipmentsService.selected"><!-- shipments list -->
+                <div class="panel-heading"><strong>Shipments</strong></div>
+                <div id="map-items-list" class="table-responsive">
+                    <table class="table table-condensed">
+                        <tr ng-show="shipmentsMap.shipmentsService.shipments.length > 0" class="warning"><td colspan="3" class="text-right">Showing {{ filteredReports.length }} /  {{ shipmentsMap.shipmentsService.shipments.length }} shipments</td></tr>
+                        <tr ng-repeat="shipment in filteredReports = (shipmentsMap.shipmentsService.shipments | filter: shipmentsMap.filterService.filter | orderBy: 'referenceNumber')">
+                            <td width="10%">
+                                <a map-icon-image style="border: none;" role="button" ng-click="shipmentsMap.actions.selectShipment(shipment)" severity="ok" location-method="{{shipment.latestReport.locationMethod}}" selected="{{ shipmentsMap.reportsService.selected && shipmentsMap.shipmentsService.selected.shipmentInfo.shipmentId === shipment.shipmentInfo.shipmentId }}"></a>
+                            </td>
+                            <td width="40%">
+                                <a role="button" ng-click="shipmentsMap.actions.selectShipment(shipment)">
+                                    <span>{{ shipment.shipmentInfo.referenceNumber }}</span>
+                                </a><br/>
+                                {{ shipment.shipmentInfo.status }}
+                            </td>
+                            <td width="50%" class="text-right">
+                                <small ng-if="shipment.latestReport">
+                                    <span class="pull-right" time-from-now utc-datetime="{{shipment.latestReport.messageTimeStamp}}"></span><br/>
+                                    <span ng-show="shipment.latestReport[shipmentsMap.filterService.range.property] || shipment.latestReport[shipmentsMap.filterService.range.property] === 0">{{ shipment.latestReport[shipmentsMap.filterService.range.property] }}{{ shipmentsMap.filterService.range.suffix }}</span>
+                                </small>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div><!-- shipment list -->
+            <div class="panel panel-default" ng-if="shipmentsMap.shipmentsService.selected"><!-- details -->
+                <div class="panel-heading">
+                    <strong>Shipment Details</strong>
+                    <span class="pull-right text-right">
+                        <a role="button" ng-click="shipmentsMap.actions.closeSelectedPanel()"><i class="fa fa-lg fa-close" title="Close"></i></a>
+                    </span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-condensed">
+                        <tr><td><strong>Battery</strong><span class="pull-right">{{ shipmentsMap.shipmentsService.selected.latestReport.batteryPercent }}%</span></td></tr>
+                        <tr><td><strong>Datetime</strong><span class="pull-right" local-datetime utc-datetime="{{shipmentsMap.shipmentsService.selected.latestReport.messageTimeStamp}}" date-format="L" time-format="LTS"></span></td></tr>
+                        <tr><td><strong>Destination</strong><span class="pull-right">{{ shipmentsMap.shipmentsService.selected.shipmentInfo.destination }}</span></td></tr>
+                        <tr><td><strong>Device Tag</strong><span class="pull-right">{{ shipmentsMap.shipmentsService.selected.shipmentInfo.deviceTagId }}</span></td></tr>
+                        <tr><td><strong>Light</strong><span class="pull-right">{{ shipmentsMap.shipmentsService.selected.latestReport.light }} lux</span></td></tr>
+                        <tr><td><strong>Location Method</strong><span class="pull-right">{{ shipmentsMap.shipmentsService.selected.latestReport.locationMethod  === 'CellTriangulation' ? 'Network' : shipmentsMap.shipmentsService.selected.latestReport.locationMethod}}</span></td></tr>
+                        <tr><td><strong>Motion</strong><span class="pull-right">{{ shipmentsMap.shipmentsService.selected.latestReport.isMotionDetected || shipmentsMap.shipmentsService.selected.latestReport.isVibrationDetected ? 'Detected' : 'Not detected' }}</span></td></tr>
+                        <tr><td><strong>Pressure</strong><span class="pull-right">{{ shipmentsMap.shipmentsService.selected.latestReport.pressure }} kPa</span></td></tr>
+                        <tr><td><strong>Shipment</strong><span class="pull-right">{{ shipmentsMap.shipmentsService.selected.shipmentInfo.referenceNumber }}</span></td></tr>
+                        <tr><td><strong>Shock</strong><span class="pull-right">{{ shipmentsMap.shipmentsService.selected.latestReport.isShockExceeded ? shipmentsMap.shipmentsService.selected.latestReport.shockMagnitude : 'Not detected' }}</span></td></tr>
+                        <tr><td><strong>Status</strong><span class="pull-right">{{ shipmentsMap.shipmentsService.selected.shipmentInfo.status }}</span></td></tr>
+                        <tr><td><strong>Temperature</strong><span class="pull-right">{{ shipmentsMap.shipmentsService.selected.latestReport.temperatureC }}&deg;C<br/>{{ shipmentsMap.shipmentsService.selected.latestReport.temperatureF }}&deg;F</span></td></tr>
+                        <tr ng-if="shipmentsMap.shipmentsService.selected.latestReport.temperatureProbe"><td><strong>Temperature Probe</strong><span class="pull-right">{{ shipmentsMap.shipmentsService.selected.latestReport.temperatureProbe }}&deg;C</span></td></tr>
+                        <tr><td><strong>Tracking Start</strong><span class="pull-right" local-datetime utc-datetime="{{shipmentsMap.shipmentsService.selected.shipmentInfo.startDate}}" date-format="L" time-format="LTS"></span></td></tr>
+                        <tr><td><strong>Tracking End</strong><span class="pull-right" local-datetime utc-datetime="{{shipmentsMap.shipmentsService.selected.shipmentInfo.endDate}}" date-format="L" time-format="LTS"></span></td></tr>
+                    </table>
+                </div>
+                <div class="panel-footer">
+                    <button id="btn-details-shipment-map" class="btn btn-default btn-sm" title="Track Shipment"
+                            ng-if="shipmentsMap.shipmentsService.selected.longitude !== null && shipmentsMap.shipmentsService.selected.latitude !== null"
+                            ng-click="shipmentsMap.actions.goToShipmentMap()">
+                        <i class="fa fa-map-o"></i>
+                    </button>
+                    <button id="btn-details-shipment-reports" class="btn btn-default btn-sm" title="Shipment Reports"
+                            ng-click="shipmentsMap.actions.goToShipmentReports()">
+                        <i class="fa fa-table"></i>
+                    </button>
+                    <button id="btn-details-center-timeline" class="btn btn-default btn-sm pull-right" title="Center on timeline"
+                            ng-click="shipmentsMap.actions.selectedMarker.centerOnTimeline()">
+                        <i class="fa fa-clock-o"></i>
+                    </button>
+                    <button id="btn-details-center-map" class="btn btn-default btn-sm pull-right" title="Center on map"
+                            ng-if="shipmentsMap.shipmentsService.selected.longitude !== null && shipmentsMap.shipmentsService.selected.latitude !== null"
+                            ng-click="shipmentsMap.actions.selectedMarker.panTo(shipmentsMap.selectedMarker)">
+                        <i class="fa fa-crosshairs"></i>
+                    </button>
+                </div>
+            </div>    <!-- shipment details -->
+        </div>
+        <div class="col-lg-9 col-md-8 col-sm-7">
+            <div id="shipmentsMap" class="shipments-map"></div>
+            <div shipments-map-timeline></div>
+        </div>
+    </div><!--map-->
+    <div id="reportsZoom" class="gmap-control gmap-control-left-end gmap-control-right-end">
+        <a role="button" ng-click="shipmentsMap.actions.map.panToReports()" title="Zoom to show all reports">Zoom on shipments</a>
+    </div>
+    <div id="mapPropTool" class="gmap-control gmap-control-left-end">
+        <a role="button" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Map Properties"><i class="fa fa-info"></i></a>
+        <ul class="dropdown-menu gmap-control-map-prop">
+            <li><strong>Zoom</strong></li>
+            <li>&nbsp;&nbsp;{{ shipmentsMap.zoomLevel }}</li>
+            <li><strong>Center Lat</strong></li>
+            <li>&nbsp;&nbsp;{{ shipmentsMap.center.lat }}</li>
+            <li><strong>Center Lng</strong></li>
+            <li>&nbsp;&nbsp;{{ shipmentsMap.center.lng }}</li>
+        </ul>
+    </div>
+    <div id="legendTool" class="gmap-control gmap-control-right-end">
+        <a role="button" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Legend">Legend</a>
+        <ul class="dropdown-menu dropdown-menu-right gmap-control-legend">
+            <li><img class="img-circle" src="../img/ok-gps.png">&nbsp;&nbsp;Ok - GPS Location</li>
+            <li><img class="img-square" src="../img/ok-network.png">&nbsp;&nbsp;Ok - Network Location</li>
+            <li><img class="img-diamond" src="../img/ok-none.png">&nbsp;&nbsp;Ok - No Location</li>
+        </ul>
+    </div>    
+</div>

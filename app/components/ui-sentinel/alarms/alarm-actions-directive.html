@@ -1,0 +1,120 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <a role="button" ng-click="alarmActions.panel.toggle()">Actions</a>
+        <span class="pull-right text-right">
+            <a role="button" ng-click="alarmActions.panel.toggle()">
+                <i class="fa fa-lg" ng-class="{'fa-caret-right': alarmActions.panel.isCollapsed, 'fa-caret-down': !alarmActions.panel.isCollapsed}" title="Expand"></i>
+            </a>
+        </span>
+        <span class="pull-right text-right" ng-show="!alarmActions.panel.isCollapsed"><a role="button" ng-click="alarmActions.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+    </div>
+    <div ng-class="{'collapse': alarmActions.panel.isCollapsed}">
+        <div class="panel-body">
+            <div class="row" style="margin-top: 3px;">
+                <div class="col-sm-8">
+                    <ul class="nav nav-pills">
+                    </ul>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="200">Name</th>
+                                    <th colspan="2">Action(s)</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th width="200">Change Data Frequency</th>
+                                    <td width="20" class="text-center" ng-if="!alarmActions.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Change this action"
+                                                ng-click="alarmActions.actions.begin()"
+                                                ng-if="alarmActions.hasPermission.toChange">
+                                            <i class="fa fa-pencil fa-lg"></i>
+                                        </button>
+                                    </td>
+                                    <td ng-if="!alarmActions.form.isChanging">
+                                        <span ng-show="alarmActions.form.standardInterval !== null && alarmActions.form.extendedInterval !== null">
+                                            Change in-motion reporting frequency to every {{ alarmActions.form.standardInterval }} {{ alarmActions.form.standardIntervalUnit }}<br/>
+                                            Change at-rest reporting frequency to every {{ alarmActions.form.extendedInterval }} {{ alarmActions.form.extendedIntervalUnit }}<br/>
+                                        </span>
+                                        <span ng-show="alarmActions.form.standardInterval !== null && alarmActions.form.extendedInterval === null">
+                                            Change reporting frequency to every {{ alarmActions.form.standardInterval }} {{ alarmActions.form.standardIntervalUnit }}<br/>
+                                        </span>
+                                        <span ng-show="alarmActions.form.standardInterval === null && alarmActions.form.extendedInterval !== null">
+                                            Change at-rest reporting frequency to every {{ alarmActions.form.extendedInterval }} {{ alarmActions.form.extendedIntervalUnit }}<br/>
+                                        </span>
+                                    </td>
+                                    <td colspan="2"  ng-if="alarmActions.form.isChanging">
+                                        <form name="dataFrequencyForm" id="dataFrequencyForm"
+                                              ng-submit="alarmActions.actions.submit()"
+                                              novalidate>
+                                            <div class="form-group" ng-class="{'has-error': dataFrequencyForm.standardInterval.$invalid && !dataFrequencyForm.standardInterval.$pristine}">
+                                                <label for="standardInterval">Default / in-motion frequency *</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" step="1" class="form-control" id="standardInterval" name="standardInterval"
+                                                           placeholder="Enter number of {{alarmActions.form.standardIntervalUnit}}"
+                                                           ng-model="alarmActions.form.standardInterval"
+                                                           min="{{alarmActions.minFrequency[alarmActions.form.standardIntervalUnit]}}" max="{{alarmActions.maxFrequency[alarmActions.form.standardIntervalUnit]}}">
+                                                    <div class="input-group-btn">
+                                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                                            aria-haspopup="true" aria-expanded="false">
+                                                            {{ alarmActions.form.standardIntervalUnit }} <span class="caret"></span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-right">
+                                                            <li><a role="button" ng-click="alarmActions.form.standardIntervalUnit = 'minutes'">minutes</a></li>
+                                                            <li><a role="button" ng-click="alarmActions.form.standardIntervalUnit = 'hours'">hours</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="dataFrequencyForm.standardInterval.$invalid && !dataFrequencyForm.standardInterval.$pristine"><i class="fa fa-exclamation-circle"></i>&nbsp;Default/In-motion frequency must be between {{alarmActions.minFrequency[alarmActions.form.standardIntervalUnit]}} and {{alarmActions.maxFrequency[alarmActions.form.standardIntervalUnit]}} {{alarmActions.form.standardIntervalUnit}}</p>
+                                            </div>
+                                            <div class="form-group" ng-class="{'has-error': dataFrequencyForm.extendedInterval.$invalid && !dataFrequencyForm.extendedInterval.$pristine}">
+                                                <label for="extendedInterval">At-rest frequency *</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" step="1" class="form-control" id="extendedInterval" name="extendedInterval"
+                                                           placeholder="Enter number of {{alarmActions.form.extendedIntervalUnit}}"
+                                                           ng-model="alarmActions.form.extendedInterval"
+                                                           min="{{alarmActions.minFrequency[alarmActions.form.extendedIntervalUnit]}}" max="{{alarmActions.maxFrequency[alarmActions.form.extendedIntervalUnit]}}">
+                                                    <div class="input-group-btn">
+                                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                                                aria-haspopup="true" aria-expanded="false">
+                                                            {{ alarmActions.form.extendedIntervalUnit }} <span class="caret"></span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-right">
+                                                            <li><a role="button" ng-click="alarmActions.form.extendedIntervalUnit = 'minutes'">minutes</a></li>
+                                                            <li><a role="button" ng-click="alarmActions.form.extendedIntervalUnit = 'hours'">hours</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="dataFrequencyForm.extendedInterval.$invalid && !dataFrequencyForm.extendedInterval.$pristine"><i class="fa fa-exclamation-circle"></i>&nbsp;At-rest frequency must be between {{alarmActions.minFrequency[alarmActions.form.extendedIntervalUnit]}} and {{alarmActions.maxFrequency[alarmActions.form.extendedIntervalUnit]}} {{alarmActions.form.extendedIntervalUnit}}</p>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="dataFrequencyForm.$invalid"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="alarmActions.actions.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td width="10" ng-if="!alarmActions.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Remove this action"
+                                                ng-click="alarmActions.actions.remove()"
+                                                ng-show="alarmActions.form.standardInterval || alarmActions.form.extendedInterval"
+                                                ng-if="alarmActions.hasPermission.toChange">
+                                            <i class="fa fa-trash-o fa-lg"></i>
+                                        </button>
+                                    </td>
+                                </tr><!--data frequency-->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

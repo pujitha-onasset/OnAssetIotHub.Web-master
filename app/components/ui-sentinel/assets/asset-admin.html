@@ -1,0 +1,178 @@
+<div ng-controller="AssetAdminController as assetAdmin">
+    <div feedback></div>
+    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row" ng-if="!assetAdmin.mode.isNew" style="margin-top: 3px;">
+                        <div class="col-sm-8" ng-if="assetAdmin.hasPermission.toSave">
+                            <ul class="nav nav-pills" ng-cloak>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="Delete" ng-click="assetAdmin.actions.beginRemove()"
+                                            ng-show="!assetAdmin.mode.isRemoving">
+                                        <i class="fa fa-trash"></i> Delete
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="Yes" ng-click="assetAdmin.actions.remove()"
+                                            ng-show="assetAdmin.mode.isRemoving">
+                                        <i class="fa fa-check"></i> Yes
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="No" ng-click="assetAdmin.actions.cancelRemove()"
+                                            ng-show="assetAdmin.mode.isRemoving">
+                                        <i class="fa fa-ban"></i> No
+                                    </button>
+                                </li>
+                            </ul>
+                            <br/>
+                            <br/>
+                        </div>
+                    </div>
+                    <div class="row" ng-show="assetAdmin.mode.isRemoving">
+                        <div class="col-sm-12">
+                            <p><i class="fa fa-question-circle fa-lg"></i>  Do you wish to delete <strong>{{ assetAdmin.asset.assetName }}</strong>? </p>
+                        </div>
+                    </div>
+                    <div class="row" ng-hide="assetAdmin.mode.isRemoving">
+                        <div class="col-sm-12">
+                            <form name="zoneForm" id="clientForm" ng-submit="assetAdmin.actions.submit()" novalidate>
+                                <div class="form-group" ng-class="{'has-error': !assetAdmin.assetName.isPristine && assetAdmin.assetName.hasError()}">
+                                    <label>Name *</label>
+                                    <input type="text" class="form-control" id="assetName" name="assetName" placeholder="Enter a name for the asset" maxlength="80"
+                                           ng-model="assetAdmin.assetName.value"
+                                           ng-readonly="!assetAdmin.hasPermission.toSave"
+                                           ng-change="assetAdmin.assetName.isPristine = true">
+                                    <p class="help-block text-right" ng-show="!assetAdmin.assetName.isPristine && assetAdmin.assetName.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A asset name is required</p>
+                                    <p class="help-block text-right" ng-show="!assetAdmin.assetName.isPristine && assetAdmin.assetName.errors.isDuplicate">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;The asset name is already in use</p>
+                                </div>
+
+                                <div class="form-group" ng-class="{'has-error': !assetAdmin.assetType.isPristine && assetAdmin.assetType.hasError()}">
+                                    <label>Type</label>
+                                    <input type="text" class="form-control" id="assetType" name="assetType" placeholder="Enter a type for the asset" maxlength="80"
+                                           ng-model="assetAdmin.assetType.value"
+                                           ng-readonly="!assetAdmin.hasPermission.toSave"
+                                           ng-change="assetAdmin.assetType.isPristine = true">
+                                    <!--<p class="help-block text-right" ng-show="!assetAdmin.assetType.isPristine && assetAdmin.assetType.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A asset name is required</p>-->
+                                </div>
+
+                                <div class="form-group" ng-class="{'has-error': !assetAdmin.assetManufacturer.isPristine && assetAdmin.assetManufacturer.hasError()}">
+                                    <label>Manufacturer</label>
+                                    <input type="text" class="form-control" id="assetManufacturer" name="assetManufacturer" placeholder="Enter a manufacturer for the asset" maxlength="80"
+                                           ng-model="assetAdmin.assetManufacturer.value"
+                                           ng-readonly="!assetAdmin.hasPermission.toSave"
+                                           ng-change="assetAdmin.assetManufacturer.isPristine = true">
+
+                                    <!--<p class="help-block text-right" ng-show="!assetAdmin.assetManufacturer.isPristine && assetAdmin.assetManufacturer.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A manufacturer is required</p>-->
+                                </div>
+
+                                <div class="form-group" ng-class="{'has-error': !assetAdmin.assetManufacturerDate.isPristine && assetAdmin.assetManufacturerDate.hasError()}">
+                                    <label>Manufacturer Date</label>
+                                    <input type="text" class="form-control" id="assetManufacturerDate" name="assetManufacturerDate" 
+                                           ng-model="assetAdmin.assetManufacturerDate.date"
+                                           ng-readonly="!assetAdmin.hasPermission.toSave"
+                                           ng-change="assetAdmin.assetManufacturerDate.isPristine = true">
+                                    <!--<p class="help-block text-right" ng-show="!assetAdmin.assetManufacturerDate.isPristine && assetAdmin.assetManufacturerDate.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A manufacturer date is required</p>-->
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="comments">Notes</label>
+                                    <textarea class="form-control" id="comments" name="comments"
+                                              ng-model="assetAdmin.assetDescription.value"
+                                              ng-readonly="!assetAdmin.hasPermission.toSave"
+                                              placeholder="Enter notes for this asset (optional)" rows="3" maxlength="500">
+                                    </textarea>
+                                </div>
+                                <div class="form-group" ng-class="{'has-error': !assetAdmin.device.isPristine && assetAdmin.device.hasError()}">
+                                    <label for="device">Sentinel *</label>
+                                    <div ng-if="assetAdmin.device.value !== null">
+                                        <div class="input-group">
+                                            <input id="device" type="text" class="form-control" ng-model="assetAdmin.device.valueText" readonly>
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default" title="Change device" ng-click="assetAdmin.actions.clearDevice()"><i class="fa fa-fw fa-pencil"></i></button>
+                                        </span>
+                                        </div>
+                                    </div>
+                                    <div ng-if="assetAdmin.device.value === null" ng-class="{'has-error': !assetAdmin.device.isPristine && assetAdmin.device.value === null}">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Enter text to filter the sentinel list..." ng-model="assetAdmin.device.searchText">
+                                            <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default" title="Search device" ng-click="assetAdmin.actions.changeDeviceFilter(assetAdmin.device.searchText)">Search sentinel</button>
+                                        </span>
+                                        </div>
+                                        <p class="help-block text-right" ng-show="!assetAdmin.device.isPristine && assetAdmin.device.value === null"><i class="fa fa-exclamation-circle"></i>&nbsp;A sentinel is required</p>
+                                        <p ng-show="assetAdmin.availableDevices.length>0"><i class="fa fa-info-circle"></i>&nbsp;Click a sentinel to use</p>
+                                        <p ng-show="assetAdmin.availableDevices.length>0"><i class="fa fa-info-circle"></i>&nbsp;Showing first {{assetAdmin.locationLimit}} matches.  Use the filter to narrow your search and then click a sentinel to use</p>
+                                        <div class="table-responsive" ng-show="assetAdmin.availableDevices.length == 0">
+                                            <table class="table table-striped">
+                                                <tbody><tr class="warning"><td>This device does not exist in this account</td></tr></tbody>
+                                            </table>
+                                        </div>
+                                        <div class="table-responsive" ng-show="assetAdmin.availableDevices.length>0">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                <tr>
+                                                    <th></th>
+                                                    <th>Sentinel</th>
+                                                    <th>Name</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr ng-repeat="device in assetAdmin.availableDevices" ng-if="assetAdmin.availableDevices.length > 0">
+                                                    <th></th>
+                                                    <td><a role="button" ng-click="assetAdmin.actions.selectDevice(device)">{{ device.deviceId }}</a></td>
+                                                    <td>{{device.friendlyName}}</td>
+                                                   
+                                                </tr>
+                                                <tr ng-if="assetAdmin.availableDevices.length === 0">
+                                                    <td></td>
+                                                    <td colspan="4">There are no sentinels assigned to the this client</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Images Stored</label>
+                                    <div>
+                                        <div class="preview clearfix-multi-upload-file">
+                                        <div class="previewData clearfix-multi-upload-file" ng-repeat="image in assetAdmin.imagesStored track by $index">
+                                             <a href="{{image.url}}" data-lightbox="assets"><img src="{{image.url}}"></img></a>
+                                            <div class="previewDetails">
+                                                <div class="detail"><b>Name : </b>{{image.name}}</div>
+                                                <div class="detail"><b>Size : </b> {{assetAdmin.actions.calculateSize(image.size)}}</div>
+                                            </div>
+                                            <div class="previewControls">
+                                               <button class="btn btn-default" ng-click="assetAdmin.actions.removeImage(image, $index)" > <i class="fa fa-close"></i></button>
+                                            </div>
+                                            </div>   
+                                        </div>
+                                    </div>  
+                                </div>
+                               
+                                <div class="form-group">
+                                    <label>Images to Upload</label>
+                                    <div>
+                                        <div img-upload accept="image/*" upload-event-name="assetUploadImageListener"></div>
+                                    </div>  
+                                </div>
+                                <div class="form-group">
+                                    <br/>
+                                    <br/>
+                                    <div class="pull-right">
+                                        <button type="submit" class="btn btn-default" ng-if="assetAdmin.hasPermission.toSave"><i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                        <button type="button" class="btn btn-default" ng-if="assetAdmin.hasPermission.toSave" ng-click="assetAdmin.actions.reset()"><i class="fa fa-undo"></i>&nbsp;&nbsp;Reset</button>
+                                        <button type="button" class="btn btn-default" ng-click="assetAdmin.actions.close()"><i class="fa fa-times"></i>&nbsp;&nbsp;Close</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

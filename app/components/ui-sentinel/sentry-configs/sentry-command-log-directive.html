@@ -1,0 +1,46 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <a role="button" ng-click="sentryCommandLog.panel.toggle()">Configuration Command Log</a>
+        <span class="pull-right text-right"><a role="button" ng-click="sentryCommandLog.panel.toggle()"><i class="fa fa-lg" ng-class="{'fa-caret-right': sentryCommandLog.panel.isCollapsed, 'fa-caret-down': !sentryCommandLog.panel.isCollapsed}" title="Expand"></i></a></span>
+        <span class="pull-right text-right" ng-show="!sentryCommandLog.panel.isCollapsed"><a role="button" ng-click="sentryCommandLog.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+    </div>
+    <div ng-class="{'collapse': sentryCommandLog.panel.isCollapsed}">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th width="20">#</th>
+                                <th width="300">Command</th>
+                                <th width="150">Time queued</th>
+                                <th>Disposition</th>
+                                <th>Disposition Time</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-show="sentryCommandLog.commands.length != 0" ng-repeat="command in sentryCommandLog.commands">
+                                <td width="20">{{ $index + 1 }}</td>
+                                <td width="300">{{ command.command }}</td>
+                                <td width="200">
+                                    <span local-datetime utc-datetime="{{command.commandCreated}}" date-format="L" time-format="LTS"></span>
+                                </td >
+                                <td >{{command.commandStatusDesc}}</td>
+                                <td width="200">
+                                    <span ng-if="command.commandStatusDesc !== 'SUCCESS' && command.commandStatusDesc !== 'PENDING'" local-datetime utc-datetime="{{command.commandDateDeleted}}" date-format="L" time-format="LTS"></span>
+                                    <span ng-if="command.commandStatusDesc === 'SUCCESS'" local-datetime utc-datetime="{{command.commandUpdated}}" date-format="L" time-format="LTS"></span>
+                                </td>
+                            </tr>
+                            <tr ng-show="sentryCommandLog.commands.length === 0" class="warning">
+                                <td></td>
+                                <td colspan="4">There is no configuration command history for this device</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

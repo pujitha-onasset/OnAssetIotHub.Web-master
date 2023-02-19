@@ -1,0 +1,1 @@
+gulp clean-build-app-release --apiurl='https://api-visionqa.onasset.com'

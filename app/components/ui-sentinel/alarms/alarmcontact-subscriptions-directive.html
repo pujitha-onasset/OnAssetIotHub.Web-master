@@ -1,0 +1,171 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <a role="button" ng-click="contactSubscriptions.panel.toggle()">Subscriptions</a>
+        <span class="pull-right text-right">
+            <a role="button" ng-click="contactSubscriptions.panel.toggle()">
+                <i class="fa fa-lg" ng-class="{'fa-caret-right': contactSubscriptions.panel.isCollapsed, 'fa-caret-down': !contactSubscriptions.panel.isCollapsed}" title="Expand"></i>
+            </a>
+        </span>
+        <span class="pull-right text-right" ng-show="!contactSubscriptions.panel.isCollapsed"><a role="button" ng-click="contactSubscriptions.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+    </div>
+    <div ng-class="{'collapse': contactSubscriptions.panel.isCollapsed}">
+        <div class="panel-body">
+            <div class="row" style="margin-top: 3px;">
+                <div class="col-sm-8" ng-if="contactSubscriptions.hasPermission.toChange">
+                    <ul class="nav nav-pills">
+                        <li>
+                            <button class="btn btn-default" type="button" title="Finished adding subscriptions"
+                                    ng-show="contactSubscriptions.mode.isAdding"
+                                    ng-click="contactSubscriptions.actions.endAdd()">
+                                <i class="fa fa-reply"></i>&nbsp;Finished
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Finished removing subscriptions"
+                                    ng-show="contactSubscriptions.mode.isRemoving"
+                                    ng-click="contactSubscriptions.actions.endRemove()">
+                                <i class="fa fa-reply"></i>&nbsp;Finished
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Add alarm subscriptions"
+                                    ng-hide="contactSubscriptions.mode.isAdding || contactSubscriptions.mode.isRemoving"
+                                    ng-click="contactSubscriptions.actions.beginAdd()">
+                                <i class="fa fa-plus"></i>&nbsp;Add..
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Remove alarm subscriptions"
+                                    ng-show="!contactSubscriptions.mode.isAdding && !contactSubscriptions.mode.isRemoving && contactSubscriptions.alarms.assigned.length > 0"
+                                    ng-click="contactSubscriptions.actions.beginRemove()">
+                                <i class="fa fa-minus"></i>&nbsp;Remove..
+                            </button>
+                        </li>
+                    </ul>
+                    <br/><br/>
+                </div>
+            </div><!--nav pills-->
+            <div class="row" ng-if="!contactSubscriptions.mode.isAdding && !contactSubscriptions.mode.isRemoving">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="20">#</th>
+                                    <th width="300">Alarm name</th>
+                                    <th width="150">Severity</th>
+                                    <th width="150" class="text-center">Alarm Type</th>
+                                    <th width="150" class="text-center">Email Frequency</th>
+                                    <th width="150" class="text-center">Sms Frequency</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-show="contactSubscriptions.alarms.assigned.length != 0" ng-repeat="alarm in contactSubscriptions.alarms.assigned | orderBy: 'alarmName'">
+                                    <td width="20">{{ $index + 1 }}</td>
+                                    <td width="300"><a role="button" ng-click="contactSubscriptions.actions.goToAlarm(alarm.alarmId)">{{ alarm.alarmName }}</a></td>
+                                    <td width="150">
+                                        <span class="{{ alarm.isShowAsRedDot ? 'text-danger' : 'text-info' }}">
+                                            <i class="fa {{alarm.isShowAsRedDot ? 'fa-exclamation-triangle' : 'fa-info-circle' }} fa-lg" title="{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}"></i>
+                                            &nbsp;{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}
+                                        </span>
+                                    </td>
+                                    <td width="150" class="text-center"><i class="fa {{ alarm.isActiveOnShipmentOnly ? 'fa-truck' : 'fa-hdd-o' }}"></i> {{ alarm.isActiveOnShipmentOnly ? 'Shipment' : 'Device' }}</td>
+                                    <td width="150" class="text-center">{{ alarm.emailFrequency }}</td>
+                                    <td width="150" class="text-center">{{ alarm.smsFrequency }}</td>
+                                </tr>
+                                <tr ng-show="contactSubscriptions.alarms.assigned.length === 0" class="warning">
+                                    <td width="20">&nbsp;</td>
+                                    <td colspan="5">There are no alarm subscriptions for this contact</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div><!--assigned alarms-->
+            <div class="row" ng-if="contactSubscriptions.mode.isAdding && !contactSubscriptions.mode.isCreating">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="20">#</th>
+                                    <th width="300">Alarm name</th>
+                                    <th width="150">Severity</th>
+                                    <th width="150" class="text-center">Alarm Type</th>
+                                    <th width="150" class="text-center">Email Frequency</th>
+                                    <th width="150" class="text-center">Sms Frequency</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-show="contactSubscriptions.alarms.available.length != 0" ng-repeat="alarm in contactSubscriptions.alarms.available | orderBy: ['alarmName']">
+                                    <td width="20">
+                                        <button class="btn btn-default btn-xs" type="button" ng-click="contactSubscriptions.actions.add(alarm)" title="Add {{ alarm.alarmName}}"  ng-show="!alarm.isAdded">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </td>
+                                    <td width="300"><a role="button" ng-click="contactSubscriptions.actions.goToAlarm(alarm.alarmId)">{{ alarm.alarmName }}</a></td>
+                                    <td width="150">
+                                        <span class="{{ alarm.isShowAsRedDot ? 'text-danger' : 'text-info' }}">
+                                            <i class="fa {{alarm.isShowAsRedDot ? 'fa-exclamation-triangle' : 'fa-info-circle' }} fa-lg" title="{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}"></i>
+                                            &nbsp;{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}
+                                        </span>
+                                    </td>
+                                    <td width="150" class="text-center"><i class="fa {{ alarm.isActiveOnShipmentOnly ? 'fa-truck' : 'fa-hdd-o' }}"></i> {{ alarm.isActiveOnShipmentOnly ? 'Shipment' : 'Device' }}</td>
+                                    <td width="150" class="text-center">{{ alarm.emailFrequency }}</td>
+                                    <td width="150" class="text-center">{{ alarm.smsFrequency }}</td>
+                                </tr>
+                                <tr ng-show="contactSubscriptions.alarms.available.length === 0" class="warning">
+                                    <td width="20">&nbsp;</td>
+                                    <td colspan="5">There are no alarms to subscribe to</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div><!--available alarms-->
+            <div class="row" ng-if="contactSubscriptions.mode.isRemoving">
+                <div class="col-sm-12">
+                    <br/>
+                    <br/>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="20">#</th>
+                                    <th width="300">Alarm name</th>
+                                    <th width="150">Severity</th>
+                                    <th width="150" class="text-center">Alarm Type</th>
+                                    <th width="150" class="text-center">Email Frequency</th>
+                                    <th width="150" class="text-center">Sms Frequency</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-show="contactSubscriptions.alarms.removable.length != 0" ng-repeat="alarm in contactSubscriptions.alarms.removable | orderBy: 'alarmName'">
+                                    <td width="20">
+                                        <button class="btn btn-default btn-xs" type="button" ng-click="contactSubscriptions.actions.remove(alarm)" title="Remove {{ alarm.alarmName}}"  ng-show="!alarm.isRemoved">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                    </td>
+                                    <td width="300"><a role="button" ng-click="contactSubscriptions.actions.goToAlarm(alarm.alarmId)">{{ alarm.alarmName }}</a></td>
+                                    <td width="150">
+                                        <span class="{{ alarm.isShowAsRedDot ? 'text-danger' : 'text-info' }}">
+                                            <i class="fa {{alarm.isShowAsRedDot ? 'fa-exclamation-triangle' : 'fa-info-circle' }} fa-lg" title="{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}"></i>
+                                            &nbsp;{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}
+                                        </span>
+                                    </td>
+                                    <td width="150" class="text-center"><i class="fa {{ alarm.isActiveOnShipmentOnly ? 'fa-truck' : 'fa-hdd-o' }}"></i> {{ alarm.isActiveOnShipmentOnly ? 'Shipment' : 'Device' }}</td>
+                                    <td width="150" class="text-center">{{ alarm.emailFrequency }}</td>
+                                    <td width="150" class="text-center">{{ alarm.smsFrequency }}</td>
+                                </tr>
+                                <tr ng-show="contactSubscriptions.alarms.removable.length === 0" class="warning">
+                                    <td width="20">&nbsp;</td>
+                                    <td colspan="5">There are no alarms to remove</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div><!--removable alarms-->
+        </div>
+    </div>
+</div>

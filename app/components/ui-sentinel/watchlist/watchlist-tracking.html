@@ -1,0 +1,216 @@
+<div ng-controller="WatchlistTrackingController as watchlistTracking">
+      <div watchlist-tracking-filterbar ng-if="watchlistTracking.watchlistSelected" ></div>
+    <div class="col-sm-12 col-lg-12" ng-if="!watchlistTracking.watchlistSelected">
+        <div class="row">
+            <nav class="navbar navbar-default">
+                <form class="navbar-form navbar-left">
+                    <label><i class="fa fa-lg fa-filter"></i></label>&nbsp;&nbsp;
+                    <input type="text" class="form-control" placeholder="Filter.." ng-model="watchlistTracking.filter.searchText">
+                     <div class="btn-group" role="group">
+                        <button type="button" id="btn-filter-option" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                title="Filter option">
+                            Status {{ watchlistTracking.filterOption.value !== '' ? watchlistTracking.filterOption.text : 'All' }}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="option in watchlistTracking.filterOptions"><a role="button" ng-click="watchlistTracking.filterOption = option; watchlistTracking.actions.reload(); ">{{option.text}}</a></li>
+                        </ul>
+                    </div>
+                </form>
+            </nav>
+        </div>
+        <div class="row">
+            <p>Please select a device and a watchlist to map the device.</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-9 col-lg-push-3 col-md-8 col-md-push-4">
+            <div id="watchlistTrackingMap" class="large-map"></div>
+            <div watchlist-tracking-timeline></div>
+        </div>
+        <div class="col-lg-3 col-lg-pull-9 col-md-4 col-md-pull-8" >
+            <div class="panel panel-default panel-themed" ng-show="!watchlistTracking.sentinelSelected"><!-- device list -->
+                <div class="panel-heading"><strong>Sentinels</strong></div>
+                <div id="map-items-list" class="table-responsive">
+                    <table class="table table-condensed">
+                        <tr ng-show="watchlistTracking.sentinels.length == 0" class="danger"><td colspan="3"><i class="fa fa-exclamation-circle fa-lg"></i>&nbsp;&nbsp;No data to display. </td></tr>
+                       <tr ng-repeat="sentinel in filteredList = (watchlistTracking.sentinels | orderBy: 'name' | filter: watchlistTracking.filter.filterS)"class="text-ok">
+                            <td>
+                                <div>
+                                    <a role="button" ng-click="watchlistTracking.actions.selectSentinel(sentinel)">
+                                        <span ng-if="!sentinel.friendlyName">{{ sentinel.mac }}</span>
+                                        <span ng-if="sentinel.friendlyName">{{ sentinel.friendlyName }}<br/><small>[{{ sentinel.mac }}]</small></span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div><!-- device list -->
+            <div class="panel panel-default panel-themed" ng-if="watchlistTracking.sentinelSelected && !watchlistTracking.watchlistSelected"><!-- device details -->
+                <div class="panel-heading">
+                    <strong> Watchlist for {{watchlistTracking.sentinelSelected.mac}} </strong>
+                    <span class="pull-right text-right">
+                        <a style="border: none;" role="button" ng-click="watchlistTracking.actions.closeSentinel()"><i class="fa fa-lg fa-close" title="Close"></i></a>
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <button id="btn-details-select-prev" class="btn btn-default btn-sm" title="Select previous watchlist"
+                            ng-disabled="!watchlistTracking.previousSentinel"
+                            ng-click="watchlistTracking.actions.selectSentinel(watchlistTracking.previousSentinel)">
+                        <i class="fa fa-chevron-left"></i>&nbsp;&nbsp;Prev
+                    </button>
+                    <button id="btn-details-select-next" class="btn btn-default btn-sm pull-right" title="Select next watchlist"
+                            ng-disabled="!watchlistTracking.nextSentinel"
+                            ng-click="watchlistTracking.actions.selectSentinel(watchlistTracking.nextSentinel)">
+                        Next&nbsp;&nbsp;<i class="fa fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-condensed">
+                        <tr ng-show="watchlistTracking.watchlists.length == 0" class="danger"><td colspan="3"><i class="fa fa-exclamation-circle fa-lg"></i>&nbsp;&nbsp;No data to display. </td></tr>
+                       <tr ng-repeat="watchlist in filteredListW = (watchlistTracking.watchlists  | filter: watchlistTracking.filter.filterW)"class="text-ok">
+                            <td>
+                                <div>
+                                    <a role="button" ng-click="watchlistTracking.actions.selectWatchlist(watchlist)">
+                                        <span ><span  local-datetime utc-datetime="{{watchlist.startDate}}" date-format="L" time-format="LTS"></span> - <span  local-datetime utc-datetime="{{watchlist.endDate}}" date-format="L" time-format="LTS"></span> <br/><small>[{{ watchlist.status }}]</small></span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="panel-footer">
+                   <button id="btn-edit" class="btn btn-default btn-sm" title="Add watchlist"  ng-click="watchlistTracking.actions.gotoAddWatchlist(watchlistTracking.sentinelSelected)">
+                        <i class="fa fa-pencil"></i>
+                    </button>
+                </div>
+            </div> 
+            <div class="panel panel-default panel-themed" ng-show="watchlistTracking.watchlistSelected && !watchlistTracking.reportsService.selected"><!-- device list -->
+                <div class="panel-heading"><strong>Devices reports</strong>
+                   <span class="pull-right text-right">
+                        <a style="border: none;" role="button" ng-click="watchlistTracking.actions.closeWatchlist()"><i class="fa fa-lg fa-close" title="Close"></i></a>
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <button id="btn-details-select-prev" class="btn btn-default btn-sm" title="Select previous watchlist"
+                            ng-disabled="!watchlistTracking.previousWatchlist"
+                            ng-click="watchlistTracking.actions.selectWatchlist(watchlistTracking.previousWatchlist)">
+                        <i class="fa fa-chevron-left"></i>&nbsp;&nbsp;Prev
+                    </button>
+                    <button id="btn-details-select-next" class="btn btn-default btn-sm pull-right" title="Select next watchlist"
+                            ng-disabled="!watchlistTracking.nextWatchlist"
+                            ng-click="watchlistTracking.actions.selectWatchlist(watchlistTracking.nextWatchlist)">
+                        Next&nbsp;&nbsp;<i class="fa fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div id="map-items-list" class="table-responsive">
+                    <table class="table table-condensed">
+                        <tr ng-show="watchlistTracking.reportsService.reports.length == 0" class="danger"><td colspan="3"><i class="fa fa-exclamation-circle fa-lg"></i>&nbsp;&nbsp;No data to display. </td></tr>
+                        <tr ng-show="watchlistTracking.reportsService.isFull" class="warning"><td colspan="3"><i class="fa fa-exclamation-circle fa-lg"></i>&nbsp;&nbsp;The maximum number of reports have been loaded.  Use the timeline to reduce the number of loaded records. </td></tr>
+                        <tr ng-show="watchlistTracking.reportsService.reports.length > 0" class="warning"><td colspan="3" class="text-right">Showing {{ filteredReports.length }} / {{ watchlistTracking.reportsService.reports.length }} reports</td></tr>
+                        <tr ng-repeat="report in filteredReports = (watchlistTracking.reportsService.reports | filter: watchlistTracking.filterService.filter)"
+                            ng-class="{'text-danger': report.severity === 'warning', 'text-info': report.severity === 'info', 'text-ok': report.severity === 'ok'}">
+                            <td>
+                                <div class="pull-left">
+                                    <a data-map-icon-image style="border: none;" role="button" ng-click="watchlistTracking.actions.selectReport(report)" data-severity="{{report.severity}}"
+                                    data-beacon-type="{{report.beaconType}}" data-location-method="{{report.locationMethod | locationMethod: report.latitude:report.longitude}}" selected="{{ watchlistTracking.reportsService.selected && watchlistTracking.reportsService.selected.reportGuid === report.reportGuid }}"></a>
+                                </div>
+                                <div>
+                                    <div class="pull-right text-right">
+                                        <small>
+                                            <span class="pull-right" time-from-now utc-datetime="{{report.messageTimeStamp}}"></span>
+                                            <span ng-show="report[watchlistTracking.filterService.range.property] || report[watchlistTracking.filterService.range.property] === 0"><br/>{{ report[watchlistTracking.filterService.range.property] }}{{ watchlistTracking.filterService.range.suffix }}</span>
+                                        </small>
+                                    </div>
+                                    <a role="button" ng-click="watchlistTracking.actions.selectReport(report)">
+                                        <span ng-if="!report.locationName">{{ report.sentinelId }}
+                                            <br/><small ng-if="report.anchorSightingId != '0000000000000000'">[{{ report.anchorSightingId }}]</small></span>
+                                        <span ng-if="report.locationName">{{ report.locationName }}<br/><small>[{{ report.sentinelId }}]</small> <small>[{{ report.anchorSightingId }}]</small></span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="panel-footer">
+                   <button id="btn-edit" class="btn btn-default btn-sm" title="Edit watchlist"  ng-click="watchlistTracking.actions.gotoAddWatchlist(watchlistTracking.sentinelSelected)">
+                        <i class="fa fa-pencil"></i>
+                    </button>
+                </div>
+            </div>
+               
+           <!-- device list -->
+             <div class="panel panel-default panel-themed" ng-if="watchlistTracking.reportsService.selected"><!-- device details -->
+                <div class="panel-heading">
+                    <strong><a data-map-icon-image style="border: none;" role="button" data-severity="{{watchlistTracking.reportsService.selected.severity}}" data-beacon-type="{{watchlistTracking.reportsService.selected.beaconType}}" data-location-method="{{watchlistTracking.reportsService.selected.locationMethod | locationMethod: report.latitude:report.longitude}}"></a>  Report Details</strong>
+                    <span class="pull-right text-right">
+                        <a style="border: none;" role="button" ng-click="watchlistTracking.actions.closeReportDetails()"><i class="fa fa-lg fa-close" title="Close"></i></a>
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <button id="btn-details-select-prev" class="btn btn-default btn-sm" title="Select previous report"
+                            ng-disabled="!watchlistTracking.previousReport"
+                            ng-click="watchlistTracking.actions.selectReport(watchlistTracking.previousReport)">
+                        <i class="fa fa-chevron-left"></i>&nbsp;&nbsp;Prev 
+                    </button>
+                    <button id="btn-details-select-next" class="btn btn-default btn-sm pull-right" title="Select next report"
+                            ng-disabled="!watchlistTracking.nextReport"
+                            ng-click="watchlistTracking.actions.selectReport(watchlistTracking.nextReport)">
+                        Next&nbsp;&nbsp;<i class="fa fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-condensed">
+                        <tr><td><strong>Battery (%)</strong><span class="pull-right">{{ watchlistTracking.reportsService.selected.batteryPercent }}</span></td></tr>
+                        <tr><td><strong>Button</strong><span class="pull-right">{{ watchlistTracking.reportsService.selected.statusFlags_Button1State ? 'Pressed' : 'Not pressed' }}</span></td></tr>
+                        <tr><td><strong>Datetime</strong><span class="pull-right" local-datetime utc-datetime="{{watchlistTracking.reportsService.selected.messageTimeStamp}}" date-format="L" time-format="LTS"></span></td></tr>
+                        <tr ng-show="watchlistTracking.reportsService.selected.locationName !== watchlistTracking.reportsService.selected.locationName"><td><strong>Device Name</strong><span class="pull-right">{{ watchlistTracking.reportsService.selected.locationName }}</span></td></tr>
+                        <tr><td><strong>Device Tag</strong><span class="pull-right">{{ watchlistTracking.reportsService.selected.sentinelId }}</span></td></tr>
+                        <tr ng-if="watchlistTracking.reportsService.selected.latitude"><td><strong>Lat / Lng</strong><span class="pull-right text-right">{{ watchlistTracking.reportsService.selected.latitude }}<br/>{{ watchlistTracking.reportsService.selected.longitude }}</span></td></tr>
+                        <tr><td><strong>Light</strong><span class="pull-right">{{ watchlistTracking.reportsService.selected.light }} lux</span></td></tr>
+                        <tr><td><strong>Motion</strong><span class="pull-right">{{  watchlistTracking.reportsService.selected.statusFlags_MovementDetected  ? 'Detected' : 'Not detected' }}</span></td></tr>
+                        <tr><td><strong>Pressure</strong><span class="pull-right">{{ watchlistTracking.reportsService.selected.pressure }} kPa</span></td></tr>
+                        <tr><td><strong>Humidity</strong><span class="pull-right">{{ watchlistTracking.reportsService.selected.humidity }}%</span></td></tr>
+                        <tr><td><strong>Shock</strong><span class="pull-right text-right">{{ watchlistTracking.reportsService.selected.isShockExceeded ? watchlistTracking.reportsService.selected.shockMagnitude  + 'g' : 'Not detected' }}<br/>{{ watchlistTracking.reportsService.selected.isShockExceeded ? '(' + watchlistTracking.reportsService.selected.shockX + ', ' + watchlistTracking.reportsService.selected.shockY + ', ' + watchlistTracking.reportsService.selected.shockZ + ')' : null}}</span></td></tr>
+                        <tr><td><strong>Temperature</strong><span class="pull-right">{{ watchlistTracking.reportsService.selected.temperatureValueC }}&deg;C<br/>{{ watchlistTracking.reportsService.selected.temperatureValueF }}&deg;F</span></td></tr>
+                    </table>
+                </div>                
+            </div>  
+        </div>
+    </div>
+     <div id="centerTrackingZoomLabel" class="gmap-control-label gmap-control-left-end" ng-show="watchlistAdmin.watchlist">
+            <strong>Zoom</strong>
+    </div>
+    <div id="watchlistTrackingZoom" class="gmap-control gmap-control-right-end" ng-show="watchlistAdmin.watchlist">
+        <a role="button" ng-click="watchlistAdmin.actions.panToWatchlist()" title="Zoom to this watchlist">Watchlist</a>
+    </div>
+    <div id="mapPropTool" class="gmap-control gmap-control-left-end">
+        <a style="border: none;" role="button" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Map Properties"><i class="fa fa-info"></i></a>
+        <ul class="dropdown-menu gmap-control-map-prop">
+            <li><strong>Zoom</strong></li>
+            <li>&nbsp;&nbsp;{{ locationAdmin.zoomLevel }}</li>
+            <li><strong>Center Lat</strong></li>
+            <li>&nbsp;&nbsp;{{ locationAdmin.center.lat }}</li>
+            <li><strong>Center Lng</strong></li>
+            <li>&nbsp;&nbsp;{{ locationAdmin.center.lng }}</li>
+        </ul>
+    </div>
+     <div id="legendTool" class="gmap-control gmap-control-right-end">
+        <a style="border: none;" role="button" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Legend">Legend</a>
+        <ul class="dropdown-menu dropdown-menu-right gmap-control-legend">
+            <li><img class="img-circle" src="../img/ok-gps.png">&nbsp;&nbsp;Ok - GPS Location</li>
+            <li><img class="img-square" src="../img/ok-network.png">&nbsp;&nbsp;Ok - Network Location</li>
+            <li><img class="img-square" src="../img/ok-anchor.png">&nbsp;&nbsp;Ok - Anchor Location</li>
+            <li><img class="img-diamond" src="../img/ok-none.png">&nbsp;&nbsp;Ok - No Location</li>
+            <li><img class="img-circle" src="../img/info-gps.png">&nbsp;&nbsp;Info - GPS Location</li>
+            <li><img class="img-square" src="../img/info-network.png">&nbsp;&nbsp;Info - Network Location</li>
+            <li><img class="img-square" src="../img/info-anchor.png">&nbsp;&nbsp;Info - Anchor Location</li>
+            <li><img class="img-diamond" src="../img/info-none.png">&nbsp;&nbsp;Info - No Location</li>
+            <li><img class="img-circle" src="../img/warning-gps.png">&nbsp;&nbsp;Warning - GPS Location</li>
+            <li><img class="img-square" src="../img/warning-network.png">&nbsp;&nbsp;Warning - Network Location</li>
+            <li><img class="img-square" src="../img/warning-anchor.png">&nbsp;&nbsp;Warning - Anchor Location</li>
+            <li><img class="img-diamond" src="../img/warning-none.png">&nbsp;&nbsp;Warning - No Location</li>
+        </ul>
+    </div>
+    
+</div>

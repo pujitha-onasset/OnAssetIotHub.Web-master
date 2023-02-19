@@ -1,0 +1,41 @@
+<div ng-controller="LocationListController as locationsList">
+    <div locations-filter-bar></div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="locations">
+                    <thead>
+                    <tr>
+                        <th width="20">#</th>
+                        <th width="200" class="sortcolumn" ng-click="locationsList.sortBy('name')">Name<span class="sortorder" ng-show="locationsList.propertyName === 'name'" ng-class="{reverse: locationsList.reverse}"></span></th>
+                        <th width="50" class="sortcolumn" ng-click="locationsList.sortBy('responsiveness')">Responsiveness<span class="sortorder" ng-show="locationsList.propertyName === 'responsiveness'" ng-class="{reverse: locationsList.reverse}"></span></th>
+                        <th width="300" class="sortcolumn" ng-click="locationsList.sortBy('address')">Address<span class="sortorder" ng-show="locationsList.propertyName === 'address'" ng-class="{reverse: locationsList.reverse}"></span></th>
+                        <th class="sortcolumn" ng-click="locationsList.sortBy('description')">Comments<span class="sortorder" ng-show="locationsList.propertyName === 'description'" ng-class="{reverse: locationsList.reverse}"></span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="locationsList.locations.all.length === 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">There are no locations for this client</td>
+                    </tr>
+                    <tr ng-show="locationsList.locations.all.length > 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">Showing {{ filteredList.length }} / {{ locationsList.locations.all.length }} locations</td>
+                    </tr>
+                    <tr ng-show="locationsList.locations.all.length != 0" ng-repeat="location in filteredList = (locationsList.locations.all | orderBy:locationsList.propertyName:locationsList.reverse | filter: locationsList.filterService.filter)">
+                        <td width="20">{{ $index + 1 }}</td>
+                        <td width="300">
+                            <a ui-sref="location.admin({ locationId: location.id})">{{ location.name }}</a>
+                        </td>
+                         <td width="50">{{location.responsiveness}}</td>
+                        <td width="300">{{ location.address }}</td>
+                        <td>{{ location.description }}</td>
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div><!--list-->
+

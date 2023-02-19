@@ -1,0 +1,236 @@
+<div ng-controller="SentryAdminController as sentryAdminUi">
+    <!-- Modals -->
+    <div class="modal fade" id="friendlyNameModal" tabindex="-1" role="dialog" aria-labelledby="friendlyNameModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-warning">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="sentryAdminUi.setFriendlyNameCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="logRetrieverModalLabel"><i class="fa fa-exclamation-circle"></i> Sentry <strong>{{ sentryAdminUi.friendlyNameSentry.imei }}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="sentryAdminUi.friendlyNameErrorMessage" class="alert alert-danger">{{ sentryAdminUi.friendlyNameErrorMessage }}</div>
+                    <form class="form-horizontal">
+                        <div class="form-group" >
+                            <label class="col-sm-3">Device Name</label>
+                            <div class="col-sm-9">
+                                <input type="text" ng-model="sentryAdminUi.friendlyNameSentry.friendlyName" placeholder="Device name"> 
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="sentryAdminUi.setFriendlyNameCancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="sentryAdminUi.setFriendlyNameSubmit()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="logRetrieverModal" tabindex="-1" role="dialog" aria-labelledby="logRetrieverModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-warning">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="sentryAdminUi.updateCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="logRetrieverModalLabel"><i class="fa fa-exclamation-circle"></i> Sentry <strong>{{ sentryAdminUi.logRetrieverSentry.imei }}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="sentryAdminUi.logRetrieverErrorMessage" class="alert alert-danger">{{ sentryAdminUi.logRetrieverErrorMessage }}</div>
+                    <form class="form-horizontal">
+                        <div class="form-group" ng-class="{'has-error': !sentryAdminUi.logRetriever.isPristine && sentryAdminUi.logRetriever.hasError()}">
+                            <label class="col-sm-3">Log Retriever</label>
+                            <div class="col-sm-9">
+                                <select id="logRetriever" class="form-control" ng-model="sentryAdminUi.logRetriever.value" ng-change="sentryAdminUi.logRetriever.isPristine = true">
+                                    <option value="no" ng-selected="sentryAdminUi.logRetriever.value === 'no'">No</option>
+                                    <option value="yes" ng-selected="sentryAdminUi.logRetriever.value === 'yes'">Yes</option>
+                                </select>
+                            </div>
+                            <p class="help-block text-right text-error-horizontal" ng-show="!sentryAdminUi.logRetriever.isPristine && sentryAdminUi.logRetriever.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Log retriever value is required</p>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="sentryAdminUi.logRetrieverCancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="sentryAdminUi.logRetrieverSubmit()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <nav class="navbar navbar-default col-sm-12">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa {{sentryAdminUi.currentPageView.icon}}"></i>&nbsp;&nbsp;{{ sentryAdminUi.currentPageView.title}} <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="view in sentryAdminUi.pageViews"><a type="button" ng-click="sentryAdminUi.changeView(view.name)"><i class="fa {{view.icon}}"></i>&nbsp;&nbsp;{{view.title}}</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="navbar-form" ng-show="sentryAdminUi.currentPageView.name === 'list'">
+                    <div class="form-group">
+                        <select class="form-control" ng-model="sentryAdminUi.filter">
+                            <option value="all" ng-selected="sentryAdminUi.filter === 'all'">Show assigned and available</option>
+                            <option value="assigned" ng-show="sentryAdminUi.isSystemAdmin" ng-selected="sentryAdminUi.filter === 'assigned'">Show assigned only</option>
+                            <option value="available" ng-show="sentryAdminUi.isSystemAdmin" ng-selected="sentryAdminUi.filter === 'available'">Show available only</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        &nbsp;
+                        <select class="form-control" ng-model="sentryAdminUi.logRetrieverFilter">
+                            <option value="all" ng-selected="sentryAdminUi.logRetrieverFilter === 'all'">All devices</option>
+                            <option value="log-retrievers" ng-selected="sentryAdminUi.logRetrieverFilter === 'log-retrievers'">Log retrievers</option>
+                            <option value="non-log-retrievers" ng-selected="sentryAdminUi.logRetrieverFilter === 'non-log-retrievers'">Non log retrievers</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        &nbsp;
+                        <button class="btn btn-default" type="button" ng-click="sentryAdminUi.load()">Load</button>
+                          &nbsp;
+                         <export-table-to file-name="Sentrys" table-id-to-export="sentriesList"></export-table-to>
+                    </div>
+                </form>
+                <form class="navbar-form" ng-show="sentryAdminUi.currentPageView.name === 'search'">
+                    <div class="form-group">
+                        <input type="text" class="form-control search" ng-model="sentryAdminUi.searchText" placeholder="Enter IMEI pattern to search for">
+                    </div>
+                    <div class="form-group">
+                        &nbsp;
+                        <button class="btn btn-default" type="button" ng-click="sentryAdminUi.search()">Search</button>
+                          &nbsp;
+                         <export-table-to file-name="Sentrys" table-id-to-export="sentriesList"></export-table-to>
+                    </div>
+                </form>
+            </nav>
+            <div ng-if="sentryAdminUi.errorMessage" class="alert alert-danger">{{ sentryAdminUi.errorMessage }}</div>
+        </div>
+    </div>
+    <!-- Modals -->
+    <div class="modal fade" id="assignModal" tabindex="-1" role="dialog" aria-labelledby="assignModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-info">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="sentryAdminUi.assignCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="assignModalLabel"><i class="fa fa-exclamation-circle"></i> Assign Sentrys to account</h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="sentryAdminUi.assignErrorMessage" class="alert alert-danger">{{ sentryAdminUi.assignErrorMessage }}</div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Account</label>
+                            <div class="col-sm-6">
+                                <select class="form-control" ng-options="account as account.name for account in sentryAdminUi.accounts track by account.id" ng-model="sentryAdminUi.assignAccount"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">List of IMEIs</label>
+                            <div class="col-sm-6">
+                                <textarea class="form-control" rows="10" ng-model="sentryAdminUi.assignImeiText"></textarea>
+                                <p class="help-block">Enter up to 1500 IMEIs; one IMEI per row</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Backfill data?</label>
+                            <div class="col-sm-6">
+                                <input type="checkbox" ng-model="sentryAdminUi.assignIsBackfill">
+                            </div>
+                        </div>
+                        <div class="form-group" ng-show="sentryAdminUi.assignIsBackfill">
+                            <label class="col-sm-3 control-label">From</label>
+                            <div class="col-sm-4">
+                                <input type="text" data-date-time-picker data-format="YYYY-MM-DDTHH:mm:ss" class="form-control datetimepicker" ng-model="sentryAdminUi.assignBackfillFrom" placeholder="yyyy-mm-ddThh:mm">
+                                <p class="help-block">Enter the date to begin backfilling from</p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="sentryAdminUi.assignCancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="sentryAdminUi.assignSubmit()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="removeModal" tabindex="-1" role="dialog" aria-labelledby="removeModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="sentryAdminUi.removeCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="removeModalLabel"><i class="fa fa-exclamation-triangle"></i> Remove Sentry</h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="sentryAdminUi.removeErrorMessage" class="alert alert-danger">{{ sentryAdminUi.removeErrorMessage }}</div>
+                    <p>Are you sure you want to remove <strong>{{sentryAdminUi.removeAssignment.imei}}</strong> from <strong>{{sentryAdminUi.removeAssignment.latestAssignment.accountName}}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="sentryAdminUi.removeCancel()">No</button>
+                    <button type="button" class="btn btn-primary" ng-click="sentryAdminUi.removeSubmit()">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <nav class="pull-right" aria-label="Page navigation" ng-show="sentryAdminUi.totalPages > 1">
+                <ul class="pagination">
+                    <li ng-class="{'disabled': sentryAdminUi.page === 1}"><a role="button" aria-label="Previous" ng-click="sentryAdminUi.previous();"><span aria-hidden="true">&laquo;</span></a></li>
+                    <li ng-repeat="n in sentryAdminUi.pageArray" ng-class="{'active': n === sentryAdminUi.page}"><a role="button" ng-click="sentryAdminUi.gotoPage(n);" aria-label="Page {{n}}"><span aria-hidden="true">{{n}}</span></a></li>
+                    <li ng-class="{'disabled': sentryAdminUi.page === sentryAdminUi.totalPages}"><a role="button" aria-label="Next" ng-click="sentryAdminUi.next();"><span aria-hidden="true">&raquo;</span></a></li>
+                </ul>
+            </nav>
+            <table class="table table-striped" id="sentriesList">
+                <thead>
+                <tr>
+                    <th width="20">#</th>
+                    <th width="60" class="noExport">
+                        <!--<button class="btn btn-sm btn-default" type="button" id="btn-addAccount" ng-click="sentryAdminUi.addAccountBegin()">-->
+                        <!--New-->
+                        <!--</button>-->
+                    </th>
+                    <th>Sentry</th>
+                    <th>Name</th>
+                    <th>
+                        Is Assigned&nbsp;
+                    </th>
+                    <th>Log Retriever</th>
+                    <th>Account</th>
+                    <th>Date Assigned</th>
+                    <th>Date Removed</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-show="sentryAdminUi.list.length === 0" class="warning noExport">
+                    <td></td>
+                    <td colspan="6">There are no records</td>
+                </tr>
+                <tr ng-show="sentryAdminUi.list.length != 0" ng-repeat="item in sentryAdminUi.list">
+                    <td width="20">{{ (sentryAdminUi.page > 1) ? ((sentryAdminUi.page - 1) * sentryAdminUi.itemsPerPage) + $index + 1 : $index + 1 }}</td>
+                    <td width="60" class="noExport">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-default dropdown-toggle" type="button" id="dropdown{{$index}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdown{{$index}}">
+                                <li ng-show="item.isCurrentlyAssigned === true && sentryAdminUi.hasPermission.toConfig"><a ng-click="sentryAdminUi.getConfig(item)">Config</a></li>
+                                <li ng-show="item.isCurrentlyAssigned === true"><a data-toggle="modal" data-target="#friendlyNameModal" ng-click="sentryAdminUi.setFriendlyNameBegin(item)">Set Device Name</a></li>
+                                <li ng-show="sentryAdminUi.hasPermission.toSetLogRetriever"><a data-toggle="modal" data-target="#logRetrieverModal" ng-click="sentryAdminUi.logRetrieverBegin(item)">Set Log Retriever</a></li>
+                                <li ng-show="sentryAdminUi.hasPermission.toSeeCommandLogs"><a ng-click="sentryAdminUi.getCommandQueue(item)">View Command Queue</a></li>
+                                <li ng-show="sentryAdminUi.hasPermission.toSeeCommandLogs"><a ng-click="sentryAdminUi.getCommandLog(item)">View Command Log</a></li>
+                                <li ng-show="sentryAdminUi.hasPermission.toRemove && item.isCurrentlyAssigned"><a ng-click="sentryAdminUi.removeBegin(item)" data-toggle="modal" data-target="#removeModal">Remove</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                    <td>{{ item.imei }}</td>
+                    <td>{{ item.friendlyName }}</td>
+                    <td>{{ item.isCurrentlyAssigned ? 'yes' : 'no' }}</td>
+                    <td>{{ item.logRetriever ? 'yes' : 'no' }}</td>
+                    <td>{{ item.latestAssignment ? item.latestAssignment.accountName : '' }}</td>
+                    <td><span local-datetime utc-datetime="{{ item.latestAssignment ? item.latestAssignment.timeOfAssignment : null}}" date-format="L" time-format="LTS"></span></td>
+                    <td><span local-datetime utc-datetime="{{ item.latestAssignment ? item.latestAssignment.timeOfRemoval : null}}" date-format="L" time-format="LTS"></span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

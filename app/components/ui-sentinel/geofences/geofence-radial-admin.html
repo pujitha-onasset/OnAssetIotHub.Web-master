@@ -1,0 +1,142 @@
+<div ng-controller="GeofenceRadialAdminController as radialAdmin">
+    <div feedback></div>
+    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row" ng-if="!radialAdmin.mode.isNew" style="margin-top: 3px;">
+                        <div class="col-sm-8" ng-if="radialAdmin.hasPermission.toSave">
+                            <ul class="nav nav-pills" ng-cloak>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="Delete" ng-click="radialAdmin.actions.beginRemove()"
+                                            ng-show="!radialAdmin.mode.isRemoving">
+                                        <i class="fa fa-trash"></i> Delete
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="Yes" ng-click="radialAdmin.actions.remove()"
+                                            ng-show="radialAdmin.mode.isRemoving">
+                                        <i class="fa fa-check"></i> Yes
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="No" ng-click="radialAdmin.actions.cancelRemove()"
+                                            ng-show="radialAdmin.mode.isRemoving">
+                                        <i class="fa fa-ban"></i> No
+                                    </button>
+                                </li>
+                            </ul>
+                            <br/>
+                            <br/>
+                        </div>
+                    </div>
+                    <div class="row" ng-show="radialAdmin.mode.isRemoving">
+                        <div class="col-sm-12">
+                            <p><i class="fa fa-question-circle fa-lg"></i>  Do you wish to delete <strong>{{ radialAdmin.geofence.name }}</strong>? </p>
+                        </div>
+                    </div>
+                    <div class="row" ng-hide="radialAdmin.mode.isRemoving">
+                        <div class="col-sm-12">
+                            <form name="geofenceForm" id="clientForm" ng-submit="radialAdmin.actions.submit()" novalidate>
+                                <div class="form-group" ng-class="{'has-error': !radialAdmin.geofenceName.isPristine && radialAdmin.geofenceName.hasError()}">
+                                    <label>Name *</label>
+                                    <input type="text" class="form-control" id="geofenceName" name="geofenceName" placeholder="Enter a name for the geofence" maxlength="80"
+                                           ng-model="radialAdmin.geofenceName.value"
+                                           ng-readonly="!radialAdmin.hasPermission.toSave"
+                                           ng-change="radialAdmin.geofenceName.isPristine = true">
+                                    <p class="help-block text-right" ng-show="!radialAdmin.geofenceName.isPristine && radialAdmin.geofenceName.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A geofence name is required</p>
+                                    <p class="help-block text-right" ng-show="!radialAdmin.geofenceName.isPristine && radialAdmin.geofenceName.errors.isDuplicate">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;The geofence name is already in use</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="comments">Description</label>
+                                    <textarea class="form-control" id="comments" name="comments"
+                                              ng-model="radialAdmin.geofenceDescription.value"
+                                              ng-readonly="!radialAdmin.hasPermission.toSave"
+                                              placeholder="Enter a description for this geofence (optional)" rows="3" maxlength="500"></textarea>
+                                </div>
+                                <div class="form-group" ng-if="!radialAdmin.mode.isChangingLocation" ng-class="{'has-error': !radialAdmin.geofenceAddress.isPristine && radialAdmin.geofenceAddress.hasError() }">
+                                    <label>Address *</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" ng-model="radialAdmin.geofenceAddress.value" readonly>
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default" title="Change location"
+                                                ng-disabled="!radialAdmin.hasPermission.toSave"
+                                                ng-click="radialAdmin.actions.changeLocation()"><i class="fa fa-fw fa-pencil"></i></button>
+                                    </span>
+                                    </div>
+                                    <p class="help-block text-right" ng-show="!radialAdmin.geofenceAddress.isPristine && radialAdmin.geofenceAddress.hasError() "><i class="fa fa-info-circle"></i>&nbsp;A location is required</p>
+                                </div>
+                                <div class="form-group" ng-if="radialAdmin.mode.isChangingLocation"  ng-class="{'has-error': (!radialAdmin.geofenceAddress.isPristine && radialAdmin.geofenceAddress.hasError()) || (!radialAdmin.locationSearch.isPristine && radialAdmin.locationSearch.hasError()) }">
+                                    <label>Address *</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="Enter an address and search for a location"
+                                               ng-model="radialAdmin.locationSearch.value"
+                                               ng-change="radialAdmin.actions.locationSearchChanged()"  maxlength="128">
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default" title="Get address locations" ng-click="radialAdmin.actions.getLocations()"><i class="fa fa-fw fa-search"></i></button>
+                                        </span>
+                                    </div>
+                                    <p class="help-block text-right" ng-show="(!radialAdmin.geofenceAddress.isPristine && radialAdmin.geofenceAddress.errors.isBlank) || (!radialAdmin.locationSearch.isPristine && radialAdmin.locationSearch.errors.isBlank) "><i class="fa fa-exclamation-circle"></i>&nbsp;A location is required</p>
+                                    <p class="help-block text-right" ng-show="!radialAdmin.locationSearch.isPristine && radialAdmin.locationSearch.value && radialAdmin.locationSearch.locations.length === 0"><i class="fa fa-exclamation-circle"></i>&nbsp;Click <i class="fa fa-search"></i> to find locations for this address</p>
+                                    <p class="help-block text-right" ng-show="!radialAdmin.locationSearch.isPristine && radialAdmin.locationSearch.errors.hasZeroResults"><i class="fa fa-exclamation-circle"></i>&nbsp;Could not find any locations for the address.  Please try again</p>
+                                    <div>
+                                        <ul class="list-unstyled">
+                                            <li ng-show="radialAdmin.locationSearch.locations.length > 0 && radialAdmin.locationSearch.locations.length < radialAdmin.locationLimit"><i class="fa fa-info-circle"></i>&nbsp;Click a location below to use as the starting point for the geofence</li>
+                                            <li ng-show="radialAdmin.locationSearch.locations.length > 0 && radialAdmin.locationSearch.locations.length >= radialAdmin.locationLimit"><i class="fa fa-info-circle"></i>&nbsp;Only showing first {{radialAdmin.locationLimit}} matches.  If you don't see a location, enter a more specific address and try again</li>
+                                            <li ng-repeat="location in radialAdmin.locationSearch.locations | orderBy: 'formatted_address' | limitTo: radialAdmin.locationLimit">
+                                                <a role="button" ng-click="radialAdmin.actions.selectLocation(location)">
+                                                    <strong>{{ location.formatted_address }}</strong>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div><!-- address selection -->
+                                <div class="form-group" ng-class="{'has-error': !radialAdmin.radius.isPristine && radialAdmin.radius.hasError()}">
+                                    <label>Radius *</label>
+                                    <div class="input-group">
+                                        <input class="form-control" type="number" placeholder="Enter a radius for the geofence" min="0" max="{{radialAdmin.radiusMax}}"
+                                               ng-model="radialAdmin.radius.value"
+                                               ng-readonly="!radialAdmin.hasPermission.toSave"
+                                               ng-change="radialAdmin.radius.validate()" >
+                                        <div class="input-group-btn">
+                                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                                    ng-disabled="!radialAdmin.hasPermission.toSave">{{ radialAdmin.radiusUnitType.value }} <span class="caret"></span></button>
+                                            <ul class="dropdown-menu dropdown-menu-right">
+                                                <li><a role="button" ng-click="radialAdmin.actions.changeRadiusUnitType('feet')">feet</a></li>
+                                                <li><a role="button" ng-click="radialAdmin.actions.changeRadiusUnitType('meters')">meters</a></li>
+                                                <li><a role="button" ng-click="radialAdmin.actions.changeRadiusUnitType('miles')">miles</a></li>
+                                                <li><a role="button" ng-click="radialAdmin.actions.changeRadiusUnitType('kilometers')">kilometers</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <p class="help-block text-right" ng-show="!radialAdmin.radius.isPristine && radialAdmin.radius.hasError()">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;Radius must be a number between {{ radialAdmin.radiusMin }} and {{ radialAdmin.radiusMax }}</p>
+                                </div>
+                                <div class="form-group">
+                                    <div id="geofenceMap" class="geofence-map"></div>
+                                </div>
+                                <div class="form-group">
+                                    <br/>
+                                    <br/>
+                                    <div class="pull-right">
+                                        <button type="submit" class="btn btn-default" ng-if="radialAdmin.hasPermission.toSave"><i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                        <button type="button" class="btn btn-default" ng-if="radialAdmin.hasPermission.toSave" ng-click="radialAdmin.actions.reset()"><i class="fa fa-undo"></i>&nbsp;&nbsp;Reset</button>
+                                        <button type="button" class="btn btn-default" ng-click="radialAdmin.actions.close()"><i class="fa fa-times"></i>&nbsp;&nbsp;Close</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" ng-if="!radialAdmin.mode.isNew && !radialAdmin.mode.isRemoving">
+            <div geofence-alarms geofence="radialAdmin.geofence"></div>
+        </div>
+    </div>
+    <div id="centerZoomLabel" class="gmap-control-label gmap-control-left-end" ng-show="radialAdmin.circle">
+        <strong>Zoom</strong>
+    </div>
+    <div id="geofenceZoom" class="gmap-control gmap-control-right-end" ng-show="radialAdmin.circle">
+        <a role="button" ng-click="radialAdmin.actions.panToGeofence()" title="Zoom to this geofence">Geofence</a>
+    </div>
+</div>

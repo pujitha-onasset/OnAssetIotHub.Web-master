@@ -1,0 +1,49 @@
+<div ng-controller="DeviceGroupsListController as deviceGroupsList">
+    <nav class="navbar navbar-default">
+        <form class="navbar-form navbar-left">
+            <label><i class="fa fa-lg fa-filter"></i></label>&nbsp;&nbsp;
+            <input type="text" class="form-control" placeholder="Filter.." ng-model="groupFilter">
+        </form>
+    </nav>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th width="40">#</th>
+                        <th width="500">Name</th>
+                        <th class="text-center"># of Devices</th>
+                        <th class="text-center">Data Forwarding </th>
+                        <th class="text-center">Alarm Forwarding </th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="deviceGroupsList.list.length === 0" class="warning">
+                        <td></td>
+                        <td colspan="18">There are no device groups for this client</td>
+                    </tr>
+                    <tr ng-show="deviceGroupsList.list.length > 0" class="warning">
+                        <td></td>
+                        <td colspan="18">Showing {{ filteredList.length }} / {{ deviceGroupsList.list.length }} groups</td>
+                    </tr>
+                    <tr ng-show="deviceGroupsList.list.length != 0" ng-repeat="group in filteredList = (deviceGroupsList.list | filter: { groupName: groupFilter }  | orderBy: ['!isRootGroup','groupName'])">
+                        <td width="40">{{ $index + 1 }}</td>
+                        <td width="500"><a ui-sref="devicegroup.admin({ groupId: group.id })">
+                                <span ng-show="!group.isRootGroup">
+                                    &nbsp;&nbsp;<i class="fa fa-level-up fa-rotate-90"></i>&nbsp;&nbsp;
+                                </span>
+                            {{ group.groupName }}</a>
+                        </td>
+                        <td class="text-center">{{ group.deviceCount }}</td>
+                        <td class="text-center"><span ng-if="group.deviceEndpoint">Yes</span></td>
+                        <td class="text-center"><span ng-if="group.alarmEndpoint">Yes</span></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

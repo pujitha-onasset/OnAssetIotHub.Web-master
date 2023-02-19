@@ -1,0 +1,76 @@
+<div ng-controller="SentryAssignmentListController as sentryAssignmentUi">
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <nav class="navbar navbar-default col-sm-12">
+                <form class="navbar-form">
+                    <div class="form-group">
+                        <select class="form-control" ng-model="sentryAssignmentUi.filter">
+                            <option value="all" ng-selected="sentryAssignmentUi.filter === 'all'">Show all</option>
+                            <option value="current" ng-selected="sentryAssignmentUi.filter === 'current'">Show currently assigned only</option>
+                            <option value="removed" ng-selected="sentryAssignmentUi.filter === 'removed'">Show removed only</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        &nbsp;
+                        <button class="btn btn-default" type="button" ng-click="sentryAssignmentUi.load()">Load</button>
+                         &nbsp;
+                        <export-table-to file-name="sightings" table-id-to-export="sightings"></export-table-to>
+                    </div>
+                </form>
+            </nav>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <nav class="pull-right" aria-label="Page navigation" ng-show="sentryAssignmentUi.totalPages > 1">
+                <ul class="pagination">
+                    <li ng-class="{'disabled': sentryAssignmentUi.page === 1}"><a role="button" aria-label="Previous" ng-click="sentryAssignmentUi.previous();"><span aria-hidden="true">&laquo;</span></a></li>
+                    <li ng-repeat="n in sentryAssignmentUi.pageArray" ng-class="{'active': n === sentryAssignmentUi.page}"><a role="button" ng-click="sentryAssignmentUi.gotoPage(n);" aria-label="Page {{n}}"><span aria-hidden="true">{{n}}</span></a></li>
+                    <li ng-class="{'disabled': sentryAssignmentUi.page === sentryAssignmentUi.totalPages}"><a role="button" aria-label="Next" ng-click="sentryAssignmentUi.next();"><span aria-hidden="true">&raquo;</span></a></li>
+                </ul>
+            </nav>
+            <table class="table table-striped" id="sightings">
+                <thead>
+                <tr>
+                    <th width="20">#</th>
+                    <th width="60" class="noExport">
+                        <!--<button class="btn btn-sm btn-default" type="button" id="btn-addAccount" ng-click="sentryAssignmentUi.addAccountBegin()">-->
+                        <!--New-->
+                        <!--</button>-->
+                    </th>
+                    <th>Sentry</th>
+                    <th>
+                        Currently Assigned?&nbsp;
+                    </th>
+                    <th>Date Assigned</th>
+                    <th>Date Removed</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-show="sentryAssignmentUi.list.length === 0" class="warning noExport">
+                    <td></td>
+                    <td colspan="6">There are no records</td>
+                </tr>
+                <tr ng-show="sentryAssignmentUi.list.length != 0" ng-repeat="item in sentryAssignmentUi.list">
+                    <td width="20">{{ (sentryAssignmentUi.page > 1) ? ((sentryAssignmentUi.page - 1) * sentryAssignmentUi.itemsPerPage) + $index + 1 : $index + 1 }}</td>
+                    <td width="60" class="noExport">
+                        <!--<div class="dropdown">-->
+                            <!--<button class="btn btn-sm btn-default dropdown-toggle" type="button" id="dropdown{{$index}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+                                <!--<i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="caret"></span>-->
+                            <!--</button>-->
+                            <!--<ul class="dropdown-menu" aria-labelledby="dropdown{{$index}}">-->
+                                <!--<li ng-show="item.isCurrentlyAssigned"><a ng-click="sentryAssignmentUi.removeBegin(item)">Remove</a></li>-->
+                            <!--</ul>-->
+                        <!--</div>-->
+                    </td>
+                    <td>{{ item.imei }}</td>
+                    <td>{{ !item.timeOfRemoval ? 'yes' : 'no' }}</td>
+                    <td><span local-datetime utc-datetime="{{ item.timeOfAssignment }}" date-format="L" time-format="LTS"></span></td>
+                    <td><span local-datetime utc-datetime="{{ item.timeOfRemoval }}" date-format="L" time-format="LTS"></span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

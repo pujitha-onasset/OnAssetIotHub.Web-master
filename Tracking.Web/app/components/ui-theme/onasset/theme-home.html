@@ -1,0 +1,30 @@
+<div ng-controller="HomeController as home">
+    <div class="col-lg-4 col-lg-offset-4 col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">Tracking Numbers</div>
+            <div class="panel-body">
+                <form id="trackingForm" ng-submit="home.submit()">
+                    <div class="form-group" ng-class="{'has-error': !home.referenceNumbers.isPristine && home.referenceNumbers.hasError() }">
+                        <textarea id="txt-tracking-numbers" class="form-control" rows="5" placeholder="Enter up to {{ home.referenceNumbers.max }} tracking numbers on separate lines"
+                            ng-model="home.referenceNumbers.value" ng-change="home.referenceNumbers.onChange()" spellcheck="false">
+
+
+
+                        </textarea>
+                        <p class="help-block text-right" ng-show="!home.referenceNumbers.isPristine && home.referenceNumbers.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;At least one tracking number is required</p>
+                        <p class="help-block text-right" ng-show="!home.referenceNumbers.isPristine && home.referenceNumbers.errors.hasToMany"><i class="fa fa-exclamation-circle"></i>&nbsp;Only {{ home.referenceNumbers.max }} tracking numbers are allowed</p>
+                        <div ng-show="!home.referenceNumbers.isPristine && home.referenceNumbers.errors.notFoundReferenceNumbers.length > 0">
+                            <p class="help-block text-right" ng-repeat="referenceNumber in home.referenceNumbers.errors.notFoundReferenceNumbers | limitTo: 5"><i class="fa fa-exclamation-circle"></i>&nbsp;Could not find tracking number '{{ referenceNumber }}'</p>
+                        </div>
+                    </div>
+                    <div class="form-group pull-right">
+                        <button id="btn-submit" type="submit" class="btn btn-default">Track</button>
+                    </div>
+                </form>
+            </div>
+            <div class="panel-footer" style="text-align: center">
+                <small>&copy; {{home.year}} <a href="http://www.onasset.com">OnAsset Intelligence, Inc.</a>  All Rights Reserved</small>
+            </div>
+        </div>
+    </div>
+</div>

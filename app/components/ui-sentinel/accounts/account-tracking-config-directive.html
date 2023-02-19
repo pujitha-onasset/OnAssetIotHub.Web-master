@@ -1,0 +1,77 @@
+<div class="col-sm-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <a role="button" ng-click="accountTrackingConfig.panel.toggle()">Shipment Tracking Configuration</a>
+            <span class="pull-right text-right">
+                <a role="button" ng-click="accountTrackingConfig.panel.toggle()">
+                    <i class="fa fa-lg" ng-class="{'fa-caret-right': accountTrackingConfig.panel.isCollapsed, 'fa-caret-down': !accountTrackingConfig.panel.isCollapsed}" title="Expand"></i>
+                </a>
+            </span>
+            <span class="pull-right text-right" ng-show="!accountTrackingConfig.panel.isCollapsed"><a role="button" ng-click="accountTrackingConfig.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+        </div>
+        <div ng-class="{'collapse': accountTrackingConfig.panel.isCollapsed}">
+            <div class="panel-body">
+                <div class="row" style="margin-top: 3px;" ng-show="accountTrackingConfig.hasPermission.toChange">
+                    <div class="col-sm-8">
+                        <ul class="nav nav-pills">
+                            <li>
+                                <button class="btn btn-default" type="button" title="Add" ng-click="accountTrackingConfig.actions.beginAdd()"
+                                        ng-show="accountTrackingConfig.hasPermission.toChange && !accountTrackingConfig.isConfigured && !accountTrackingConfig.isAdding">
+                                    <i class="fa fa-plus"></i> Add
+                                </button>
+                                <button class="btn btn-default" type="button" title="Delete" ng-click="accountTrackingConfig.actions.remove()"
+                                        ng-show="accountTrackingConfig.hasPermission.toChange && accountTrackingConfig.isConfigured">
+                                    <i class="fa fa-trash"></i> Remove
+                                </button>
+                            </li>
+                        </ul>
+                        <br/>
+                        <br/>
+                    </div>
+                </div>
+                <div class="row" ng-if="!accountTrackingConfig.isConfigured && !accountTrackingConfig.isAdding">
+                    <div class="col-sm-12">
+                        <p>Tracking is not configured for this client</p>
+                    </div>
+                </div>
+                <div class="row" ng-if="accountTrackingConfig.isConfigured || accountTrackingConfig.isAdding">
+                    <div class="col-sm-12">
+                        <form name="trackingConfigForm" id="trackingConfigForm" ng-submit="accountTrackingConfig.actions.submit()" novalidate>
+                            <div class="form-group"
+                                 ng-class="{'has-error': !accountTrackingConfig.shipmentReferencePrefix.isPristine && accountTrackingConfig.shipmentReferencePrefix.hasError()}">
+                                <label for="shipmentReferencePrefix">Shipment Reference (Waybill) Prefix</label>
+                                <input type="text" class="form-control" id="shipmentReferencePrefix" name="shipmentReferencePrefix"
+                                       ng-model="accountTrackingConfig.shipmentReferencePrefix.value"
+                                       ng-readonly="!accountTrackingConfig.hasPermission.toChange"
+                                       ng-change="accountTrackingConfig.shipmentReferencePrefix.isPristine = true" maxlength="5">
+                                <p class="help-block text-right" ng-show="!accountTrackingConfig.shipmentReferencePrefix.isPristine && accountTrackingConfig.shipmentReferencePrefix.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A reference prefix is required</p>
+                                <p class="help-block text-right" ng-show="!accountTrackingConfig.shipmentReferencePrefix.isPristine && accountTrackingConfig.shipmentReferencePrefix.errors.isDuplicate">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;Reference prefix is already in use</p>
+                            </div>
+                            <div class="form-group" ng-class="{'has-error': !accountTrackingConfig.trackingUrl.isPristine && accountTrackingConfig.trackingUrl.hasError()}">
+                                <label for="trackingUrl">Tracking Url</label>
+                                <input type="url" class="form-control" id="trackingUrl" name="trackingUrl" spellcheck="false"
+                                       ng-model="accountTrackingConfig.trackingUrl.value"
+                                       ng-readonly="!accountTrackingConfig.hasPermission.toChange"
+                                        ng-change="accountTrackingConfig.trackingUrl.isPristine = true">
+                                <p class="help-block text-right" ng-show="!accountTrackingConfig.trackingUrl.isPristine && accountTrackingConfig.trackingUrl.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A tracking url is required</p>
+                            </div>
+                            <!--<div class="checkbox">-->
+                                <!--<label>-->
+                                    <!--<input type="checkbox" ng-model="accountTrackingConfig.config.isAnyDeviceAllowed"-->
+                                           <!--ng-readonly="!accountTrackingConfig.hasPermission.toChange" >&nbsp;Allow any device to track a shipment-->
+                                <!--</label>-->
+                            <!--</div>-->
+                            <div class="form-group">
+                                <div class="pull-right">
+                                    <button type="submit" class="btn btn-default" ><i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                    <button type="button" class="btn btn-default" ng-show="!accountTrackingConfig.isAdding"  ng-click="accountTrackingConfig.actions.reset()"><i class="fa fa-undo"></i>&nbsp;&nbsp;Reset</button>
+                                    <button type="button" class="btn btn-default" ng-show="accountTrackingConfig.isAdding" ng-click="accountTrackingConfig.actions.endAdd()"><i class="fa fa-times"></i>&nbsp;&nbsp;Cancel</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

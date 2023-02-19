@@ -1,0 +1,74 @@
+<div ng-controller="CalibrationListController as calibrationList">
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="calibrationList.deleteCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="deleteModalLabel"><i class="fa fa-exclamation-triangle"></i> Delete <strong>{{calibrationList.calibration.assetCalibrationId}}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="calibrationList.deleteErrorMessage" class="alert alert-danger">{{ calibrationList.deleteErrorMessage }}</div>
+                    <p>Are you sure you want to delete calibration <strong>{{calibrationList.calibration.assetCalibrationId}}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="calibrationList.deleteCancel()">No</button>
+                    <button type="button" class="btn btn-primary" ng-click="calibrationList.deleteSubmit()">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div feedback></div>
+    <div calibrations-filter-bar></div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <table class="table table-striped table-hover" id="calibrations">
+                    <thead>
+                    <tr>
+                        <th width="20">#</th>
+                        <th width="60"></th>
+                        <th>Asset</th>
+                        <th>Sentinel ID</th>
+                        <th>Primary Supplier Name</th>
+                        <th>Last Calibration Date</th>
+                        <th>Next Due Date</th>
+                        <th>Completed</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="calibrationList.list.length === 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">There are no calibrations for this asset</td>
+                    </tr>
+                    <tr ng-show="calibrationList.list.length > 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">Showing {{ filteredList.length }} / {{ calibrationList.list.length }} calibrations</td>
+                    </tr>
+                    <tr ng-show="calibrationList.list.length != 0" ng-repeat="calibration in filteredList = (calibrationList.list | orderBy: 'nextDueDate' | filter: calibrationList.filterService.filter)">
+                        <td width="20">{{ $index + 1 }}</td>
+                        <td width="60">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-default dropdown-toggle" type="button" id="dropdown{{$index}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdown{{$index}}">
+                                    <li ng-show="calibrationList.hasPermission.toEdit"><a ng-click="calibrationList.goToEditCalibration(calibration)">Edit</a></li>
+                                    <li ng-show="calibrationList.hasPermission.toRemove"><a data-toggle="modal" data-target="#deleteModal" ng-click="calibrationList.deleteBegin(calibration)">Delete</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td>{{ calibration.assetName }}</td>
+                        <td>{{ calibration.mac }}</td>
+                        <td>{{ calibration.primarySupplierName }}</td>
+                        <td><span local-datetime utc-datetime="{{ calibration.lastCalibrationDate }}" date-format="L" time-format="LTS"></span></td>
+                        <td><span local-datetime utc-datetime="{{ calibration.nextDueDate }}" date-format="L" time-format="LTS"></span></td>
+                        <td>{{ calibration.completedFlag ? 'Y' : 'N' }}</td>
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div><!--list-->
+

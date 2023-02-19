@@ -1,0 +1,190 @@
+<div ng-controller="WatchlistListController as watchlistUi">
+    <!-- Modals -->
+    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-warning">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="watchlistUi.updateCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="updateModalLabel"><i class="fa fa-exclamation-circle"></i> Update watchlist <strong>{{watchlistUi.watchlist.id}}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="watchlistUi.updateErrorMessage" class="alert alert-danger">{{ watchlistUi.updateErrorMessage }}</div>
+                    <div class="form-group" ng-class="{'has-error': !watchlistUi.startDate.isPristine && watchlistUi.startDate.hasError()}">
+                        <label for="startDate">Start date *</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="startDate" name="startDate"
+                                   ng-model="watchlistUi.startDate.date" ng-change="watchlistUi.startDate.isPristine = true" autocomplete="off" style="position: relative; z-index: 100000;">
+                            <span class="input-group-addon">@</span>
+                            <input type="text" class="form-control" id="startTime" name="startTime"
+                                   ng-model="watchlistUi.startDate.time" ng-change="watchlistUi.startDate.isPristine = true" autocomplete="off" style="position: relative; z-index: 100000;">
+                        </div>
+                        <p class="help-block text-right" ng-show="!watchlistUi.startDate.isPristine && watchlistUi.startDate.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Start date is required</p>
+                        <p class="help-block text-right" ng-show="!watchlistUi.startDate.isPristine && watchlistUi.startDate.errors.isTimeBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Start time is required</p>
+                        <p class="help-block text-right" ng-show="!watchlistUi.startDate.isPristine && watchlistUi.startDate.errors.isNotADate"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid start date is required</p>
+                        <p class="help-block text-right" ng-show="!watchlistUi.startDate.isPristine && watchlistUi.startDate.errors.isNotATime"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid start time is required</p>
+                    </div>
+                    <div class="form-group" ng-class="{'has-error': !watchlistUi.endDate.isPristine && watchlistUi.endDate.hasError()}">
+                        <label for="endDate">End date *</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="endDate" name="endDate"
+                                   ng-model="watchlistUi.endDate.date" ng-change="watchlistUi.endDate.isPristine = true" autocomplete="off" style="position: relative; z-index: 100000;">
+                            <span class="input-group-addon">@</span>
+                            <input type="text" class="form-control" id="endTime" name="endTime"
+                                   ng-model="watchlistUi.endDate.time" ng-change="watchlistUi.endDate.isPristine = true" autocomplete="off" style="position: relative; z-index: 100000;">
+                        </div>
+                        <p class="help-block text-right" ng-show="!watchlistUi.endDate.isPristine && watchlistUi.endDate.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;End date is required</p>
+                        <p class="help-block text-right" ng-show="!watchlistUi.endDate.isPristine && watchlistUi.endDate.errors.isTimeBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;End time is required</p>
+                        <p class="help-block text-right" ng-show="!watchlistUi.endDate.isPristine && watchlistUi.endDate.errors.isNotADate"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid end date is required</p>
+                        <p class="help-block text-right" ng-show="!watchlistUi.endDate.isPristine && watchlistUi.endDate.errors.isNotATime"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid end time is required</p>
+                        <p class="help-block text-right" ng-show="!watchlistUi.endDate.isPristine && watchlistUi.endDate.errors.isSameOrBeforeStart"><i class="fa fa-exclamation-circle"></i>&nbsp;End date cannot be the same or before start date</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="watchlistUi.updateCancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="watchlistUi.updateSubmit()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="addWatchlistModal" tabindex="-1" role="dialog" aria-labelledby="addWatchlistModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-success">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="watchlistUi.addWatchlistCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="addWatchlistModalLabel"><i class="fa fa-exclamation-circle"></i> Add Watchlist</h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="watchlistUi.addWatchlistErrorMessage" class="alert alert-danger">{{ watchlistUi.addWatchlistErrorMessage }}</div>
+                    <div class="form-group" ng-class="{'has-error': !watchlistUi.newStartDate.isPristine && watchlistUi.newStartDate.hasError()}">
+                        <label for="newStartDate">Start date *</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="newStartDate" name="newStartDate"
+                                   ng-model="watchlistUi.newStartDate.date" ng-change="watchlistUi.newStartDate.isPristine = true" autocomplete="off" style="position: relative; z-index: 100000;">
+                            <span class="input-group-addon">@</span>
+                            <input type="text" class="form-control" id="newStartTime" name="newStartTime"
+                                   ng-model="watchlistUi.newStartDate.time" ng-change="watchlistUi.newStartDate.isPristine = true" autocomplete="off" style="position: relative; z-index: 100000;">
+                        </div>
+                        <p class="help-block text-right" ng-show="!watchlistUi.newStartDate.isPristine && watchlistUi.newStartDate.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Start date is required</p>
+                        <p class="help-block text-right" ng-show="!watchlistUi.newStartDate.isPristine && watchlistUi.newStartDate.errors.isTimeBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Start time is required</p>
+                        <p class="help-block text-right" ng-show="!watchlistUi.newStartDate.isPristine && watchlistUi.newStartDate.errors.isNotADate"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid start date is required</p>
+                        <p class="help-block text-right" ng-show="!watchlistUi.newStartDate.isPristine && watchlistUi.newStartDate.errors.isNotATime"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid start time is required</p>
+                    </div>
+                    <div class="form-group" ng-class="{'has-error': !watchlistUi.newEndDate.isPristine && watchlistUi.newEndDate.hasError()}">
+                        <label for="newEndDate">End date *</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="newEndDate" name="newEndDate"
+                                   ng-model="watchlistUi.newEndDate.date" ng-change="watchlistUi.newEndDate.isPristine = true" autocomplete="off" style="position: relative; z-index: 100000;">
+                            <span class="input-group-addon">@</span>
+                            <input type="text" class="form-control" id="newEndTime" name="newEndTime"
+                                   ng-model="watchlistUi.newEndDate.time" ng-change="watchlistUi.newEndDate.isPristine = true" autocomplete="off" style="position: relative; z-index: 100000;">
+                        </div>
+                        <p class="help-block text-right" ng-show="!watchlistUi.newEndDate.isPristine && watchlistUi.newEndDate.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;End date is required</p>
+                        <p class="help-block text-right" ng-show="!watchlistUi.newEndDate.isPristine && watchlistUi.newEndDate.errors.isTimeBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;End time is required</p>
+                        <p class="help-block text-right" ng-show="!watchlistUi.newEndDate.isPristine && watchlistUi.newEndDate.errors.isNotADate"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid end date is required</p>
+                        <p class="help-block text-right" ng-show="!watchlistUi.newEndDate.isPristine && watchlistUi.newEndDate.errors.isNotATime"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid end time is required</p>
+                        <p class="help-block text-right" ng-show="!watchlistUi.newEndDate.isPristine && watchlistUi.newEndDate.errors.isSameOrBeforeStart"><i class="fa fa-exclamation-circle"></i>&nbsp;End date cannot be the same or before start date</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="watchlistUi.addWatchlistCancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="watchlistUi.addWatchlistSubmit()" ng-if="watchlistUi.hasPermission.toCreate">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="watchlistUi.deleteCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="deleteModalLabel"><i class="fa fa-exclamation-triangle"></i> Delete <strong>{{watchlistUi.watchlist.id}}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="watchlistUi.deleteErrorMessage" class="alert alert-danger">{{ watchlistUi.deleteErrorMessage }}</div>
+                    <p>Are you sure you want to delete watchlist <strong>{{watchlistUi.watchlist.id}}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="watchlistUi.deleteCancel()">No</button>
+                    <button type="button" class="btn btn-primary" ng-click="watchlistUi.deleteSubmit()">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="completeModal" tabindex="-1" role="dialog" aria-labelledby="completeModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="watchlistUi.completeCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="completeModalLabel"><i class="fa fa-exclamation-triangle"></i> Force complete <strong>{{watchlistUi.watchlist.id}}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="watchlistUi.completeErrorMessage" class="alert alert-danger">{{ watchlistUi.completeErrorMessage }}</div>
+                    <p>Are you sure you want to force complete watchlist <strong>{{watchlistUi.watchlist.id}}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="watchlistUi.completeCancel()">No</button>
+                    <button type="button" class="btn btn-primary" ng-click="watchlistUi.completeSubmit()">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <br/>
+            <div feedback></div>
+            <nav class="pull-right" aria-label="Page navigation" ng-show="watchlistUi.totalPages > 1">
+                <ul class="pagination">
+                    <li ng-class="{'disabled': watchlistUi.page === 1}"><a role="button" aria-label="Previous" ng-click="watchlistUi.previous();"><span aria-hidden="true">&laquo;</span></a></li>
+                    <li ng-repeat="n in watchlistUi.pageArray" ng-class="{'active': n === watchlistUi.page}"><a role="button" ng-click="watchlistUi.gotoPage(n);" aria-label="Page {{n}}"><span aria-hidden="true">{{n}}</span></a></li>
+                    <li ng-class="{'disabled': watchlistUi.page === watchlistUi.totalPages}"><a role="button" aria-label="Next" ng-click="watchlistUi.next();"><span aria-hidden="true">&raquo;</span></a></li>
+                </ul>
+            </nav>
+            <div ng-if="watchlistUi.errorMessage" class="alert alert-danger">{{ watchlistUi.errorMessage }}</div>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th width="20">#</th>
+                    <th width="60">
+                        <button class="btn btn-sm btn-default" type="button" id="btn-addWatchlist" data-toggle="modal" data-target="#addWatchlistModal" ng-click="watchlistUi.addWatchlistBegin()" ng-if="watchlistUi.hasPermission.toCreate">
+                            New
+                        </button>
+                    </th>
+                    <th class="sortcolumn" ng-click="watchlistUi.sortBy('sentinelId')">Sentinel<span class="sortorder" ng-show="watchlistUi.propertyName === 'sentinelId'" ng-class="{reverse: watchlistUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistUi.sortBy('id')">Watchlist<span class="sortorder" ng-show="watchlistUi.propertyName === 'id'" ng-class="{reverse: watchlistUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistUi.sortBy('status')">Status<span class="sortorder" ng-show="watchlistUi.propertyName === 'status'" ng-class="{reverse: watchlistUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistUi.sortBy('startDate')">Start Date<span class="sortorder" ng-show="watchlistUi.propertyName === 'startDate'" ng-class="{reverse: watchlistUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistUi.sortBy('endDate')">End Date<span class="sortorder" ng-show="watchlistUi.propertyName === 'endDate'" ng-class="{reverse: watchlistUi.reverse}"></span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-show="watchlistUi.list.length === 0" class="warning">
+                    <td></td>
+                    <td colspan="9">There are no records</td>
+                </tr>
+                <tr ng-show="watchlistUi.list.length != 0" ng-repeat="item in watchlistUi.list | orderBy:watchlistUi.propertyName:watchlistUi.reverse">
+                    <td width="20">{{ (watchlistUi.page > 1) ? ((watchlistUi.page - 1) * watchlistUi.itemsPerPage) + $index + 1 : $index + 1 }}</td>
+                    <td width="60">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-default dropdown-toggle" type="button" id="dropdown{{$index}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdown{{$index}}">
+                                <li><a data-toggle="modal" data-target="#updateModal" ng-click="watchlistUi.updateBegin(item)" ng-if="watchlistUi.hasPermission.toUpdate">Modify</a></li>
+                                <li><a data-toggle="modal" data-target="#deleteModal" ng-click="watchlistUi.deleteBegin(item)" ng-if="watchlistUi.hasPermission.toDelete">Delete</a></li>
+                                <li><a ng-click="watchlistUi.goToViewLog(item)">View Log</a></li>
+                                <li><a data-toggle="modal" data-target="#completeModal" ng-click="watchlistUi.completeBegin(item)" ng-if="watchlistUi.hasPermission.toComplete && item.status !== 'USERCOMPLETED'">Force Complete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                    <td>{{ item.sentinelId }}</td>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.status }}</td>
+                    <td><span local-datetime utc-datetime="{{ item.startDate }}" date-format="L" time-format="LTS"></span></td>
+                    <td><span local-datetime utc-datetime="{{ item.endDate }}" date-format="L" time-format="LTS"></span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

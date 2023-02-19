@@ -1,0 +1,90 @@
+<div ng-controller="DeviceTrackingSummaryController as deviceSummary">
+    <div device-tracking-filterbar></div>
+        <div class="row">
+        <div class="col-sm-12">
+            <button id="print-summary-button" class="btn btn-default" type="button" ng-click="deviceSummary.print()" ><i class="fa fa-print"></i>&nbsp;Print</button>
+            <div id="print-container">
+                <div id="print-title"><span>{{ deviceSummary.reportName}} Report</span><img id="print-summary-logo" ng-src="{{deviceSummary.logoUrl}}" /></div>
+                <div id="print-summary-info">
+                    <table width="100%">
+                        <tr>
+                            <td class="print-summary-info-label">Report Creation<br/>(UTC {{ deviceSummary.timezoneOffset }})</td>
+                            <td class="print-summary-info-value">{{ deviceSummary.now }}</td>
+                        </tr>
+                        <tr ng-if="deviceSummary.device.deviceName !== deviceSummary.device.deviceTagId">
+                            <td class="print-summary-info-label">Device Name</td>
+                            <td class="print-summary-info-value">{{ deviceSummary.device.deviceName }}</td>
+                        </tr>
+                        <tr>
+                            <td class="print-summary-info-label">Device Tag Id</td>
+                            <td class="print-summary-info-value">{{ deviceSummary.device.deviceTagId }}</td>
+                        </tr>
+                        <tr>
+                            <td class="print-summary-info-label">Reference</td>
+                            <td class="print-summary-info-value">{{ deviceSummary.device.reference }}</td>
+                        </tr>
+                        <tr>
+                            <td class="print-summary-info-label">Description</td>
+                            <td class="print-summary-info-value">{{ deviceSummary.device.description }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="print-summary-map">
+                    <img ng-src="{{deviceSummary.staticMapUrl}}" />
+                </div>
+                <div id="print-timeline-container">
+                    <div id="summaryTimeline"></div>
+                </div>
+                <div id="print-summary-sensor">
+                    <table width="100%">
+                        <thead>
+                            <tr>
+                                <th class="print-summary-sensor-daterange">Date range (UTC {{ deviceSummary.timezoneOffset }})</th>
+                                <th class="print-summary-sensor-value">Mean ({{ deviceSummary.unitOfMeasure }})</th>
+                                <th class="print-summary-sensor-value">Std Dev</th>
+                                <th class="print-summary-sensor-value">Min ({{ deviceSummary.unitOfMeasure }})</th>
+                                <th class="print-summary-sensor-value">Max ({{ deviceSummary.unitOfMeasure }})</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="print-summary-sensor-daterange">{{ deviceSummary.fromDate }} to {{ deviceSummary.toDate }}</td>
+                                <td class="print-summary-sensor-value">{{ deviceSummary.justify(deviceSummary.mean) }}</td>
+                                <td class="print-summary-sensor-value">{{ deviceSummary.justify(deviceSummary.stdDev) }}</td>
+                                <td class="print-summary-sensor-value">{{ deviceSummary.justify(deviceSummary.min) }}</td>
+                                <td class="print-summary-sensor-value">{{ deviceSummary.justify(deviceSummary.max) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="print-summary-alarm">
+                    <table width="100%">
+                        <thead>
+                        <tr>
+                            <th class="print-summary-alarm-text-left" colspan="2" width="250">Time (UTC {{ deviceSummary.timezoneOffset }})</th>
+                            <th class="print-summary-alarm-text-left" width="300">Alarms</th>
+                            <th class="print-summary-alarm-text-right" width="100">{{deviceSummary.reportName}}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="alarm in deviceSummary.reports | filter: deviceSummary.filter" ng-class="{'print-text-ok':alarm.severity === 'ok', 'print-text-danger':alarm.severity === 'warning', 'print-text-info': alarm.severity === 'info' }">
+                            <td class="print-summary-alarm-text-centered">
+                                <img src="../img/print-alarm-circle.png" title="Warning" ng-if="alarm.severity === 'warning'" />
+                                <img src="../img/print-info-circle.png" title="Info" ng-if="alarm.severity === 'info'" />
+                                <img src="../img/print-ok-circle.png" title="Ok" ng-if="alarm.severity === 'ok'" />
+                            </td>
+                            <td class="print-summary-alarm-text-left"><span local-datetime utc-datetime="{{alarm.messageTimeStamp}}" date-format="L" time-format="LTS"></span></td>
+                            <td class="print-summary-alarm-text-left">
+                                <span ng-repeat="alarmName in alarm.alarms">
+                                    {{ alarmName.split(':')[0] }}<br/>
+                                </span>
+                            </td>
+                            <td class="print-summary-alarm-text-right">{{deviceSummary.justify(alarm[deviceSummary.propertyName])}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,138 @@
+<div ng-controller="ZoneTrackingDetailController as zoneDetailTracking">
+    <div feedback></div>
+    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                           <div class="form-group">
+                                <div id="assetMap" class="location-map"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                	<div class="row">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <a role="button" ng-click="zoneDetailTracking.panel.toggle()">Zone Details</a>
+                                <span class="pull-right text-right">
+                                    <a role="button" ng-click="zoneDetailTracking.panel.toggle()">
+                                        <i class="fa fa-lg" ng-class="{'fa-caret-right': zoneDetailTracking.panel.isCollapsed, 'fa-caret-down': !zoneDetailTracking.panel.isCollapsed}" title="Expand"></i>
+                                    </a>
+                                </span>
+                                <span class="pull-right text-right" ng-show="!zoneDetailTracking.panel.isCollapsed"><a role="button" ng-click="zoneDetailTracking.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+                            </div>
+                            <div ng-class="{'collapse': zoneDetailTracking.panel.isCollapsed}">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <div class="previewData" ng-repeat="image in zoneDetailTracking.zone.imageUrls track by $index" ng-show="$index==0">
+                                                <a href="{{image}}" data-lightbox="images-{{zone.id}}" ><img src="{{image}}"></img></a>   
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <div>Reporting Updated ~ Every {{(zoneDetailTracking.zone.deviceStatus.NextReportInterval/60)}} minutes</div>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <div class="col-sm-6">
+                                                Model: {{zoneDetailTracking.zone.device.Model}}
+                                            </div>
+                                            <div class="col-sm-3">
+                                               <i class="fa fa-signal" aria-hidden="true"></i>
+
+                                            </div>
+                                            <div class="col-sm-3">
+                                               <i class="fa fa-battery-empty" aria-hidden="true"></i>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                {{zoneDetailTracking.zone.deviceStatus.TimeOfReport}}
+                                            </div>
+                                            <div class="col-sm-3">
+                                                {{zoneDetailTracking.zone.deviceRssi}} dBm
+                                            </div>
+                                            <div class="col-sm-3">
+                                                {{zoneDetailTracking.zone.deviceStatus.BatteryPercent}} %
+                                            </div>
+                                        </div>
+                                    </div>   
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            Device ID {{zoneDetailTracking.zone.device.Imei}}
+                                        </div>
+                                        <div class="col-sm-12">
+                                            Zone Coordinates {{zoneDetailTracking.zone.latitude}}, {{zoneDetailTracking.zone.longitude}}
+                                        </div>
+                                        <div class="col-sm-12">
+                                            Zone Coordinates {{zoneDetailTracking.zone.zoneName}}
+                                        </div>
+                                        <div class="col-sm-12">
+                                            Zone Notes {{zoneDetailTracking.zone.zoneNotes}}
+                                        </div>
+                                    </div>                                 
+                                </div>
+                            </div>
+                        </div>  
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <a role="button" ng-click="zoneDetailTracking.panel.toggle()">Assets</a>
+                                <span class="pull-right text-right">
+                                    <a role="button" ng-click="zoneDetailTracking.panelAssets.toggle()">
+                                        <i class="fa fa-lg" ng-class="{'fa-caret-right': zoneDetailTracking.panelAssets.isCollapsed, 'fa-caret-down': !zoneDetailTracking.panelAssets.isCollapsed}" title="Expand"></i>
+                                    </a>
+                                </span>
+                                <span class="pull-right text-right" ng-show="!zoneDetailTracking.panelAssets.isCollapsed"><a role="button" ng-click="zoneDetailTracking.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+                            </div>
+                            <div ng-class="{'collapse': zoneDetailTracking.panel.isCollapsed}">
+                                <div class="panel-body">
+                                   <div class="row">
+                                        <div class="col-sm-12">
+                                            <nav class="navbar navbar-default">
+                                                <form class="navbar-form navbar-left">
+                                                    <label><i class="fa fa-lg fa-filter"></i></label>&nbsp;&nbsp;
+                                                    <input type="text" class="form-control" placeholder="Filter.." ng-model="zoneDetailTracking.filter.searchText">
+                                                </form>
+                                            </nav>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped" >
+                                                    <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Images</th>
+                                                        <th>Zone</th>
+                                                        <th>Device</th>
+                                                        <th>Device Type</th>
+                                                        <th width="50">Assets</th>
+                                                        <th>Zone Notes</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr ng-repeat="asset in filteredList = (zoneDetailTracking.zone.assets | orderBy: 'name' | filter: zoneDetailTracking.filter.filter)"          ng-if="zoneDetailTracking.zone.assets.length>0">
+                                                        <td></td>
+                                                        <td>
+                                                            <div class="previewData" ng-repeat="image in asset.imageUrls track by $index" ng-show="$index==0">
+                                                                <a href="{{image}}" data-lightbox="images-{{asset.id}}" ><img src="{{image}}"></img></a>   
+                                                            </div>
+                                                        </td>
+                                                        <td><a role="button" ng-click="zoneTracking.actions.gotoZone(asset)">{{asset.Name}}</a></td>
+                                                        <td>{{asset.deviceId}}</td>            
+                                                    </tr>
+                                                    <tr ng-show="zoneDetailTracking.zone.assets.length === 0">
+                                                        <td></td>
+                                                        <td colspan="4">There are no assets assigned to the this zone</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>                               
+                                </div>
+                            </div>
+                        </div>                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

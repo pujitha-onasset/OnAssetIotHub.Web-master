@@ -1,0 +1,105 @@
+<div ng-controller="SentinelTrackingListController as sentinelTrackingList">
+    <div sentinel-tracking-filterbar></div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div sentinel-report-column-selector></div>
+            <div class="table-responsive">
+                <div style="text-align: center;">
+                    <export-table-to file-name="Reports" table-id-to-export="reportsTableList"></export-table-to>
+                </div>
+                <table class="table table-hover" id="reportsTableList">
+                    <thead>
+                    <tr>
+                        <th width="10">#</th>
+                        <th width="10" class="noExport">Sev</th>
+                        <th>Device Name</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.age">Age</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.messageTimeStamp">Datetime</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.serverTimeStamp">Datetime Received</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.reportGuid">Report Guid</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.reportId">Report Id</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.messageRefNumber">Msg Ref #</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.isStoreAndForward">Store &amp; Forward</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.battery">Battery (%)</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.isButtonPushed">Button Pushed</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.light">Light (lux)</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.humidity">Humidity (%)</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.dewPointC">DewPoint (&deg;C)</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.dewPointF">DewPoint (&deg;F)</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.isMotionDetected">Motion</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.pressure">Pressure (kPa)</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.shockMagnitude">Shock (g)</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.shockXYZ">Shock (x, y, z)</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.tiltXYZ">Tilt (x, y, z)</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.temperatureC">Temp (&deg;C)</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.temperatureF">Temp (&deg;F)</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.temperatureProbeC">Temp probe 1(&deg;C)</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.temperatureProbeF">Temp probe 1(&deg;F)</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.temperatureProbe2C">Temp probe 2(&deg;C)</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.temperatureProbe2F">Temp probe 2(&deg;F)</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.signalQuality">Signal (db)</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.locationMethod">Loc Method</th>
+                        <th class="text-center" ng-if="sentinelTrackingList.columns.latLng">Lat/Lng</th>
+                       
+                        <th class="text-left" ng-if="sentinelTrackingList.columns.alarms">Alarm(s)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="sentinelTrackingList.reportsService.reports.length === 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="{{ sentinelTrackingList.columns.count + 3 }}">There are no device reports for this date range</td>
+                    </tr>
+                    <tr ng-show="sentinelTrackingList.reportsService.reports.length > 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="{{ sentinelTrackingList.columns.count + 3 }}">Showing {{ filteredReports.length }} / {{ sentinelTrackingList.reportsService.reports.length }} reports</td>
+                    </tr>
+                    <tr ng-show="filteredReports.reports.length != 0"
+                        ng-repeat="report in filteredReports = (sentinelTrackingList.reportsService.reports | filter: sentinelTrackingList.filterService.filter)"
+                        ng-class="{'text-danger': report.severity === 'warning', 'text-info': report.severity === 'info', 'text-ok': report.severity === 'ok', 'selected-report': sentinelTrackingList.selectedGuid === report.reportGuid}">
+                        <td width="10">{{ $index + 1 }}</td>
+                        <td width="10" class="noExport">
+                            <a data-map-icon-image style="border: none;" role="button" ng-click="sentinelTrackingList.selectReport(report)" data-severity="{{report.severity}}" data-location-method="{{report.locationMethod | locationMethod: report.latitude:report.longitude}}" selected="{{ sentinelTrackingList.selectedGuid === report.reportGuid }}"></a>
+                        </td>
+                        <td>
+                            <span ng-if="report.deviceName === report.deviceTagId">{{ report.deviceTagId }}</span>
+                            <span ng-if="report.deviceName !== report.deviceTagId">{{ report.deviceName }}<br/><small>[{{ report.deviceTagId }}]</small></span>
+                        </td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.age"><span time-from-now utc-datetime="{{report.messageTimeStamp}}"></span></td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.messageTimeStamp"><span local-datetime utc-datetime="{{report.messageTimeStamp}}" date-format="L" time-format="LTS"></span></td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.serverTimeStamp"><span local-datetime utc-datetime="{{report.serverTimeStamp}}" date-format="L" time-format="LTS"></span></td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.reportGuid">{{ report.reportGuid }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.reportId">{{ report.reportId }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.messageRefNumber">{{ report.messageRefNumber }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.battery">{{ report.batteryPercent }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.isButtonPushed">{{ report.isButtonPushed ? 'Yes' : 'No' }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.light">{{ report.light }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.humidity">{{ report.humidity }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.dewPointC">{{ report.dewPointC }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.dewPointF">{{ report.dewPointF }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.isMotionDetected">{{ report.statusFlags_MovementDetected ? 'Yes' : 'No' }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.pressure">{{ report.pressure }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.shockMagnitude">{{ report.isShockExceeded ? report.shockMagnitude : '' }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.shockXYZ">{{ report.isShockExceeded ? report.shockX + ', ' + report.shockY + ', ' + report.shockZ : '' }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.shockXYZ">{{ report.tiltX!=null ? report.tiltX + ', ' + report.tiltY + ', ' + report.tiltZ : '' }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.temperatureC">{{ report.temperatureC }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.temperatureF">{{ report.temperatureF }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.temperatureProbeC">{{ report.temperatureProbeC }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.temperatureProbeF">{{ report.temperatureProbeF }}</td>
+                         <td class="text-center" ng-if="sentinelTrackingList.columns.temperatureProbe2C">{{ report.temperatureProbe2C }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.temperatureProbe2F">{{ report.temperatureProbe2F }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.signalQuality">{{ report.signalQuality }}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.locationMethod">{{ report.locationMethod === 'CellTriangulation' ? 'Network' : report.locationMethod}}</td>
+                        <td class="text-center" ng-if="sentinelTrackingList.columns.latLng">{{ report.locationMethod ?  report.latitude + ', ' + report.longitude : '' }}</td>
+    
+                        <td class="text-left" ng-if="sentinelTrackingList.columns.alarms">
+                            <span ng-repeat="alarm in report.alarms">
+                                {{ alarm.split(':')[0] }}<br/>
+                            </span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

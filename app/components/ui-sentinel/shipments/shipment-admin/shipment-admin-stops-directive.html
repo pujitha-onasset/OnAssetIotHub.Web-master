@@ -1,0 +1,174 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <a role="button" ng-click="shipmentAdminStops.panel.toggle()">Stops</a>
+        <span class="pull-right text-right"><a role="button" ng-click="shipmentAdminStops.panel.toggle()"><i class="fa fa-lg" ng-class="{'fa-caret-right': shipmentAdminStops.panel.isCollapsed, 'fa-caret-down': !shipmentAdminStops.panel.isCollapsed}" title="Expand"></i></a></span>
+    </div>
+    <div ng-class="{'collapse': shipmentAdminStops.panel.isCollapsed}">
+        <div class="panel-body"> 
+            <div class="row" style="margin-top: 3px;">
+                <div class="col-sm-8" ng-if="shipmentAdminStops.hasPermission.toChange">
+                    <ul class="nav nav-pills">
+                        <li>
+                            <button class="btn btn-default" type="button" title="Add a stop"
+                                    ng-click="shipmentAdminStops.actions.beginAdd()"
+                                    ng-hide="!shipmentAdminStops.editor.canEdit ||
+                                    shipmentAdminStops.mode.isAdding ||
+                                    shipmentAdminStops.mode.isRemoving ||
+                                    shipmentAdminStops.mode.isEditing ||
+                                    shipmentAdminStops.mode.isMarking">
+                                <i class="fa fa-plus"></i>&nbsp;Add..
+                            </button>
+                            <button class="btn btn-default" type="button" title="Save"
+                                    ng-show="shipmentAdminStops.mode.isAdding"
+                                    ng-click="shipmentAdminStops.actions.saveAdd()">
+                                <i class="fa fa-save"></i>&nbsp;Save..
+                            </button>
+                            <button class="btn btn-default" type="button" title="Cancel"
+                                    ng-show="shipmentAdminStops.mode.isAdding"
+                                    ng-click="shipmentAdminStops.actions.endAdd()">
+                                <i class="fa fa-times"></i>&nbsp;Cancel..
+                            </button>
+                            <button class="btn btn-default" type="button" title="Remove stop"
+                                    ng-show="shipmentAdminStops.mode.isRemoving"
+                                    ng-click="shipmentAdminStops.actions.saveRemove()">
+                                <i class="fa fa-trash-o"></i>&nbsp;Yes
+                            </button>
+                            <button class="btn btn-default" type="button" title="Cancel"
+                                    ng-show="shipmentAdminStops.mode.isRemoving"
+                                    ng-click="shipmentAdminStops.actions.endRemove()">
+                                <i class="fa fa-times"></i>&nbsp;No
+                            </button>
+                            <button class="btn btn-default" type="button" title="Mark arrival"
+                                    ng-show="shipmentAdminStops.mode.isMarking"
+                                    ng-click="shipmentAdminStops.actions.saveMarkStopArrival()">
+                                <i class="fa fa-trash-o"></i>&nbsp;Yes
+                            </button>
+                            <button class="btn btn-default" type="button" title="Cancel"
+                                    ng-show="shipmentAdminStops.mode.isMarking"
+                                    ng-click="shipmentAdminStops.actions.endMarkStopArrival()">
+                                <i class="fa fa-times"></i>&nbsp;No
+                            </button>
+                            <button class="btn btn-default" type="button" title="Save"
+                                    ng-show="shipmentAdminStops.mode.isEditing"
+                                    ng-click="shipmentAdminStops.actions.saveEdit()">
+                                <i class="fa fa-save"></i>&nbsp;Save
+                            </button>
+                            <button class="btn btn-default" type="button" title="Cancel"
+                                    ng-show="shipmentAdminStops.mode.isEditing"
+                                    ng-click="shipmentAdminStops.actions.endEdit()">
+                                <i class="fa fa-times"></i>&nbsp;Cancel..
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row" ng-if="!shipmentAdminStops.mode.isAdding &&
+            !shipmentAdminStops.mode.isRemoving &&
+            !shipmentAdminStops.mode.isEditing &&
+            !shipmentAdminStops.mode.isMarking">
+                <div class="col-sm-12">
+                    <br/>
+                    <br/>
+                    <table class="table">
+                        <thead>
+                            <th></th>
+                            <th>Stop #</th>
+                            <th>Stop type</th>
+                            <th>Location</th>
+                            <th>Has arrived?</th>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="stop in shipmentAdminStops.editor.shipment.shipmentStops | orderBy: 'destinationId'">
+                            <td>
+                                <button class="btn btn-default btn-sm" title="Edit"
+                                        ng-click="shipmentAdminStops.actions.beginEdit(stop, 'Stop ' + ($index+1))"
+                                        ng-if="shipmentAdminStops.hasPermission.toChange && !stop.hasArrived && shipmentAdminStops.editor.canEdit">
+                                    <i class="fa fa-pencil"></i>
+                                </button>
+                                <button class="btn btn-default btn-sm" title="Remove"
+                                        ng-click="shipmentAdminStops.actions.beginRemove(stop)"
+                                        ng-if="shipmentAdminStops.hasPermission.toChange && !stop.hasArrived && shipmentAdminStops.editor.canEdit">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </td>                            <th width="5%">
+                                
+                                <span>Stop {{$index+1}}</span>
+                            </th>
+                            <td>
+                                {{ stop.address === stop.nameForAddress ? 'Address' : 'Geofence' }}
+                            </td>
+                            <td>
+                                {{ stop.nameForAddress }}
+                            </td>
+                            <td>
+                                <span ng-if="stop.hasArrived">Yes</span>
+                                <span ng-if="!shipmentAdminStops.hasPermission.toChange && !stop.hasArrived && !shipmentAdminStops.editor.canEdit">Not yet</span>
+                                <span ng-if="shipmentAdminStops.hasPermission.toChange  && !stop.hasArrived && shipmentAdminStops.editor.canEdit">
+                                    <div class="dropdown" ng-show="shipmentAdminStops.hasPermission.toChange">
+                                        <a role="button" class="dropdown-toggle" data-toggle="dropdown">Not yet <span class="caret"></span></a>
+                                        <ul class="dropdown-menu">
+                                            <li><a role="button" ng-click="shipmentAdminStops.actions.beginMarkStopArrival(stop)"> Change arrival status to 'Yes'</a></li>
+                                        </ul>
+                                    </div>
+                                </span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row" ng-if="shipmentAdminStops.mode.isAdding">
+                <div class="col-sm-12">
+                    <br/>
+                    <br/>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th width="10%">Stop #</th>
+                            <th width="20%">Stop type</th>
+                            <th width="60%">Location</th>
+                            <th width="10%"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr shipment-stop-row label="Stop {{ shipmentAdminStops.editor.shipment.shipmentStops.length + 1 }}" stop="shipmentAdminStops.stop" geofences="shipmentAdminStops.editor.availableGeofences" optional="false" removable="false"></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row" ng-if="shipmentAdminStops.mode.isEditing">
+                <div class="col-sm-12">
+                    <br/>
+                    <br/>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th width="10%">Stop #</th>
+                            <th width="20%">Stop type</th>
+                            <th width="60%">Location</th>
+                            <th width="10%"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr shipment-stop-row label="{{ shipmentAdminStops.stop.label }}" stop="shipmentAdminStops.stop" geofences="shipmentAdminStops.editor.availableGeofences" optional="false" removable="false"></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row" ng-if="shipmentAdminStops.mode.isRemoving">
+                <div class="col-sm-12">
+                    <br/>
+                    <br/>
+                    <h5>Remove <strong>{{ shipmentAdminStops.stop.nameForAddress }}</strong> from this shipment?</h5>
+                </div>
+            </div>
+            <div class="row" ng-if="shipmentAdminStops.mode.isMarking">
+                <div class="col-sm-12">
+                    <br/>
+                    <br/>
+                    <h5>Change status of <strong>{{ shipmentAdminStops.stop.nameForAddress }}</strong> to arrived?</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

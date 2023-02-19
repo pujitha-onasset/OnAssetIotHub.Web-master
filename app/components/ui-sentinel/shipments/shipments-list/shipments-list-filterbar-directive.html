@@ -1,0 +1,56 @@
+<nav class="navbar navbar-default">
+    <form class="navbar-form navbar-left" ng-if="shipmentsListFilterBar.showReportFilterOptions">
+        <button role="button" class="btn btn-default" title="Map view" ng-click="shipmentsListFilterBar.navToShipmentsMap()" ng-show="$state.current.name === 'shipments.reports'">
+            <i class="fa fa-fw fa-map-o"></i>
+        </button>
+        <button role="button" class="btn btn-default" title="Table view" ng-click="shipmentsListFilterBar.navToShipmentsReports()" ng-show="$state.current.name === 'shipments.map'">
+            <i class="fa fa-fw fa-table"></i>
+        </button>
+        <button role="button" class="btn btn-default" title="Map view" ng-click="shipmentsListFilterBar.navToShipmentMap()" ng-show="$state.current.name === 'shipment.reports'">
+            <i class="fa fa-fw fa-map-o"></i>
+        </button>
+        <button role="button" class="btn btn-default" title="Table view" ng-click="shipmentsListFilterBar.navToShipmentReports()" ng-show="$state.current.name === 'shipment.map'">
+            <i class="fa fa-fw fa-table"></i>
+        </button>
+   
+    </form>
+    <form class="navbar-form navbar-left">
+        <input type="text" class="form-control" placeholder="Text filter.." ng-model="shipmentsListFilterBar.filter.searchText">
+    </form>
+    <!--
+    <form class="navbar-form navbar-left" ng-if="shipmentsListFilterBar.showOriginDestinationOptions">
+        <div class="form-group">
+            <label>Origin</label>&nbsp;&nbsp;
+            <input type="text" class="form-control" placeholder="Origin filter.." ng-model="shipmentsListFilterBar.filter.origin">
+        </div>
+    </form>
+    <form class="navbar-form navbar-left" ng-if="shipmentsListFilterBar.showOriginDestinationOptions">
+        <div class="form-group">
+            <label>Destination</label>&nbsp;&nbsp;
+            <input type="text" class="form-control" placeholder="Destination filter.." ng-model="shipmentsListFilterBar.filter.destination">
+        </div>
+    </form>
+-->
+    <form class="navbar-form navbar-left">
+        <div class="btn-group" role="group">
+            <button type="button" id="btn-status" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    title="Showing {{shipmentsListFilterBar.filter.status}} shipments">
+                {{shipmentsListFilterBar.filter.status}}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a role="button" ng-click="shipmentsListFilterBar.filter.status = 'Active'">Active</a></li>
+                <li><a role="button" ng-click="shipmentsListFilterBar.filter.status = 'All'">All</a></li>
+                <!--<li><a role="button" ng-click="shipmentsListFilterBar.filter.status = 'Cancelled'">Cancelled</a></li>-->
+                <li><a role="button" ng-click="shipmentsListFilterBar.filter.status = 'Complete'">Complete</a></li>
+                <!--<li><a role="button" ng-click="shipmentsListFilterBar.filter.status = 'Expired'">Expired</a></li>-->
+                <li><a role="button" ng-click="shipmentsListFilterBar.filter.status = 'Overdue'">Overdue</a></li>
+                <li><a role="button" ng-click="shipmentsListFilterBar.filter.status = 'Pending'">Pending</a></li>
+            </ul>
+        </div>
+    </form>
+
+    <form class="navbar-form navbar-left">
+        
+        <export-table-to file-name="shipments" table-id-to-export="shipments"></export-table-to>
+    </form>
+</nav>

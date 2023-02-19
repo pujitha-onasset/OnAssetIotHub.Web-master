@@ -1,0 +1,116 @@
+<div ng-controller="DeviceTrackingListController as deviceTrackingList">
+    <div device-tracking-filterbar></div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div sentry-report-column-selector></div>
+            <div class="table-responsive">
+                <div style="text-align: center;">
+                    <export-table-to file-name="Reports" table-id-to-export="reportsTableList"></export-table-to>
+                </div>
+                <table class="table table-hover" id="reportsTableList">
+                    <thead>
+                    <tr>
+                        <th width="10">#</th>
+                        <th width="10" class="noExport">Sev</th>
+                        <th>Device Name</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.age">Age</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.messageTimeStamp">Datetime</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.serverTimeStamp">Datetime Received</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.reportGuid">Report Guid</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.reportId">Report Id</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.messageRefNumber">Msg Ref #</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.countOfSightings">Total Sightings</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.isStoreAndForward">Store &amp; Forward</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.battery">Battery (%)</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.isButtonPushed">Button Pushed</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.light">Light (lux)</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.extSwitch">ExtSwitch</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.humidity">Humidity (%)</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.dewPointC">DewPoint (&deg;C)</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.dewPointF">DewPoint (&deg;F)</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.isMotionDetected">Motion</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.pressure">Pressure (kPa)</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.reportInterval">Report Interval</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.shockMagnitude">Shock (g)</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.shockXYZ">Shock (x, y, z)</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.temperatureC">Temp (&deg;C)</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.temperatureF">Temp (&deg;F)</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.temperatureProbe1C">Temp Probe1 (&deg;C)</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.temperatureProbe1F">Temp Probe1 (&deg;F)</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.temperatureProbe2C">Temp Probe2 (&deg;C)</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.temperatureProbe2F">Temp Probe2 (&deg;F)</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.tiltMagnitude">Tilt (&deg;)</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.tiltXYZ">Tilt (x, y, z)</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.communicationType">Comm Type</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.signalQuality">Signal (db)</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.locationMethod">Loc Method</th>
+                        <th class="text-center" ng-if="deviceTrackingList.columns.latLng">Lat/Lng</th>
+                       
+                        <th class="text-left" ng-if="deviceTrackingList.columns.alarms">Alarm(s)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="deviceTrackingList.reportsService.reports.length === 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="{{ deviceTrackingList.columns.count + 3 }}">There are no device reports for this date range</td>
+                    </tr>
+                    <tr ng-show="deviceTrackingList.reportsService.reports.length > 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="{{ deviceTrackingList.columns.count + 3 }}">Showing {{ filteredReports.length }} / {{ deviceTrackingList.reportsService.reports.length }} reports</td>
+                    </tr>
+                    <tr ng-show="filteredReports.reports.length != 0"
+                        ng-repeat="report in filteredReports = (deviceTrackingList.reportsService.reports | filter: deviceTrackingList.filterService.filter)"
+                        ng-class="{'text-danger': report.severity === 'warning', 'text-info': report.severity === 'info', 'text-ok': report.severity === 'ok', 'selected-report': deviceTrackingList.selectedGuid === report.reportGuid}">
+                        <td width="10">{{ $index + 1 }}</td>
+                        <td width="10" class="noExport">
+                            <a data-map-icon-image style="border: none;" role="button" ng-click="deviceTrackingList.selectReport(report)" data-severity="{{report.severity}}" data-location-method="{{report.locationMethod | locationMethod: report.latitude:report.longitude}}" selected="{{ deviceTrackingList.selectedGuid === report.reportGuid }}"></a>
+                        </td>
+                        <td>
+                            <span ng-if="report.deviceName === report.deviceTagId">{{ report.deviceTagId }}</span>
+                            <span ng-if="report.deviceName !== report.deviceTagId">{{ report.deviceName }}<br/><small>[{{ report.deviceTagId }}]</small></span>
+                        </td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.age"><span time-from-now utc-datetime="{{report.messageTimeStamp}}"></span></td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.messageTimeStamp"><span local-datetime utc-datetime="{{report.timeOfReport}}" date-format="L" time-format="LTS"></span></td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.serverTimeStamp"><span local-datetime utc-datetime="{{report.timeOfReceipt}}" date-format="L" time-format="LTS"></span></td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.reportGuid">{{ report.reportGuid }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.reportId">{{ report.reportId }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.messageRefNumber">{{ report.messageRefNumber }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.countOfSightings">{{ report.countOfSightings }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.isStoreAndForward">{{ report.isStoreAndForward ? 'Yes' : 'No' }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.battery">{{ report.batteryPercent }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.isButtonPushed">{{ report.isButtonPushed ? 'Yes' : 'No' }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.light">{{ report.light }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.extSwitch">{{ report.extSwitch }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.humidity">{{ report.humidity }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.dewPointC">{{ report.dewPointC }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.dewPointF">{{ report.dewPointF }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.isMotionDetected">{{ report.vibrationSeen == 'seen' ? 'Yes' : 'No' }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.pressure">{{ report.pressure }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.reportInterval">{{ deviceTrackingList.secondsService.format(report.reportInterval) }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.shockMagnitude">{{ report.isShockExceeded ? report.shockMagnitude : '' }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.shockXYZ">{{ report.isShockExceeded ? report.shockX + ', ' + report.shockY + ', ' + report.shockZ : '' }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.temperatureC">{{ report.temperatureC }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.temperatureF">{{ report.temperatureF }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.temperatureProbe1C">{{ report.temperatureProbe1C }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.temperatureProbe1F">{{ report.temperatureProbe1F }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.temperatureProbe2C">{{ report.temperatureProbe2C }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.temperatureProbe2F">{{ report.temperatureProbe2F }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.tiltMagnitude">{{ report.isTiltExceeded ? report.tiltMagnitude : '' }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.tiltXYZ">{{ report.isTiltExceeded ? report.tiltX + ', ' + report.tiltY + ', ' + report.tiltZ : '' }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.communicationType">{{ report.communicationType }}</td>
+                        <td class="text-center" >{{ report.csq }}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.locationMethod">{{ report.locationMethod === 'CellTriangulation' ? 'Network' : report.locationMethod}}</td>
+                        <td class="text-center" ng-if="deviceTrackingList.columns.latLng">{{ report.locationMethod ?  report.latitude + ', ' + report.longitude : '' }}<span ng-if="report.locationName">({{report.locationName}})</span></td>
+                        
+                        <td class="text-left" ng-if="deviceTrackingList.columns.alarms">
+                            <span ng-repeat="alarm in report.alarms">
+                                {{ alarm.split(':')[0] }}<br/>
+                            </span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,106 @@
+<div ng-controller="ExceptionsListController as exceptionsList">
+    <div class="modal fade" id="completeModal" tabindex="-1" role="dialog" aria-labelledby="completeModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="exceptionsList.completeCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="completeModalLabel"><i class="fa fa-exclamation-triangle"></i> Complete Device Recovery</h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="exceptionsList.completeErrorMessage" class="alert alert-danger">{{ exceptionsList.completeErrorMessage }}</div>
+                    <p>Are you sure you want to complete recovery for device <strong>{{exceptionsList.completeException.deviceId}}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="exceptionsList.completeCancel()">No</button>
+                    <button type="button" class="btn btn-primary" ng-click="exceptionsList.completeSubmit()">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="completeShipmentModal" tabindex="-1" role="dialog" aria-labelledby="completeModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="exceptionsList.completeShipmentCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="completeShipmentModalLabel"><i class="fa fa-exclamation-triangle"></i> Complete the Shipment</h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="exceptionsList.completeShipmentErrorMessage" class="alert alert-danger">{{ exceptionsList.completeShipmentErrorMessage }}</div>
+                    <p>Are you sure you want to complete the shipment for device <strong>{{exceptionsList.completeShipmentException.deviceId}}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="exceptionsList.completeShipmentCancel()">No</button>
+                    <button type="button" class="btn btn-primary" ng-click="exceptionsList.completeShipmentSubmit()">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="completeShipmentModalConfirm" tabindex="-1" role="dialog" aria-labelledby="completeConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="completeShipmentModalConfirmLabel"><i class="fa fa-exclamation-triangle"></i> Complete the Shipment</h5>
+                </div>
+                <div class="modal-body">
+                    <p>A shipment completed request has been sent to your system.  Once the request is completed, the shipment will be removed from the exception list.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div exceptions-filter-bar></div>
+    <div class="row">
+        <div feedback></div>
+        <div class="col-sm-12">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="exceptions_devices" style="margin-bottom: 70px">
+                    <thead>
+                    <tr>
+                        <th width="20">#</th>
+                        <th width="60" class="noExport"></th>
+                        <th width="300" class="sortcolumn" ng-click="exceptionsList.sortBy('deviceId')">Device<span class="sortorder" ng-show="exceptionsList.propertyName === 'deviceId'" ng-class="{reverse: exceptionsList.reverse}"></span></th>
+                        <th class="sortcolumn" ng-click="exceptionsList.sortBy('shipmentId')">Shipment<span class="sortorder" ng-show="exceptionsList.propertyName === 'shipmentId'" ng-class="{reverse: exceptionsList.reverse}"></span></th>
+                        <th class="sortcolumn" ng-click="exceptionsList.sortBy('lastReportTimestamp')">Last Report Timestamp<span class="sortorder" ng-show="exceptionsList.propertyName === 'lastReportTimestamp'" ng-class="{reverse: exceptionsList.reverse}"></span></th>
+                        <th class="sortcolumn" ng-click="exceptionsList.sortBy('lastReportLocation')">Last Report Location<span class="sortorder" ng-show="exceptionsList.propertyName === 'lastReportLocation'" ng-class="{reverse: exceptionsList.reverse}"></span></th>
+                        <th class="sortcolumn" ng-click="exceptionsList.sortBy('shipmentEndDate')">Shipment End Date<span class="sortorder" ng-show="exceptionsList.propertyName === 'shipmentEndDate'" ng-class="{reverse: exceptionsList.reverse}"></span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="exceptionsList.exceptions.all.length === 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">There are no exceptions for this client</td>
+                    </tr>
+                    <tr ng-show="exceptionsList.exceptions.all.length > 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">Showing {{ filteredList.length }} / {{ exceptionsList.exceptions.all.length }} devices</td>
+                    </tr>
+                    <tr ng-show="exceptionsList.exceptions.all.length != 0" ng-repeat="device in filteredList = (exceptionsList.exceptions.all | orderBy:exceptionsList.propertyName:exceptionsList.reverse | filter: exceptionsList.filterService.filter)">
+                        <td width="20">{{ $index + 1 }}</td>
+                        <td width="60" class="noExport">
+                            <div class="dropdown" ng-show="exceptionsList.hasPermission.toComplete">
+                                <button class="btn btn-sm btn-default dropdown-toggle" type="button" id="dropdown{{$index}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdown{{$index}}">
+                                    <!--<li ng-show="exceptionsList.hasPermission.toComplete"><a ng-click="exceptionsList.completeBegin(device)" data-toggle="modal" data-target="#completeModal">Complete Recovery</a></li>-->
+                                    <li ng-show="exceptionsList.hasPermission.toCompleteShipment"><a ng-click="exceptionsList.completeShipmentBegin(device)" data-toggle="modal" data-target="#completeShipmentModal">Complete Shipment</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="300">{{ device.deviceId }}</td>
+                        <td width="300">{{ device.shipmentRefNumber }}</td>
+                        <td><span local-datetime utc-datetime="{{ device.lastReportTimestamp }}" date-format="L" time-format="LTS"></span></td>
+                        <td>{{ device.lastReportLatitude}}<br>{{ device.lastReportLongitude }}</td>
+                        <td>{{ device.shipmentEndDate }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div><!--list-->
+

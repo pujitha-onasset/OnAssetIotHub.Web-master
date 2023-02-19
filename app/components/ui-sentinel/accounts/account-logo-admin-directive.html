@@ -1,0 +1,74 @@
+<div class="col-sm-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <a role="button" ng-click="accountLogoAdmin.panel.toggle()">Email Notification Logo</a>
+            <span class="pull-right text-right">
+                <a role="button" ng-click="accountLogoAdmin.panel.toggle()">
+                    <i class="fa fa-lg" ng-class="{'fa-caret-right': accountLogoAdmin.panel.isCollapsed, 'fa-caret-down': !accountLogoAdmin.panel.isCollapsed}" title="Expand"></i>
+                </a>
+            </span>
+            <span class="pull-right text-right" ng-show="!accountLogoAdmin.panel.isCollapsed"><a role="button" ng-click="accountLogoAdmin.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+        </div>
+        <div ng-class="{'collapse': accountLogoAdmin.panel.isCollapsed}">
+            <div class="panel-body">
+                
+                <div class="row" ng-hide="accountLogoAdmin.mode.isNew" style="margin-top: 3px;" ng-if="accountLogoAdmin.hasPermission.toChange">
+                    <div class="col-sm-8">
+                        <ul class="nav nav-pills" ng-cloak>
+                            <li>
+                                <button class="btn btn-default" type="button" title="Change" ng-click="accountLogoAdmin.actions.beginChange()"
+                                        ng-if="accountLogoAdmin.hasPermission.toChange && !accountLogoAdmin.mode.isChanging &&  !accountLogoAdmin.mode.isRemoving">
+                                    <i class="fa fa-pencil"></i> Change
+                                </button>
+                                <button class="btn btn-default" type="button" title="Delete" ng-click="accountLogoAdmin.actions.beginRemove()"
+                                        ng-if="accountLogoAdmin.hasPermission.toChange &&  accountLogoAdmin.hasLogo && !accountLogoAdmin.mode.isChanging &&!accountLogoAdmin.mode.isRemoving">
+                                    <i class="fa fa-trash"></i> Remove
+                                </button>
+                                <button class="btn btn-default" type="button" title="Save" ng-click="accountLogoAdmin.actions.saveChange()"
+                                        ng-if="accountLogoAdmin.mode.isChanging"
+                                        ng-disabled="accountLogoAdmin.isImageTooBig">
+                                    <i class="fa fa-save"></i> Save
+                                </button>
+                                <button class="btn btn-default" type="button" title="Remove" ng-click="accountLogoAdmin.actions.clear()"
+                                        ng-if="accountLogoAdmin.mode.isRemoving">
+                                    <i class="fa fa-trash-o"></i> Yes
+                                </button>
+                                <button class="btn btn-default" type="button" title="{{ accountLogoAdmin.mode.isChanging ? 'Cancel' : 'No'}}" ng-click="accountLogoAdmin.actions.endChange()"
+                                        ng-if="accountLogoAdmin.mode.isRemoving || accountLogoAdmin.mode.isChanging">
+                                    <i class="fa fa-times"></i> {{ accountLogoAdmin.mode.isChanging ? 'Cancel' : 'No'}}
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12" ng-hide="accountLogoAdmin.mode.isRemoving || accountLogoAdmin.mode.isChanging">
+                        <br/>
+                        <br/>
+                        <canvas id="logoCanvas" class="clientLogo" width="200" height="80"></canvas>
+                    </div>
+                    <div class="col-sm-12" ng-show="accountLogoAdmin.mode.isChanging">
+                        <br/>
+                        <br/>
+                        <p>
+                            Select an image to use as your logo for email notifications.  The image must be a in jpeg or png format and the size can be no larger than 300w x 80h (pixels).
+                        </p>
+                        <br/>
+                        <form id="changeLogoForm">
+                            <div class="form-group" ng-class="{'has-error': accountLogoAdmin.isImageTooBig}">
+                                <input type="file" id="fileInput" accept="image/png,image/jpeg" on-file-change="accountLogoAdmin.actions.onFileChange()" >
+                                <p class="help-block" ng-show="accountLogoAdmin.isImageTooBig"><span ><i class="fa fa-exclamation-circle"></i>&nbsp;</span>Image is too large, please select a different one</p>
+                            </div>
+                        </form>
+                        <canvas id="changeCanvas" class="clientLogo" width="200" height="80"></canvas>
+                    </div>
+                    <div class="col-sm-12" ng-show="accountLogoAdmin.mode.isRemoving">
+                        <br/>
+                        <br/>
+                        <p><strong>Do you wish to remove your custom logo from email notifications?</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

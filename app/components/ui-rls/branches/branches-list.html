@@ -1,0 +1,39 @@
+<div ng-controller="BranchListController as branchesList">
+    <div branches-filter-bar></div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="branches">
+                    <thead>
+                    <tr>
+                        <th width="20">#</th>
+                        <th width="200" class="sortcolumn" ng-click="branchesList.sortBy('name')">Name<span class="sortorder" ng-show="branchesList.propertyName === 'name'" ng-class="{reverse: branchesList.reverse}"></span></th>
+                        <th width="300" class="sortcolumn" ng-click="branchesList.sortBy('address')">Address<span class="sortorder" ng-show="branchesList.propertyName === 'address'" ng-class="{reverse: branchesList.reverse}"></span></th>
+                        <th class="sortcolumn" ng-click="branchesList.sortBy('description')">Comments<span class="sortorder" ng-show="branchesList.propertyName === 'description'" ng-class="{reverse: branchesList.reverse}"></span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="branchesList.branches.all.length === 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">There are no branches for this client</td>
+                    </tr>
+                    <tr ng-show="branchesList.branches.all.length > 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="18">Showing {{ filteredList.length }} / {{ branchesList.branches.all.length }} branches</td>
+                    </tr>
+                    <tr ng-show="branchesList.branches.all.length != 0" ng-repeat="branch in filteredList = (branchesList.branches.all | orderBy:branchesList.propertyName:branchesList.reverse | filter: branchesList.filterService.filter)">
+                        <td width="20">{{ $index + 1 }}</td>
+                        <td width="300">
+                            <a ui-sref="branch.admin({ branchId: branch.id})">{{ branch.name }}</a>
+                        </td>
+                        <td width="300">{{ branch.address }}</td>
+                        <td>{{ branch.description }}</td>
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div><!--list-->
+

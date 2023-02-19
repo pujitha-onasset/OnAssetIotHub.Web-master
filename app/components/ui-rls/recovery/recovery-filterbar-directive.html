@@ -1,0 +1,23 @@
+<nav class="navbar navbar-default">
+    <form class="navbar-form navbar-left">
+        <label><i class="fa fa-lg fa-filter"></i></label>&nbsp;&nbsp;
+        <input type="text" class="form-control" placeholder="Filter.." ng-model="recoveryFilterBar.filter.searchText">
+    </form>
+    <form class="navbar-form navbar-left">
+        <export-table-to file-name="recovery-devices" table-id-to-export="recovery_devices"></export-table-to>
+    </form>
+    <form class="navbar-form navbar-left" ng-show="true">
+        <div class="form-group">
+            <label>From&nbsp;</label>
+            <input type="text" data-date-time-picker data-format="YYYY-MM-DDTHH:mm:ss" class="form-control datetimepicker" ng-model="recoveryFilterBar.data.fromText" placeholder="yyyy-mm-ddThh:mm:ss" ng-change="recoveryList.validateDateRange()">
+        </div>
+        <div class="form-group">
+            <label>&nbsp;&nbsp;To&nbsp;</label>
+            <input type="text" data-date-time-picker data-format="YYYY-MM-DDTHH:mm:ss" data-nomax="true" class="form-control datetimepicker" ng-model="recoveryFilterBar.data.toText" placeholder="yyyy-mm-ddThh:mm:ss" ng-change="recoveryList.validateDateRange()">
+        </div>
+        <div class="form-group">
+            &nbsp;
+            <button class="btn btn-default" type="button" ng-click="recoveryFilterBar.data.load()">Load</button>
+        </div>
+    </form>
+</nav>

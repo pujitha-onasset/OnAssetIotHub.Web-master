@@ -1,0 +1,291 @@
+<div ng-controller="CalibrationControlCenterMapController as calibrationControlCenter">
+     <div class="row">
+        <div class="col-sm-12">
+            <ul class="nav nav-pills">
+                <li role="presentation">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        Change View <i class="fa fa-lg fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li role="presentation" ng-hide="calibrationControlCenter.showMap"><a role="button" ng-click="calibrationControlCenter.actions.navToMap()" >&nbsp;<i class="fa fa-map-o fa-fw"></i> Map view</a></li>
+                        <li role="presentation" ng-hide="calibrationControlCenter.showTable"><a role="button" ng-click="calibrationControlCenter.actions.navToReports()" >&nbsp;<i class="fa fa-table fa-fw"></i> Table view</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-sm-12 col-lg-12">
+        <div class="row">
+            <nav class="navbar navbar-default">
+                <form class="navbar-form navbar-left">
+                    <label><i class="fa fa-lg fa-filter"></i></label>&nbsp;&nbsp;
+                    <input type="text" class="form-control" placeholder="Filter.." ng-model="calibrationControlCenter.filterService.searchText">
+                </form>
+                <form class="navbar-form navbar-left">
+                <div class="btn-group" role="group">
+                    <button role="button" class="btn btn-default" title="Toggle warning icons" id="btn-warning" ng-click="calibrationControlCenter.filterService.toggleSeverity('warning')" ng-class="{'active': !calibrationControlCenter.filterService.showWarning}">
+                        <img src="../img/warning-gps.png" height="20" ng-show="calibrationControlCenter.filterService.showWarning">
+                        <img src="../img/warning-disabled.png" height="20" ng-show="!calibrationControlCenter.filterService.showWarning">
+                        &nbsp;{{calibrationControlCenter.filterService.showOk ? 'days &lt; 10 ' : 'days &lt; 10'}}                        
+                    </button>
+                    <button role="button" class="btn btn-default" title="Toggle info icons" id="btn-info" ng-click="calibrationControlCenter.filterService.toggleSeverity('info')" ng-class="{'active': !calibrationControlCenter.filterService.showInfo}">
+                        <img src="../img/info-gps.png" height="20" ng-show="calibrationControlCenter.filterService.showInfo">
+                        <img src="../img/info-disabled.png" height="20" ng-show="!calibrationControlCenter.filterService.showInfo">
+                        &nbsp;{{calibrationControlCenter.filterService.showInfo ? '10 &gt;= days &lt; 30' : '10 &gt;= days &lt; 30'}}
+                    </button>
+                    <button role="button" class="btn btn-default" title="Toggle ok icons" id="btn-ok" ng-click="calibrationControlCenter.filterService.toggleSeverity('ok')" ng-class="{'active': !calibrationControlCenter.filterService.showOk}">
+                        <img src="../img/ok-gps.png" height="20" ng-show="calibrationControlCenter.filterService.showOk">
+                        <img src="../img/ok-disabled.png" height="20" ng-show="!calibrationControlCenter.filterService.showOk">
+                        &nbsp;{{calibrationControlCenter.filterService.showWarning ? 'days &gt;= 30' : 'days &gt;= 30'}}
+                    </button>
+                    
+                  
+                </div>
+            </form>
+            <form class="navbar-form navbar-left">
+                <div class="btn-group" role="group">
+                    <button type="button" id="btn-property" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                            title="Showing {{calibrationControlCenter.filterService.reports.filterByPropertyName}} values on the timeline">
+                        {{calibrationControlCenter.filterService.reports.filterByPropertyName}} ({{calibrationControlCenter.filterService.reports.range.suffix}})&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a role="button" ng-click="calibrationControlCenter.filterService.reports.filterByBattery()">Battery (%)</a></li>
+                        <li><a role="button" ng-click="calibrationControlCenter.filterService.reports.filterByHumidity()">Humidity (%)</a></li>
+                        <li><a role="button" ng-click="calibrationControlCenter.filterService.reports.filterByLight()">Light (lux)</a></li>
+                        <li><a role="button" ng-click="calibrationControlCenter.filterService.reports.filterByPressure()">Pressure (kPa)</a></li>
+                        <li><a role="button" ng-click="calibrationControlCenter.filterService.reports.filterByShock()">Shock (g)</a></li>
+                        <li><a role="button" ng-click="calibrationControlCenter.filterService.reports.filterByTemperatureC()">Temperature (&deg;C)</a></li>
+                        <li><a role="button" ng-click="calibrationControlCenter.filterService.reports.filterByTemperatureF()">Temperature (&deg;F)</a></li>
+                        <li><a role="button" ng-click="calibrationControlCenter.filterService.reports.filterByTempProbeC()">Temperature Probe (&deg;C)</a></li>
+                        <li><a role="button" ng-click="calibrationControlCenter.filterService.reports.filterByTempProbeF()">Temperature Probe (&deg;F)</a></li>
+                    </ul>
+                </div>
+                &nbsp;
+                <div class="btn-group" role="group">
+                    <button type="button" id="btn-filter-option" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                            title="Filter option">
+                        values {{ calibrationControlCenter.filterService.reports.range.filterOption !== 'none' ? calibrationControlCenter.filterService.reports.range.filterOption : '' }}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a role="button" ng-click="calibrationControlCenter.filterService.reports.range.filterOption = 'none'">values</a></li>
+                        <li><a role="button" ng-click="calibrationControlCenter.filterService.reports.range.filterOption = 'above'">values above</a></li>
+                        <li><a role="button" ng-click="calibrationControlCenter.filterService.reports.range.filterOption = 'below'">values below</a></li>
+                        <li><a role="button" ng-click="calibrationControlCenter.filterService.reports.range.filterOption = 'between'">values between</a></li>
+                        <li><a role="button" ng-click="calibrationControlCenter.filterService.reports.range.filterOption = 'outside'">values outside</a></li>
+                    </ul>
+                </div>
+                &nbsp;
+                <span ng-show="calibrationControlCenter.filterService.reports.range.filterOption === 'above'">
+                    <div class="input-group">
+                        <input type="number" class="form-control" style="width: 80px;"
+                               min="calibrationControlCenter.filterService.reports.range.min"
+                               max="calibrationControlCenter.filterService.reports.range.max"
+                               ng-model="calibrationControlCenter.filterService.reports.range.above">
+                        <span class="input-group-addon">{{calibrationControlCenter.filter.reports.range.suffix}}</span>
+                    </div>
+                </span>
+                <span ng-show="calibrationControlCenter.filter.reports.range.filterOption === 'below'">
+                    <div class="input-group">
+                        <input type="number" class="form-control" style="width: 80px;"
+                               min="calibrationControlCenter.filter.reports.range.min"
+                               max="calibrationControlCenter.filter.reports.range.max"
+                               ng-model="calibrationControlCenter.filter.reports.range.below">
+                        <span class="input-group-addon">{{calibrationControlCenter.filter.reports.range.suffix}}</span>
+                    </div>
+                </span>
+                <span ng-show="calibrationControlCenter.filter.reports.range.filterOption === 'between' || calibrationControlCenter.filter.reports.range.filterOption === 'outside'">
+                    <div class="input-group">
+                        <input type="number" class="form-control" style="width: 80px;"
+                               min="calibrationControlCenter.filter.reports.range.min"
+                               max="calibrationControlCenter.filter.reports.range.max"
+                               ng-model="calibrationControlCenter.filter.reports.range.from">
+                        <span class="input-group-addon">{{calibrationControlCenter.filter.reports.range.suffix}}</span>
+                    </div>
+                    &nbsp;&nbsp;and&nbsp;&nbsp;
+                    <div class="input-group">
+                        <input type="number" class="form-control" style="width: 80px;"
+                               min="calibrationControlCenter.filter.reports.range.min"
+                               max="calibrationControlCenter.filter.reports.range.max"
+                               ng-model="calibrationControlCenter.filter.reports.range.to">
+                        <span class="input-group-addon">{{calibrationControlCenter.filter.reports.range.suffix}}</span>
+                    </div>
+                </span>
+                &nbsp;
+                <button role="button" id="btn-reset-property" class="btn btn-default" title="Reset filter values"
+                        ng-click="calibrationControlCenter.resetPropertyFilter()"
+                        ng-show="calibrationControlCenter.filter.reports.range.filterOption !== 'none'">
+                    <i class="fa fa-undo fa-lg"></i>
+                </button>
+            </form>
+                 <form class="navbar-form navbar-right">
+                    <a role="button" ng-click="calibrationControlCenter.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+                 </form>
+            </nav>
+        </div>
+    </div>
+    <div class="row" ng-hide="!calibrationControlCenter.showMap">
+         <div class="col-lg-9 col-lg-push-3 col-md-8 col-md-push-4">
+            <div id="controlCenterMap" class="large-map"></div>
+            <div calibration-control-center-timeline></div>
+        </div>
+        <div class="col-lg-3 col-lg-pull-9 col-md-4 col-md-pull-8" >
+            <div class="panel panel-default panel-themed" ng-show="!calibrationControlCenter.reportsService.selected"><!-- device list -->
+                <div class="panel-heading"><strong>Calibrations</strong></div>
+                <div id="map-items-list" class="table-responsive">
+                    <table class="table table-condensed">
+                        <tr ng-show="calibrationControlCenter.reportsService.reports.length == 0" class="danger"><td colspan="3"><i class="fa fa-exclamation-circle fa-lg"></i>&nbsp;&nbsp;No data to display. </td></tr>
+                        <tr ng-show="calibrationControlCenter.reportsService.reports.length>0" class="warning"><td colspan="3" class="text-right">Showing {{ filteredList.length }} / {{ calibrationControlCenter.reportsService.reports.length }} calibrations</td></tr>
+                        <tr ng-repeat="report in filteredList = (calibrationControlCenter.reportsService.reports | orderBy: 'name' | filter: calibrationControlCenter.filterService.filter)"  ng-class="{'text-danger': report.severity === 'warning', 'text-info': report.severity === 'info', 'text-ok': report.severity === 'ok'}">
+                            <td>
+                                <div class="pull-left">
+                                    <a data-map-icon-image style="border: none;" role="button" ng-click="calibrationControlCenter.actions.selectReport(report)" data-severity="{{report.severity}}"
+                                     data-location-method="{{report.locationMethod | locationMethod: report.latitude:report.longitude}}" ></a>
+                                </div>
+                                
+                                <div>
+                                    
+                                    <a role="button" ng-click="calibrationControlCenter.actions.selectReport(report)">
+                                        <span>{{ report.assetName }}</span>
+                                    </a>
+                                    <div class="pull-right text-right">
+                                        <small>
+                                            <span class="pull-right">{{ report.sentinelId }} </span>
+                                            <br/>
+                                            <span class="pull-right">{{ report.primarySupplierAdress}} - {{report.nextDueDate}}</span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div><!-- device list -->
+           
+            <div class="panel panel-default panel-themed" ng-if="calibrationControlCenter.reportsService.selected"><!-- device details -->
+                <div class="panel-heading">
+                    <strong> Calibration Details</strong>
+                    <span class="pull-right text-right">
+                        <a style="border: none;" role="button" ng-click="calibrationControlCenter.actions.closeAssetDetails()"><i class="fa fa-lg fa-close" title="Close"></i></a>
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <button id="btn-details-select-prev" class="btn btn-default btn-sm" title="Select previous asset"
+                            ng-disabled="!calibrationControlCenter.previousAsset"
+                            ng-click="calibrationControlCenter.actions.selectReport(calibrationControlCenter.previousAsset)">
+                        <i class="fa fa-chevron-left"></i>&nbsp;&nbsp;Prev
+                    </button>
+                    <button id="btn-details-select-next" class="btn btn-default btn-sm pull-right" title="Select next asset"
+                            ng-disabled="!calibrationControlCenter.nextAsset"
+                            ng-click="calibrationControlCenter.actions.selectReport(calibrationControlCenter.nextAsset)">
+                        Next&nbsp;&nbsp;<i class="fa fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-condensed">
+                         <tr><td><strong>Name</strong><span class="pull-right">{{ calibrationControlCenter.reportsService.selected.assetName }}</span></td></tr>
+                          <tr><td><strong>Device</strong><span class="pull-right">{{ calibrationControlCenter.reportsService.selected.sentinelId }}</span></td></tr>
+                         <tr><td><strong>Type</strong><span class="pull-right">{{ calibrationControlCenter.selectedReportMarker.report.assetType }}</span></td></tr>
+                         <tr><td><strong>Manufacturer</strong><span class="pull-right">{{ calibrationControlCenter.selectedReportMarker.report.manufacturer }}</span></td></tr>
+                          <tr><td><strong>Manufacturer Date</strong><span class="pull-right">{{ calibrationControlCenter.selectedReportMarker.report.manufacturerDate }}</span></td></tr>
+                          <tr><td><strong>Next Due Date</strong><span class="pull-right">{{ calibrationControlCenter.selectedReportMarker.report.nextDueDate }}</span></td></tr>
+                          <tr><td><strong>Last Calibration Date</strong><span class="pull-right">{{ calibrationControlCenter.selectedReportMarker.report.lastCalibrationDate }}</span></td></tr>
+                          <tr><td><strong>Primary Supplier Name</strong><span class="pull-right">{{ calibrationControlCenter.selectedReportMarker.report.primarySupplierName }}</span></td></tr>
+                          <tr><td><strong>Primary Supplier Address</strong><span class="pull-right">{{ calibrationControlCenter.selectedReportMarker.report.primarySupplierAdress }}</span></td></tr>
+                           <tr><td><strong>Latitude</strong><span class="pull-right">{{ calibrationControlCenter.selectedReportMarker.report.latitude }}</span></td></tr>
+                           <tr><td><strong>Longitude</strong><span class="pull-right">{{ calibrationControlCenter.selectedReportMarker.report.longitude }}</span></td></tr>
+                            <tr><td><strong>Files</strong><br/>
+                                <div class="previewData" ng-repeat="image in calibrationControlCenter.selectedReportMarker.report.assetimages track by $index">
+                                    <file-viewer url="{{image.url}}" id="{{calibrationControlCenter.selectedReportMarker.report.sentinelId}}" ></file-viewer>
+                                </div>  
+                            </td></tr>
+                      
+                      
+                    </table>
+                </div>
+            </div>  
+        </div>
+    </div>
+     <div id="centerTrackingZoomLabel" class="gmap-control-label gmap-control-left-end" ng-show="locationAdmin.location">
+            <strong>Zoom</strong>
+    </div>
+    <div id="calibrationControlCenterZoom" class="gmap-control gmap-control-right-end" ng-show="locationAdmin.location">
+        <a role="button" ng-click="locationAdmin.actions.panToLocation()" title="Zoom to this location">Location</a>
+    </div>
+    <div id="mapPropTool" class="gmap-control gmap-control-left-end">
+        <a style="border: none;" role="button" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Map Properties"><i class="fa fa-info"></i></a>
+        <ul class="dropdown-menu gmap-control-map-prop">
+            <li><strong>Zoom</strong></li>
+            <li>&nbsp;&nbsp;{{ locationAdmin.zoomLevel }}</li>
+            <li><strong>Center Lat</strong></li>
+            <li>&nbsp;&nbsp;{{ locationAdmin.center.lat }}</li>
+            <li><strong>Center Lng</strong></li>
+            <li>&nbsp;&nbsp;{{ locationAdmin.center.lng }}</li>
+        </ul>
+    </div>
+     <div id="legendTool" class="gmap-control gmap-control-right-end">
+        <a style="border: none;" role="button" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Legend">Legend</a>
+        <ul class="dropdown-menu dropdown-menu-right gmap-control-legend">
+            <li><img class="img-circle" src="../img/ok-gps.png">&nbsp;&nbsp;Ok - GPS Location</li>
+            <li><img class="img-square" src="../img/ok-network.png">&nbsp;&nbsp;Ok - Network Location</li>
+            <li><img class="img-square" src="../img/ok-anchor.png">&nbsp;&nbsp;Ok - Anchor Location</li>
+            <li><img class="img-diamond" src="../img/ok-none.png">&nbsp;&nbsp;Ok - No Location</li>
+            <li><img class="img-circle" src="../img/info-gps.png">&nbsp;&nbsp;Info - GPS Location</li>
+            <li><img class="img-square" src="../img/info-network.png">&nbsp;&nbsp;Info - Network Location</li>
+            <li><img class="img-square" src="../img/info-anchor.png">&nbsp;&nbsp;Info - Anchor Location</li>
+            <li><img class="img-diamond" src="../img/info-none.png">&nbsp;&nbsp;Info - No Location</li>
+            <li><img class="img-circle" src="../img/warning-gps.png">&nbsp;&nbsp;Warning - GPS Location</li>
+            <li><img class="img-square" src="../img/warning-network.png">&nbsp;&nbsp;Warning - Network Location</li>
+            <li><img class="img-square" src="../img/warning-anchor.png">&nbsp;&nbsp;Warning - Anchor Location</li>
+            <li><img class="img-diamond" src="../img/warning-none.png">&nbsp;&nbsp;Warning - No Location</li>
+        </ul>
+    </div>
+     <div class="col-sm-12" ng-hide="!calibrationControlCenter.showTable">
+        <div class="panel panel-default panel-themed" >
+            <div class="panel-heading"><strong>List view</strong></div>
+            <div class="row" >
+                <div class="col-sm-12">
+                   <!-- <div watchlist-report-column-selector></div>-->
+                    <div class="table-responsive">
+                       <!-- <div style="text-align: center;">
+                            <export-table-to file-name="Reports" table-id-to-export="reportsTableList"></export-table-to>
+                        </div>-->
+                        <table class="table table-hover" id="reportsTableList">
+                            <thead>
+                            <tr>
+                                <th width="20">#</th>
+                                <th>Asset</th>
+                                <th>Sentinel ID</th>
+                                <th>Primary Supplier Name</th>
+                                <th>Last Calibration Date</th>
+                                <th>Next Due Date</th>
+                                <th>Completed</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-show="calibrationControlCenter.reportsService.reports.length === 0" class="warning noExport">
+                                    <td></td>
+                                    <td colspan="18">There are no calibrations for this asset</td>
+                                </tr>
+                                <tr ng-show="calibrationControlCenter.reportsService.reports.length > 0" class="warning noExport">
+                                    <td></td>
+                                    <td colspan="18">Showing {{ filteredList.length }} / {{ calibrationControlCenter.reportsService.reports.length }} calibrations</td>
+                                </tr>
+                                <tr ng-show="calibrationList.list.length != 0" ng-repeat="calibration in filteredList = (calibrationControlCenter.reportsService.reports | orderBy: 'name' | filter: calibrationControlCenter.filterService.filter)"">
+                                    <td width="20">{{ $index + 1 }}</td>
+                                   
+                                    <td>{{ calibration.assetName }}</td>
+                                    <td>{{ calibration.mac }}</td>
+                                    <td>{{ calibration.primarySupplierName }}</td>
+                                    <td><span local-datetime utc-datetime="{{ calibration.lastCalibrationDate }}" date-format="L" time-format="LTS"></span></td>
+                                    <td><span local-datetime utc-datetime="{{ calibration.nextDueDate }}" date-format="L" time-format="LTS"></span></td>
+                                    <td>{{ calibration.completedFlag ? 'Y' : 'N' }}</td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,47 @@
+<div ng-controller="SentryCommandsLogController as sentryCommandsLog">
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <br/>
+            <div feedback></div>
+
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th width="20">#</th>
+                        <th width="300">Command</th>
+                        <th width="150">Time queued</th>
+                        <th>Disposition</th>
+                        <th>Disposition Time</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="sentryCommandsLog.commands.length != 0" ng-repeat="command in sentryCommandsLog.commands">
+                        <td width="20">{{ $index + 1 }}</td>
+                        <td width="300">{{ command.command }}</td>
+                        <td width="150">
+                            <span local-datetime utc-datetime="{{command.timeQueued}}" date-format="L" time-format="LTS"></span>
+                        </td>
+                        <td>{{command.commandStatus}}</td>
+                        <td width="150">
+                            <span ng-if="command.commandStatus !== 'processed' && command.commandStatus !== 'pending'" local-datetime utc-datetime="{{command.timeReplacedOrFailed}}" date-format="L" time-format="LTS"></span>
+                            <span ng-if="command.commandStatus === 'processed'" local-datetime utc-datetime="{{command.timeSentToDevice}}" date-format="L" time-format="LTS"></span>
+                        </td>
+                    </tr>
+                    <tr ng-show="sentryCommandsLog.commands.length === 0" class="warning">
+                        <td></td>
+                        <td colspan="4">There is no configuration command history for this device</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>

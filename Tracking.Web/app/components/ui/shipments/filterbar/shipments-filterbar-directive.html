@@ -1,0 +1,92 @@
+<nav class="navbar navbar-default">
+    <form class="navbar-form navbar-left" ng-if="shipmentsFilterBar.showReportFilterOptions">
+        <div class="btn-group" role="group">
+            <button type="button" id="btn-property" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    title="Showing {{shipmentsFilterBar.filter.filterByPropertyName}} values on the timeline">
+                {{shipmentsFilterBar.filter.filterByPropertyName}}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.filterByBattery()">Battery</a></li>
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.filterByHumidity()">Humidity</a></li>
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.filterByLight()">Light</a></li>
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.filterByPressure()">Pressure</a></li>
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.filterByShock()">Shock</a></li>
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.filterByTemperatureC()">Temperature (&deg;C)</a></li>
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.filterByTemperatureF()">Temperature (&deg;F)</a></li>
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.filterByTempProbeC()">Temperature probe (&deg;C)</a></li>
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.filterByTempProbeF()">Temperature probe (&deg;F)</a></li>
+            </ul>
+        </div>
+        &nbsp;
+        <div class="btn-group" role="group">
+            <button type="button" id="btn-filter-option" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    title="Filter option">
+                values {{ shipmentsFilterBar.filter.range.filterOption !== 'none' ? shipmentsFilterBar.filter.range.filterOption : '' }}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.range.filterOption = 'none'">values</a></li>
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.range.filterOption = 'above'">values above</a></li>
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.range.filterOption = 'below'">values below</a></li>
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.range.filterOption = 'between'">values between</a></li>
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.range.filterOption = 'outside'">values outside</a></li>
+            </ul>
+        </div>
+        &nbsp;
+        <span ng-show="shipmentsFilterBar.filter.range.filterOption === 'above'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="shipmentsFilterBar.filter.range.min"
+                       max="shipmentsFilterBar.filter.range.max"
+                       ng-model="shipmentsFilterBar.filter.range.above">
+                <span class="input-group-addon">{{shipmentsFilterBar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        <span ng-show="shipmentsFilterBar.filter.range.filterOption === 'below'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="shipmentsFilterBar.filter.range.min"
+                       max="shipmentsFilterBar.filter.range.max"
+                       ng-model="shipmentsFilterBar.filter.range.below">
+                <span class="input-group-addon">{{shipmentsFilterBar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        <span ng-show="shipmentsFilterBar.filter.range.filterOption === 'between' || shipmentsFilterBar.filter.range.filterOption === 'outside'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="shipmentsFilterBar.filter.range.min"
+                       max="shipmentsFilterBar.filter.range.max"
+                       ng-model="shipmentsFilterBar.filter.range.from">
+                <span class="input-group-addon">{{shipmentsFilterBar.filter.range.suffix}}</span>
+            </div>
+            &nbsp;&nbsp;and&nbsp;&nbsp;
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="shipmentsFilterBar.filter.range.min"
+                       max="shipmentsFilterBar.filter.range.max"
+                       ng-model="shipmentsFilterBar.filter.range.to">
+                <span class="input-group-addon">{{shipmentsFilterBar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        &nbsp;
+        <button role="button" id="btn-reset-property" class="btn btn-default" title="Reset filter values"
+                ng-click="shipmentsFilterBar.resetPropertyFilter()"
+                ng-show="shipmentsFilterBar.filter.range.filterOption !== 'none'">
+            <i class="fa fa-undo fa-lg"></i>
+        </button>
+    </form>
+    <form class="navbar-form navbar-left">
+        <div class="btn-group" role="group">
+            <button type="button" id="btn-status" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    title="Showing {{shipmentsFilterBar.filter.status}} shipments">
+                {{shipmentsFilterBar.filter.status}}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.status = 'All'">All</a></li>
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.status = 'Active'">Active</a></li>
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.status = 'Complete'">Complete</a></li>
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.status = 'Overdue'">Overdue</a></li>
+                <li><a role="button" ng-click="shipmentsFilterBar.filter.status = 'Pending'">Pending</a></li>
+            </ul>
+        </div>
+    </form>
+</nav>

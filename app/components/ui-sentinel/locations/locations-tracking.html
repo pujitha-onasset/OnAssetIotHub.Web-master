@@ -1,0 +1,379 @@
+<div ng-controller="LocationTrackingController as locationTracking">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <ul class="nav nav-pills">
+                <li role="presentation">
+                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        Change View <i class="fa fa-lg fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li role="presentation" ng-hide="locationTracking.showMap"><a role="button" ng-click="locationTracking.actions.navToMap()" >&nbsp;<i class="fa fa-map-o fa-fw"></i> Map view</a></li>
+                        <li role="presentation" ng-hide="locationTracking.showTable"><a role="button" ng-click="locationTracking.actions.navToReports()" >&nbsp;<i class="fa fa-table fa-fw"></i> Table view</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+   
+    <div class="col-sm-12 col-lg-12" >
+        <div class="row">
+            <nav class="navbar navbar-default">
+                <form class="navbar-form navbar-left">
+                    <label><i class="fa fa-lg fa-filter"></i></label>&nbsp;&nbsp;
+                    <input type="text" class="form-control" placeholder="Filter.." ng-model="locationTracking.filter.searchText">
+                </form>
+                 <form class="navbar-form navbar-right">
+                    <a role="button" ng-click="locationTracking.actions.gotoAddLocation()">Add Location</i></a>&nbsp;&nbsp;</span>
+                    <a role="button" ng-click="locationTracking.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+                 </form>
+            </nav>
+        </div>
+    </div>
+     <div ng-hide="!locationTracking.showMap">
+        <div class="row">
+             <div class="col-lg-9 col-lg-push-3 col-md-8 col-md-push-4">
+                <div id="locationTrackingMap" class="large-map"></div>
+                <div class="row" ng-show="locationTracking.zone">
+                   <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <div style="text-align: center;">
+                                <export-table-to file-name="Reports" table-id-to-export="reportsTableList"></export-table-to>
+                            </div>
+                            <table class="table table-striped" id="reportsTableList" style="margin-bottom: 100px;">
+                                <thead>
+                                <tr>
+                                    
+<th class="text-center" ng-if="sentinelTrackingList.columns.age">Age</th>
+<td class="text-center" ng-if="sentinelTrackingList.columns.age"><span time-from-now utc-datetime="{{report.messageTimeStamp}}"></span></td>
+
+                                    <th class="noExport"></th>
+                                    <th>Asset</th>
+                                    <th ng-if = "locationTracking.showMarken">Type</th>
+                                    <th ng-if = "locationTracking.showMarken">Manufacturer</th>
+                                    <th ng-if = "locationTracking.showMarken">Sentry</th>
+                                    <th ng-if = "locationTracking.showMarken">Sentinel</th>
+                                    <th ng-if = "locationTracking.showMarken">Sequence</th>
+                                    <th ng-if = "locationTracking.showMarken">Beacon Type</th>
+                                    <th>Time of Report</th>
+                                    <th ng-if = "locationTracking.showMarken">Battery (%)</th>
+                                    <th ng-if = "locationTracking.showMarken">Battery (V)</th>
+                                    <th ng-if = "locationTracking.showMarken">Humidity (%)</th>
+                                    <th ng-if = "locationTracking.showMarken">Light (lux)</th>
+                                    <th>Rssi (db)</th>
+                                    <th ng-if = "locationTracking.showMarken">Internal Temp (&deg;C)</th>
+                                    <th ng-if = "locationTracking.showMarken">Internal Temp (&deg;F)</th>
+                                    <th ng-if = "locationTracking.showMarken">Shock Magnitude</th>
+                                    <th ng-if = "locationTracking.showMarken">Shock Elapsed Time</th>
+                                    <th ng-if = "locationTracking.showMarken">Shock X</th>
+                                    <th ng-if = "locationTracking.showMarken">Shock Y</th>
+                                    <th ng-if = "locationTracking.showMarken">Shock Z</th>
+                                    <th ng-if = "locationTracking.showMarken">Pressure</th>
+                                    <th ng-if = "locationTracking.showMarken">Power Source</th>
+                                    <th ng-if = "locationTracking.showMarken">First Seen Timestamp</th>
+                                    <th ng-if = "locationTracking.showMarken">Last Seen Timestamp</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-show="locationTracking.zone && locationTracking.zone.sentinelsStatus.length === 0" class="warning noExport">
+                                    <td></td>
+                                    <td colspan="14">There are no records</td>
+                                </tr>
+                                <tr ng-show="locationTracking.zone.sentinelsStatus.length != 0" ng-repeat="item in locationTracking.zone.sentinelsStatus">
+                                    <td class="noExport">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-default dropdown-toggle" type="button" id="dropdown{{$index}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdown{{$index}}">
+                                                <li><a ng-click="locationTracking.actions.gotoAssetDetails(item.sightingId)"><i class="fa fa-sm fa-search"></i>&nbsp;View Asset Details</a></li>
+                                                <li role="separator" class="divider"></li>
+                                                <!--<li><a ng-click="latestSentryReportUi.gotoDeviceReports(item)"><i class="fa fa-sm fa-search"></i>&nbsp;Reports from this Sentry</a></li>-->
+                                                <li><a ng-click="locationTracking.actions.gotoSightingsByDevice(item)"><i class="fa fa-sm fa-search"></i>&nbsp;Sightings by this Sentry</a></li>
+                                                <li><a ng-click="locationTracking.actions.gotoSightingsOfMac(item)"><i class="fa fa-sm fa-search"></i>&nbsp;Sightings of this Sentinel</a></li>
+                                                <!--<li><a ng-click="latestSentryReportUi.gotoSightingsPivotForDevice(item)"><i class="fa fa-sm fa-search"></i>&nbsp;Sightings Pivot for this Sentry</a></li>-->
+                                                <!--<li role="separator" class="divider"></li>-->
+                                                <!--<li><a ng-click="latestSentryReportUi.gotoSeparationSimulator(item)"><i class="fa fa-sm fa-arrow-circle-right"></i>&nbsp;Separation simulator</a></li>-->
+                                                <!--<li role="separator" class="divider"></li>-->
+                                                <!--<li><a ng-click="latestSentryReportUi.goToReportSightings(item)"><i class="fa fa-sm fa-arrow-circle-right"></i>&nbsp;Warehouse simulator</a></li>-->
+                                                <!--<li><a ng-click="latestSentryReportUi.goToReportSightings(item)"><i class="fa fa-sm fa-plus-square"></i>&nbsp;Add to warehouse simulator</a></li>-->
+                                                <!--<li><a ng-click="latestSentryReportUi.goToReportSightings(item)"><i class="fa fa-sm fa-minus-square"></i>&nbsp;Remove from warehouse simulator</a></li>-->
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <!-- <td class="text-center" ng-if="locationTracking.show">{{ item.imei }}</td> -->
+                                    <td>{{ locationTracking.actions.getAsset(item.sightingId).assetName }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ locationTracking.actions.getAsset(item.sightingId).assetType }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ locationTracking.actions.getAsset(item.sightingId).manufacturer }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ item.imei }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ item.sightingId }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ item.sequenceNumber }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ item.beaconType }}</td>
+                                    <td><span local-datetime utc-datetime="{{ item.timeOfReport }}" date-format="L" time-format="LTS"></span></td>
+                                    <!-- <td>{{ item.batteryVoltage | batteryPercentage }}</td> -->
+                                    <td ng-if = "locationTracking.showMarken">{{ item.beaconType == 'Sentinel 100B' ? item.battery : item.batteryVoltage | batteryPercentage }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ item.batteryVoltage }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ item.humidity }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ item.lightValue }}</td>
+                                    <td>{{ item.rssi }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ item.temperatureValueC }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ item.temperatureValueF }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ item.shockMagnitude }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ item.shockElapsedTime }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ item.shockX }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ item.shockY }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ item.shockZ }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ item.pressureValue }}</td>
+                                    <td ng-if = "locationTracking.showMarken">{{ item.statusFlags_PowerSource}}</td>
+                                    <td ng-if = "locationTracking.showMarken"><span local-datetime utc-datetime="{{ item.firstSeenTimestamp }}" date-format="L" time-format="LTS"></span></td>
+                                    <td ng-if = "locationTracking.showMarken"><span local-datetime utc-datetime="{{ item.lastSeenTimestamp }}" date-format="L" time-format="LTS"></span></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-lg-pull-9 col-md-4 col-md-pull-8" >
+                <div class="panel panel-default panel-themed" ng-show="!locationTracking.selected"><!-- device list -->
+                    <div class="panel-heading"><strong>Locations</strong></div>
+                    <div id="map-items-list" class="table-responsive">
+                        <table class="table table-condensed">
+                            <tr ng-show="locationTracking.locations.length == 0" class="danger"><td colspan="3"><i class="fa fa-exclamation-circle fa-lg"></i>&nbsp;&nbsp;No data to display. </td></tr>
+                            <tr ng-show="locationTracking.locations.length>0" class="warning"><td colspan="3" class="text-right">Showing {{ filteredList.length }} / {{ locationTracking.locations.length }} locations</td></tr>
+                            <tr ng-repeat="location in filteredList = (locationTracking.locations | orderBy: 'name' | filter: locationTracking.filter.filter)" class="text-ok">
+                                <td>
+                                    
+                                    <div>
+                                        
+                                        <a role="button" ng-click="locationTracking.actions.selectLocation(location)">
+                                            <span>{{ location.name }}</span>
+                                        </a>
+                                        <div class="pull-right text-right">
+                                            <small>
+                                                <span class="pull-right">{{ location.assetsCount }} assets</span>
+                                                <span><br/>{{ location.address }}</span>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div><!-- device list -->
+                <div class="panel panel-default panel-themed" ng-if="locationTracking.selected"><!-- device details -->
+                    <div class="panel-heading">
+                        <strong> Location Details</strong>
+                        <span class="pull-right text-right">
+                            <a style="border: none;" role="button" ng-click="locationTracking.actions.closeLocationDetails()"><i class="fa fa-lg fa-close" title="Close"></i></a>
+                        </span>
+                    </div>
+                    <div class="panel-body">
+                        <button id="btn-details-select-prev" class="btn btn-default btn-sm" title="Select previous location"
+                                ng-disabled="!locationTracking.previousLocation"
+                                ng-click="locationTracking.actions.selectLocation(locationTracking.previousLocation)">
+                            <i class="fa fa-chevron-left"></i>&nbsp;&nbsp;Prev
+                        </button>
+                        <button id="btn-details-select-next" class="btn btn-default btn-sm pull-right" title="Select next location"
+                                ng-disabled="!locationTracking.nextLocation"
+                                ng-click="locationTracking.actions.selectLocation(locationTracking.nextLocation)">
+                            Next&nbsp;&nbsp;<i class="fa fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-condensed">
+                            <tr><td><strong>Name</strong><span class="pull-right">{{ locationTracking.selected.name }}</span></td></tr>
+                            <tr><td><strong>Address</strong><span class="pull-right">{{ locationTracking.selected.address }}</span></td></tr>
+                            <tr><td><strong>Description</strong><span class="pull-right">{{ locationTracking.selected.description  }}</span></td></tr>
+                        </table>
+                    </div>
+        
+                </div>    
+                <div class="panel panel-default panel-themed" ng-if="locationTracking.selected"><!-- device details -->
+                    <div class="panel-heading">
+                        <strong> Zones</strong>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-condensed">
+                            <tr ng-repeat="zone in locationTracking.zones"><td><a role="button" ng-click="locationTracking.actions.selectZone(zone)">{{ zone.zoneName }}</a>
+                                <span class="pull-right" ng-if="zone.deviceType!=='anchor'">{{ zone.assetsCount }} assets</span>
+                                <span class="pull-right" ng-if="zone.deviceType==='anchor'">Anchor</span>
+                                <div ng-show="zone.$selected">
+                                    <div class="panel-body">
+                                        
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <strong>Device ID</strong> <span class="pull-right">{{zone.deviceId}}</span>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <strong>Device type</strong> <span class="pull-right">{{zone.deviceType}}</span>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <strong>Latitude</strong> <span class="pull-right">{{zone.latitude}}</span>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <strong>Longitude</strong> <span class="pull-right">{{zone.longitude}}</span>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <strong>Notes</strong>  <span class="pull-right">{{zoneDetailTracking.zone.zoneNotes}}</span>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <strong>Images</strong> <br/> 
+                                                <div class="previewData" ng-repeat="image in zone.imageUrls track by $index">
+                                                    <a href="{{image}}" data-lightbox="images-{{zone.id}}" ><img src="{{image}}"></img></a>   
+                                                </div>
+                                            </div>
+                                        </div>                                 
+                                    </div>
+                                </div>
+                            </td></tr>
+                        </table>
+                    </div>
+                   
+                </div> 
+                <div>
+                     <button id="btn-location-details" class="btn btn-default" title="Details"
+                                ng-show="locationTracking.selected && locationTracking.actions.isAnAdmin()"
+                                ng-click="locationTracking.actions.gotoDetails(locationTracking.selected)">
+                            Details
+                        </button>
+                </div>   
+            </div>
+        </div>
+         <div id="centerTrackingZoomLabel" class="gmap-control-label gmap-control-left-end" ng-show="locationAdmin.location">
+                <strong>Zoom</strong>
+        </div>
+        <div id="locationTrackingZoom" class="gmap-control gmap-control-right-end" ng-show="locationAdmin.location">
+            <a role="button" ng-click="locationAdmin.actions.panToLocation()" title="Zoom to this location">Location</a>
+        </div>
+    </div>
+    <div class="col-sm-12" ng-hide="!locationTracking.showTable">
+        <div class="panel panel-default panel-themed" ng-show="!locationTracking.selected"><!-- device list -->
+           <div class="panel-heading"><strong>Locations</strong></div>
+            <div class="row" >
+                <div class="col-sm-12">
+                   <!-- <div watchlist-report-column-selector></div>-->
+                    <div class="table-responsive">
+                       <!-- <div style="text-align: center;">
+                            <export-table-to file-name="Reports" table-id-to-export="reportsTableList"></export-table-to>
+                        </div>-->
+                        <table class="table table-hover" id="reportsTableList">
+                            <thead>
+                            <tr>
+                                <th width="10">#</th>
+                                <th>Name</th>
+                                <th class="text-center" >Address</th>
+                                <th class="text-center" >Description</th>
+                                <th class="text-center" >Assets Count</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-show="locationTracking.locations.length === 0" class="warning noExport">
+                                <td></td>
+                                <td colspan="{{ locationTracking.columns.count + 4 }}">There are no Locations</td>
+                            </tr>
+                            <tr ng-show="locationTracking.locations.length > 0" class="warning noExport">
+                                <td></td>
+                                <td colspan="4" class="text-right">Showing {{ filteredList.length }} / {{ locationTracking.locations.length }} locations</td>
+                            </tr>
+                            <tr ng-show="locationTracking.locations.length != 0"
+                                ng-repeat="location in filteredList = (locationTracking.locations | orderBy: 'name' | filter: locationTracking.filter.filter)">
+                                <td width="10">{{ $index + 1 }}</td>
+                                <td>
+                                   <a role="button" ng-click="locationTracking.actions.selectLocation(location)">
+                                            <span>{{ location.name }}</span>
+                                    </a>
+                                </td>
+                                <td class="text-center" >{{ location.address }}</td>
+                                <td class="text-center" >{{ location.description }}</td>
+                                <td class="text-center" >{{ location.assetsCount }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default panel-themed" ng-show="locationTracking.selected">
+            <div class="panel-heading"><strong>Zones</strong></div>
+            <div class="row" >
+                <div class="col-sm-12">
+                   <!-- <div watchlist-report-column-selector></div>-->
+                    <div class="table-responsive">
+                       <!-- <div style="text-align: center;">
+                            <export-table-to file-name="Reports" table-id-to-export="reportsTableList"></export-table-to>
+                        </div>-->
+                        <table class="table table-hover" id="reportsTableList">
+                            <thead>
+                            <tr>
+                                <th width="10">#</th>
+                                <th>Name</th>
+                                <th>Assets</th>
+                                <th class="text-center" >Device ID</th>
+                                <th class="text-center" >Device type</th>
+                                <th class="text-center" >Lat/Lng</th>
+                                <th class="text-center" >Notes</th>
+                                <th class="text-center">Images</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-show="locationTracking.zones.length === 0" class="warning noExport">
+                                <td></td>
+                                <td colspan="{{ locationTracking.zones.count + 4 }}">There are no Locations</td>
+                            </tr>
+                            <tr ng-show="locationTracking.zones.length != 0"
+                                ng-repeat="zone in locationTracking.zones">
+                                <td width="10">{{ $index + 1 }}</td>
+                                <td>
+                                   {{zone.zoneName }}
+                                </td>
+                                <td>
+                                    {{ zone.assetsCount }}
+                                </td>
+                                <td class="text-center" >{{zone.deviceId}}</td>
+                                <td class="text-center" >{{zone.deviceType}}</td>
+                                <td class="text-center" >{{  zone.latitude + ', ' + zone.longitude }}</td>
+                                <td class="text-center" >{{zoneDetailTracking.zone.zoneNotes}}</td>
+                                <td>
+                                    <div class="previewData" ng-repeat="image in zone.imageUrls track by $index">
+                                                    <a href="{{image}}" data-lightbox="images-{{zone.id}}" ><img src="{{image}}"></img></a>   
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="mapPropTool" class="gmap-control gmap-control-left-end">
+        <a style="border: none;" role="button" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Map Properties"><i class="fa fa-info"></i></a>
+        <ul class="dropdown-menu gmap-control-map-prop">
+            <li><strong>Zoom</strong></li>
+            <li>&nbsp;&nbsp;{{ locationTracking.zoomLevel }}</li>
+            <li><strong>Center Lat</strong></li>
+            <li>&nbsp;&nbsp;{{ locationTracking.center.lat }}</li>
+            <li><strong>Center Lng</strong></li>
+            <li>&nbsp;&nbsp;{{ locationTracking.center.lng }}</li>
+        </ul>
+    </div>
+     <div id="legendTool" class="gmap-control gmap-control-right-end">
+        <a style="border: none;" role="button" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Legend">Legend</a>
+        <ul class="dropdown-menu dropdown-menu-right gmap-control-legend">
+            <li><img class="img-circle" src="../img/ok-gps.png">&nbsp;&nbsp;Ok - GPS Location</li>
+            <li><img class="img-square" src="../img/ok-network.png">&nbsp;&nbsp;Ok - Network Location</li>
+            <li><img class="img-square" src="../img/ok-anchor.png">&nbsp;&nbsp;Ok - Anchor Location</li>
+            <li><img class="img-diamond" src="../img/ok-none.png">&nbsp;&nbsp;Ok - No Location</li>
+            <li><img class="img-circle" src="../img/info-gps.png">&nbsp;&nbsp;Info - GPS Location</li>
+            <li><img class="img-square" src="../img/info-network.png">&nbsp;&nbsp;Info - Network Location</li>
+            <li><img class="img-square" src="../img/info-anchor.png">&nbsp;&nbsp;Info - Anchor Location</li>
+            <li><img class="img-diamond" src="../img/info-none.png">&nbsp;&nbsp;Info - No Location</li>
+            <li><img class="img-circle" src="../img/warning-gps.png">&nbsp;&nbsp;Warning - GPS Location</li>
+            <li><img class="img-square" src="../img/warning-network.png">&nbsp;&nbsp;Warning - Network Location</li>
+            <li><img class="img-square" src="../img/warning-anchor.png">&nbsp;&nbsp;Warning - Anchor Location</li>
+            <li><img class="img-diamond" src="../img/warning-none.png">&nbsp;&nbsp;Warning - No Location</li>
+        </ul>
+    </div>
+</div>

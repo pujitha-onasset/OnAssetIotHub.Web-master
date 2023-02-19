@@ -1,0 +1,10 @@
+.idea
+dist
+bower_components
+node_modules
+dist.dev
+dist.release
+/run.sh
+/package-lock.json
+/qa-run.sh
+*.sh

@@ -1,0 +1,78 @@
+<div class="spinner" ng-show="loading" style="z-index:1051; position: fixed; width:100%; top: 0; bottom: 0; background: rgba(0, 0, 0, 0.65) url('./img/loading.svg')no-repeat fixed center;"></div>
+<div ng-controller="RlsHeaderController as header" class="clearfix">
+    <nav class="navbar navbar-default navbar-static-top header-nav" ng-hide="header.showNavigation()">
+        <div class="container">
+            <div class="navbar-header navbar-right" >
+                <a class="navbar-brand brand-narrow" ui-sref="login"><img class="brand-logo" ng-src="{{ header.references.logo }}" /></a>
+            </div>
+        </div>
+    </nav>
+    <nav class="navbar navbar-default navbar-static-top header-nav " ng-show="header.showNavigation()">
+        <div class="container">
+            
+             <div class="navigation-dropdown-menu dropdown user-menu" >
+                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" title="Current User"><i class="fa fa-user fa-lg"></i>&nbsp;<span class="caret"></span></a>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <!--<li><a role="button" ng-click="header.changeUsername()"><i class="fa fa-user fa-fw"></i>&nbsp;&nbsp;Change My Username</a></li>
+                    <li><a role="button" ng-click="header.changePassword()"><i class="fa fa-lock fa-fw"></i>&nbsp;&nbsp;Change My Password</a></li>
+                    <li role="separator" class="divider"></li>-->
+                    <li><a role="button" ng-click="header.logout()" title="Logout"><i class="fa fa-sign-out fa-fw"></i>&nbsp;&nbsp;Logout</a></li>
+                </ul>
+            </div>
+            <div class="navigation-dropdown-menu dropdown user-menu">
+                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-eye"></i>&nbsp;&nbsp;{{ header.focusName  || header.accountName}} <!--<span class="caret">--></span>
+                </a>
+                <!--<ul class="dropdown-menu dropdown-menu-right">
+                    <li><a role="button" ng-click="header.clearFocus()" ng-show="header.focusName">Clear</a></li>
+                    <li><a role="button" ng-click="header.changeFocus()">Change Focus</a></li>
+                </ul>-->
+            </div>
+            <div ng-show="header.showNavigation()">
+                <button id="btn-toggle-menu" type="button" class="btn btn-default navbar-btn" ng-click="header.toggleMenu()" ng-class="{'active': header.showMenu}">
+                    <i class="fa fa-bars"></i>
+                </button>
+                <div class="header-title">
+                    <a role="button" ng-show="$state.current.data.parentState" ng-click="header.navigateToParent()">{{ $state.current.data.pageTitle }}</a>
+                    <span ng-show="!$state.current.data.parentState">{{ $state.current.data.pageTitle }}</span>
+                    <span ng-show="$state.current.data.subTitle">&nbsp;/&nbsp;{{ $state.current.data.subTitle }}</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="sidebar sidebar-default" ng-show="header.showMenu">
+        <nav class="sidebar-nav">
+            <ul class="metismenu" id="rlsmenu">
+                <li class="active">
+                    <a role="button" ng-click="header.go('rlshome')">
+                        <span class="sidebar-nav-item-icon fa fa-home fa-lg fa-fw"></span>
+                        <span class="sidebar-nav-item">Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" aria-expanded="false"><span class="sidebar-nav-item-icon fa fa-plus-square fa-lg fa-fw"></span>
+                        <span class="sidebar-nav-item">New..</span><span class="fa arrow fa-fw"></span>
+                    </a>
+                    <ul aria-expanded="false">
+                        <li><a role="button" ng-click="header.go('branch.new')" aria-disabled="true">Branch</a></li>
+                         <li ng-if="header.showAdminMenu() || header.showAccountAdminMenu()"><a role="button" ng-click="header.go('geofence.polygonNew')">Geofence (Polygon)</a></li>
+                        <li ng-if="header.showAdminMenu() || header.showAccountAdminMenu()"><a role="button" ng-click="header.go('geofence.radialNew')">Geofence (Radial)</a></li>
+
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" aria-expanded="false"><span class="sidebar-nav-item-icon fa fa-cog fa-lg fa-fw"></span>
+                        <span class="sidebar-nav-item">Manage..</span><span class="fa arrow fa-fw"></span>
+                    </a>
+                    <ul aria-expanded="false">
+                        <li><a role="button" ng-click="header.go('branches.list')" aria-disabled="true">Branches</a></li>
+                        <li><a role="button" ng-click="header.go('geofences.list')">Geofences</a></li>
+                        <li><a role="button" ng-click="header.go('recovery.list')">Device Recovery</a></li>
+                        <li><a role="button" ng-click="header.go('exceptions.list')">Exceptions</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+

@@ -1,0 +1,94 @@
+<div ng-controller="SentinelsPivotController as sentinelsPivotUi">
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <nav class="navbar navbar-default col-sm-12">
+                <div class="row" >
+                    <form class="navbar-form navbar-left col-sm-4 col-xs-12">
+                        <div class="col-xs-1 col-sm-1">
+                           <label><i class="fa fa-lg fa-filter"></i></label>
+                        </div>
+                        <div class="col-xs-8 col-sm-8">
+                          <input type="text" class="form-control" placeholder="Filter.." ng-model="sentinelsPivotUi.filterText">
+                        </div>
+                        <div class="col-xs-2 col-sm-2">
+                           <button class="btn btn-default" type="button" ng-click="sentinelsPivotUi.filter()">Search</button>
+                        </div>                       
+                    </form>
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                Compare {{ sentinelsPivotUi.pivotProperty.label}} <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li ng-repeat="pivotProp in sentinelsPivotUi.pivotProperties"><a type="button" ng-click="sentinelsPivotUi.changePivotProp(pivotProp.name)">{{pivotProp.label}}</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div class="btn-group" role="group"  style="margin-top: 7px;">
+                        <button role="button" class="btn btn-default" title="Toggle show daily report" id="btn-shipmentAlarms" ng-click="sentinelsPivotUi.setTypeReport('daily')" ng-class="{'active': sentinelsPivotUi.reportType=='daily'}">
+                            Daily
+                        </button>
+                        <button role="button" class="btn btn-default" title="Toggle show weekly report" id="btn-deviceAlarms" ng-click="sentinelsPivotUi.setTypeReport('weekly')" ng-class="{'active': sentinelsPivotUi.reportType=='weekly'}">
+                           Weekly
+                        </button>
+                        <button role="button" class="btn btn-default" title="Toggle show monthly report" id="btn-separationAlarms" ng-click="sentinelsPivotUi.setTypeReport('monthly')" ng-class="{'active': sentinelsPivotUi.reportType=='monthly'}">
+                           Monthly
+                        </button>
+                    </div>
+                    <form class="navbar-form navbar-left  col-sm-4 col-xs-12">
+                        <export-table-to file-name="Reports" table-id-to-export="reportsSentinelTableList"></export-table-to>
+                    </form>
+                </div>
+            </nav>
+            
+
+        </div>
+    </div>    
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <nav class="pull-right" aria-label="Page navigation" ng-show="sentinelsPivotUi.totalPages > 1">
+                <ul class="pagination">
+                    <li ng-class="{'disabled': sentinelsPivotUi.page === 1}"><a role="button" aria-label="Previous" ng-click="sentinelsPivotUi.previous();"><span aria-hidden="true">&laquo;</span></a></li>
+                    <li ng-repeat="n in sentinelsPivotUi.pageArray" ng-class="{'active': n === sentinelsPivotUi.page}"><a ng-click="sentinelsPivotUi.setPage(n)" aria-label="Page {{n}}"><span aria-hidden="true">{{n}}</span></a></li>
+                    <li ng-class="{'disabled': sentinelsPivotUi.page === sentinelsPivotUi.totalPages}"><a role="button" aria-label="Next" ng-click="sentinelsPivotUi.next();"><span aria-hidden="true">&raquo;</span></a></li>
+                </ul>
+            </nav>
+            <br/>
+            <table class="table table-condensed table-bordered table-striped" id="reportsSentinelTableList">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th class="sortcolumn" class="sortcolumn" ng-click="sentinelsPivotUi.sortBy('deviceId')">Sentinel<span class="sortorder" ng-show="sentinelsPivotUi.propertyName === 'deviceId'" ng-class="{reverse: sentinelsPivotUi.reverse}"></span>
+                        <span class="fa fa-sort" ng-hide="sentinelsPivotUi.propertyName === 'deviceId'" style="color: #999" ></span></th>
+                    <th class="sortcolumn" class="sortcolumn" ng-click="sentinelsPivotUi.sortBy('deviceName')">Name<span class="sortorder" ng-show="sentinelsPivotUi.propertyName === 'deviceName'" ng-class="{reverse: sentinelsPivotUi.reverse}"></span>
+                    <span class="fa fa-sort" ng-hide="sentinelsPivotUi.propertyName === 'deviceName'" style="color: #999" ></th>
+                    <th class="sortcolumn" ng-click="sentinelsPivotUi.sortBy(report.reportId)" ng-repeat="report in sentinelsPivotUi.sentinelReports">
+                        <span local-datetime utc-datetime="{{ report.timeOfReport }}" date-format="L" ></span><span class="sortorder" ng-show="sentinelsPivotUi.propertyName ===  report.reportId " ng-class="{reverse: sentinelsPivotUi.reverse}"></span>
+                        <span class="fa fa-sort" ng-hide="sentinelsPivotUi.propertyName ===  report.reportId" style="color: #999" >
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-show="!sentinelsPivotUi.sentinelReports" class="warning noExport">
+                    <td></td>
+                    <td>Data is loading..</td>
+                </tr>
+                <tr ng-show="sentinelsPivotUi.sentinelReports && sentinelsPivotUi.sentinelReports.length === 0" class="warning noExport">
+                    <td></td>
+                    <td colspan="{{ 3 + sentinelsPivotUi.sentinelReports.length}}">No records founds</td>
+                </tr>
+                <tr ng-show="sentinelsPivotUi.sentinelReports && sentinelsPivotUi.sentinelReports.length != 0" ng-repeat="device in filteredList = (sentinelsPivotUi.deviceTagIds | orderBy:sentinelsPivotUi.localComparator:sentinelsPivotUi.reverse  )">
+                    <td width="20">{{ (sentinelsPivotUi.page > 1) ? ((sentinelsPivotUi.page - 1) * sentinelsPivotUi.itemsPerPage) + $index + 1 : $index + 1 }}</td>
+                    <td>{{ device.deviceId }}</td>
+                    <td>{{ device.deviceName }}</td>
+                    <td ng-repeat="report in sentinelsPivotUi.sentinelReports" ng-class="{'success': sentinelsPivotUi.isSeen(device.deviceId, report), 'danger': !sentinelsPivotUi.isSeen(device.deviceId, report)}">
+                        <i class="fa {{sentinelsPivotUi.isSeen(device.deviceId, report) ? 'fa-check text-success' : 'fa-times text-danger'}}"></i>&nbsp;{{ sentinelsPivotUi.pivotValue(device.deviceId, report) }}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

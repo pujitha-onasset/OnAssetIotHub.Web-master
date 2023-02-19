@@ -1,0 +1,145 @@
+/*!
+ * Copyright 2016 OnAsset Intelligence, Inc.
+ * http://www.onasset.com
+ */
+
+html, body {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    min-width: 768px;
+}
+
+body {
+    /* Margin bottom by footer height */
+    padding-top: 80px;
+    margin-bottom: 60px;
+    font-size: 12px;
+}
+
+.font-bold {
+    font-weight: bold;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 60px;
+    background-color: #f8f8f8;
+    padding-top: 20px;
+    text-align: right;
+}
+
+@media (min-width: 1200px) {
+    .container {
+        width: 100%;
+    }
+}
+
+.selected-report {
+    font-weight: bold;
+}
+
+.device-link {
+    margin: 3px;
+}
+
+.gmap-control {
+    text-align: center;
+    background-color: #fff;
+    background-clip: padding-box;
+    color: #000;
+    /*border: 2px solid #fff;*/
+    box-shadow: rgba(0,0,0,0.298039) 0px 1px 4px -1px;
+    cursor: pointer;
+    min-width: 37px;
+    float: left;
+    margin-top: 10px;
+    margin-bottom: 22px;
+    padding: 8px;
+}
+
+.gmap-control:hover {
+    background-color: rgb(235,235,235);
+}
+
+.gmap-control a,
+.gmap-control a:visited
+{
+    color: #000;
+    text-decoration: none;
+}
+
+.gmap-control a:hover {
+    text-decoration: none;
+    font-weight: 500;
+}
+
+
+.gmap-control-left-end {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+.gmap-control-right-end {
+    margin-right: 10px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+
+.gmap-control-label {
+    text-align: center;
+    background-color: #fff;
+    background-clip: padding-box;
+    color: #000;
+    /*border: 2px solid #fff;*/
+    box-shadow: rgba(0,0,0,0.298039) 0px 1px 4px -1px;
+    min-width: 37px;
+    float: left;
+    margin-top: 10px;
+    margin-bottom: 22px;
+    padding: 8px;
+}
+
+.gmap-control-legend {
+    width: 200px;
+    font-size: 10px;
+}
+.img-anchor,
+.img-circle,
+.img-square {
+    padding-left: 4px;
+    padding-right:4px;
+    height: 24px;
+}
+
+.img-diamond {
+    height: 32px;
+}
+
+.gmap-control-map-prop {
+    font-size: 10px;
+    min-width: 80px;
+}
+
+.gmap-control-map-prop > li {
+    padding-left: 4px;
+}
+
+.timeline-report:hover {
+    cursor: pointer;
+}
+.timeline-graph-line {
+    fill: none;
+    stroke: rgb(173, 173, 173);
+    stroke-width: 2px;
+}
+#map-items-list {
+    height: 560px;
+    overflow-y: scroll;
+}
+
+

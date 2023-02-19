@@ -1,0 +1,22 @@
+<nav class="navbar navbar-default">
+    <form class="navbar-form navbar-left">
+        <label><i class="fa fa-lg fa-filter"></i></label>&nbsp;&nbsp;
+        <input type="text" class="form-control" placeholder="Filter.." ng-model="geofencesFilterBar.filter.searchText">
+    </form>
+    <form class="navbar-form navbar-left">
+        <div class="btn-group" role="group">
+            <button role="button" class="btn btn-default" title="Toggle show polygons" id="btn-show-polygons"
+                    ng-click="geofencesFilterBar.toggleShowPolygons()" ng-class="{'active': !geofencesFilterBar.filter.showPolygons}">
+                <i class="fa fa-lg fa-fw" ng-class="{'fa-check-square': geofencesFilterBar.filter.showPolygons, 'fa-square-o': !geofencesFilterBar.filter.showPolygons}"></i>&nbsp;Polygons
+            </button>
+            <button role="button" class="btn btn-default" title="Toggle show radials" id="btn-show-radials"
+                    ng-click="geofencesFilterBar.toggleShowRadials()" ng-class="{'active': !geofencesFilterBar.filter.showRadials}">
+                <i class="fa fa-lg fa-fw" ng-class="{'fa-check-square': geofencesFilterBar.filter.showRadials, 'fa-square-o': !geofencesFilterBar.filter.showRadials}"></i>&nbsp;Radials
+            </button>
+        </div>
+    </form>
+     <form class="navbar-form navbar-left  col-sm-4 col-xs-12">
+
+                         <export-table-to file-name="Geofences" table-id-to-export="geofecesList"></export-table-to>
+            </form>
+</nav>

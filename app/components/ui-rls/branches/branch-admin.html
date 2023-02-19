@@ -1,0 +1,177 @@
+<style type="text/css">
+    .branches-map {
+        height: 500px;
+        margin-top: 10px;
+        border: 2px solid #000;
+    }
+
+    .branch-map {
+        height: 600px;
+        margin-top: 0;
+        margin-bottom: 20px;
+        border: 2px solid #000;
+    }
+
+</style>
+<div ng-controller="BranchAdminController as branchAdmin">
+    <div feedback></div>
+    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row" ng-if="!branchAdmin.mode.isNew" style="margin-top: 3px;">
+                        <div class="col-sm-8" ng-if="branchAdmin.hasPermission.toSave">
+                            <ul class="nav nav-pills" ng-cloak>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="Delete" ng-click="branchAdmin.actions.beginRemove()"
+                                            ng-show="!branchAdmin.mode.isRemoving">
+                                        <i class="fa fa-trash"></i> Delete
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="Yes" ng-click="branchAdmin.actions.remove()"
+                                            ng-show="branchAdmin.mode.isRemoving">
+                                        <i class="fa fa-check"></i> Yes
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="No" ng-click="branchAdmin.actions.cancelRemove()"
+                                            ng-show="branchAdmin.mode.isRemoving">
+                                        <i class="fa fa-ban"></i> No
+                                    </button>
+                                </li>
+                            </ul>
+                            <br/>
+                            <br/>
+                        </div>
+                    </div>
+                    <div class="row" ng-show="branchAdmin.mode.isRemoving">
+                        <div class="col-sm-12">
+                            <p><i class="fa fa-question-circle fa-lg"></i>  Do you wish to delete <strong>{{ branchAdmin.branch.name }}</strong>? </p>
+                        </div>
+                    </div>
+                    <div class="row" ng-hide="branchAdmin.mode.isRemoving">
+                        <div class="col-sm-12">
+                            <form name="geofenceForm" id="clientForm" ng-submit="branchAdmin.actions.submit()" novalidate>
+                                <div class="form-group" ng-class="{'has-error': !branchAdmin.branchName.isPristine && branchAdmin.branchName.hasError()}">
+                                    <label>Name *</label>
+                                    <input type="text" class="form-control" id="branchName" name="branchName" placeholder="Enter a name for the branch" maxlength="80"
+                                           ng-model="branchAdmin.branchName.value"
+                                           ng-readonly="!branchAdmin.hasPermission.toSave"
+                                           ng-change="branchAdmin.branchName.isPristine = true">
+                                    <p class="help-block text-right" ng-show="!branchAdmin.branchName.isPristine && branchAdmin.branchName.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A branch name is required</p>
+                                    <p class="help-block text-right" ng-show="!branchAdmin.branchName.isPristine && branchAdmin.branchName.errors.isDuplicate">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;The branch name is already in use</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="comments">Description</label>
+                                    <textarea class="form-control" id="comments" name="comments"
+                                              ng-model="branchAdmin.branchDescription.value"
+                                              ng-readonly="!branchAdmin.hasPermission.toSave"
+                                              placeholder="Enter a description for this branch (optional)" rows="3" maxlength="500">
+                                    </textarea>
+                                </div>
+                                <br/>
+                                <div class="form-group">
+                                    <label for="geofence">Home Branch Geofence: <span ng-if="branchAdmin.geofence.value"> <strong>{{branchAdmin.geofence.value.name}}</strong> (<small>{{branchAdmin.geofence.value.address}}</small>)</span>
+                                    </label>
+                                    
+                                    <div class="input-group col-sm-12">
+                                        <span class="input-group-addon"><i class="fa fa-filter"></i></span>
+                                        <input type="text" class="form-control" ng-model="branchAdmin.geofence.filterText" placeholder="Enter text to filter the list of geofences">
+                                    </div>
+                                     <div class="col-sm-12">
+                                        <ul class="list-unstyled">
+                                            <li ng-show="branchAdmin.geofences.length > 0 && branchAdmin.geofences.length >= branchAdmin.geofence.geofenceLimit"><i class="fa fa-info-circle"></i>&nbsp;Only showing first {{branchAdmin.geofence.geofenceLimit}} geofences.  If you don't see a geofence, enter a more specific search text and try again</li>
+                                            <li ng-repeat="geofence in branchAdmin.geofences | filter: branchAdmin.geofence.filter | orderBy: 'name' | limitTo: branchAdmin.geofence.geofenceLimit">
+                                                <a role="button" ng-click="branchAdmin.actions.selectGeofence(geofence)">
+                                                    <i class="fa fa-fw text-muted" ng-class="{'fa-check-square': branchAdmin.geofence.value === geofence, 'fa-square-o': branchAdmin.geofence.value !== geofence }"></i>
+                                                    <i class="fa fa-fw text-muted" ng-class="{'fa-circle': geofence.type === 'radius', 'fa-stop': geofence.type === 'polygon' }"
+                                                       title="{{ geofence.type === 'radius' ? 'This is a radial geofence' : 'This is a polygon geofence' }}"></i>
+                                                    &nbsp;<strong>{{ geofence.name }}</strong> (<small>{{geofence.address}}</small>)
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="geofence">Locations: </label>
+                                    <div ng-if="branchAdmin.locationsGeofence.value.length>0">
+
+                                        <span ng-repeat="g in branchAdmin.locationsGeofence.value"> 
+                                           <strong>{{g.name}}</strong> (<small>{{g.address}}</small>)
+                                           <span style="color: red; cursor: pointer;" ng-click="branchAdmin.actions.removeGeofence(g)">remove</span>
+                                            <br>
+                                      </span>
+                                       
+                                    </div>
+                                    
+                                    <div class="input-group col-sm-12">
+                                        <span class="input-group-addon"><i class="fa fa-filter"></i></span>
+                                        <input type="text" class="form-control" ng-model="branchAdmin.locationsGeofence.filterText" placeholder="Enter text to filter the list of geofences">
+                                    </div>
+                                     <div class="col-sm-12">
+                                        <ul class="list-unstyled">
+                                            <li ng-show="branchAdmin.geofencesCopy.length > 0 && branchAdmin.geofencesCopy.length >= branchAdmin.locationsGeofence.geofenceLimit"><i class="fa fa-info-circle"></i>&nbsp;Only showing first {{branchAdmin.geofence.geofenceLimit}} geofences.  If you don't see a geofence, enter a more specific search text and try again</li>
+                                            <li ng-repeat="geofence in branchAdmin.geofencesCopy | filter: branchAdmin.locationsGeofence.filter | orderBy: 'name' | limitTo: branchAdmin.locationsGeofence.geofenceLimit">
+                                                <a role="button" ng-click="branchAdmin.actions.selectGeofenceLocation(geofence)">
+                                                    <i class="fa fa-fw text-muted" class="fa-square-o"></i>
+                                                    <i class="fa fa-fw text-muted" ng-class="{'fa-circle': geofence.type === 'radius', 'fa-stop': geofence.type === 'polygon' }"
+                                                       title="{{ geofence.type === 'radius' ? 'This is a radial geofence' : 'This is a polygon geofence' }}"></i>
+                                                    &nbsp;<strong>{{ geofence.name }}</strong> (<small>{{geofence.address}}</small>)
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <br>
+                                <ul class="nav nav-pills">
+                                    <li>
+                                        <button class="btn btn-default" type="button" title="Add location" ng-click="branchAdmin.actions.addPlace()">
+                                            <i class="fa fa-plus"></i> Add Country/State
+                                        </button>
+                                    </li>
+                                </ul>
+                                <div class="form-group col-sm-12">
+                                    <div ng-repeat="loc in branchAdmin.locationsPlace.value">
+                                        <div class="form-group col-sm-5">
+                                            <label for="Role">Country</label>
+                                            <select class="form-control" ng-change="branchAdmin.actions.getStates(loc)" ng-model="loc.country" 
+                                ng-options="c.countryCode as c.countryName  for c in branchAdmin.countries  ">
+                                      
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-sm-5" >
+                                            <label for="Role">State</label>
+                                            <select class="form-control"  ng-model="loc.state" 
+                                ng-options="e.stateCode as e.stateName for e in loc.states ">
+                                               <option value="?" selected="selected" label=""></option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-sm-2" style="padding-top:30px " >
+                                           <span style="color: red; cursor: pointer;" ng-click="branchAdmin.actions.removePlace($index)">remove</span>
+                                           
+                                        </div>
+                                        <hr class="col-sm-12">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <br/>
+                                    <br/>
+                                    <div class="pull-right">
+                                        <button type="submit" class="btn btn-default" ng-if="branchAdmin.hasPermission.toSave"><i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                        <button type="button" class="btn btn-default" ng-if="branchAdmin.hasPermission.toSave" ng-click="branchAdmin.actions.reset()"><i class="fa fa-undo"></i>&nbsp;&nbsp;Reset</button>
+                                        <button type="button" class="btn btn-default" ng-click="branchAdmin.actions.close()"><i class="fa fa-times"></i>&nbsp;&nbsp;Close</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row"  ng-if="!branchAdmin.mode.isNew && !branchAdmin.mode.isRemoving">
+            <div branch-contacts  ></div>
+        </div>
+    </div>
+</div>

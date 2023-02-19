@@ -1,0 +1,87 @@
+<div ng-controller="WatchlistDataController as watchlistDataUi">
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <nav class="navbar navbar-default col-sm-12">
+                    
+                <form class="navbar-form">
+                   
+                    <div class="form-group">
+                        &nbsp;
+                        <button class="btn btn-default" type="button" ng-click="watchlistDataUi.load()">Refresh</button>
+                    </div>
+                    <div class="form-group">
+                            &nbsp;<export-table-to file-name="watchlist-report" table-id-to-export="watchlist-report"></export-table-to>
+                    </div>
+                </form>
+            </nav>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <br/>
+            <div feedback></div>
+            <nav class="pull-right" aria-label="Page navigation" ng-show="watchlistDataUi.totalPages > 1">
+                <ul class="pagination">
+                    <li ng-class="{'disabled': watchlistDataUi.page === 1}"><a role="button" aria-label="Previous" ng-click="watchlistDataUi.previous();"><span aria-hidden="true">&laquo;</span></a></li>
+                    <li ng-repeat="n in watchlistDataUi.pageArray" ng-class="{'active': n === watchlistDataUi.page}"><a role="button" ng-click="watchlistDataUi.gotoPage(n);" aria-label="Page {{n}}"><span aria-hidden="true">{{n}}</span></a></li>
+                    <li ng-class="{'disabled': watchlistDataUi.page === watchlistDataUi.totalPages}"><a role="button" aria-label="Next" ng-click="watchlistDataUi.next();"><span aria-hidden="true">&raquo;</span></a></li>
+                </ul>
+            </nav>
+            <div ng-if="watchlistDataUi.errorMessage" class="alert alert-danger">{{ watchlistDataUi.errorMessage }}</div>
+            <table class="table table-striped" id="watchlist-report">
+                <thead>
+                <tr>
+                    <th width="20">#</th>
+                    <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('sentinelId')">ID<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'sentinelId'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('beaconType')">Type<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'beaconType'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('timeOfReport')">Time of Report<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'timeOfReport'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('batteryVoltage')">Battery (%)<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'batteryVoltage'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('batteryVoltage')">Battery (V)<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'batteryVoltage'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('humidity')">Humidity (%)<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'humidity'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('temperatureValueC')">Temp (&deg;C)<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'temperatureValueC'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('temperatureValueF')">Temp (&deg;F)<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'temperatureValueF'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('shockMagnitude')">Shock Magnitude<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'shockMagnitude'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('shockElapsedTime')">Shock Elapsed Time<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'shockElapsedTime'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('shockX')">Shock X<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'shockX'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('shockY')">Shock Y<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'shockY'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('shockZ')">Shock Z<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'shockZ'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                     <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('light')">Light<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'light'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('rssi')">Rssi (db)<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'rssi'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('locationName')">Anchor Name<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'locationName'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('latitude')">Latitude<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'latitude'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="watchlistDataUi.sortBy('longitude')">Longitude<span class="sortorder" ng-show="watchlistDataUi.propertyName === 'longitude'" ng-class="{reverse: watchlistDataUi.reverse}"></span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-show="watchlistDataUi.list.length === 0" class="warning noExport">
+                    <td></td>
+                    <td colspan="17">There are no records</td>
+                </tr>
+                <tr ng-show="watchlistDataUi.list.length != 0" ng-repeat="item in watchlistDataUi.list | orderBy:watchlistDataUi.propertyName:watchlistDataUi.reverse">
+                    <td width="20">{{ (watchlistDataUi.page > 1) ? ((watchlistDataUi.page - 1) * watchlistDataUi.itemsPerPage) + $index + 1 : $index + 1 }}</td>
+                    <td>{{ (item.beaconType == "Sentinel 100A") ? item.anchorSightingId : item.sentinelId }}</td>
+                    <td>{{ item.beaconType }}</td>
+                    <td><span local-datetime utc-datetime="{{ item.timeOfReport }}" date-format="L" time-format="LTS"></span></td>
+                    <td>{{ item.batteryVoltage | batteryPercentage }}</td>
+                    <td>{{ item.batteryVoltage }}</td>
+                    <td>{{ item.humidity }}</td>
+                    <td>{{ item.temperatureValueC }}</td>
+                    <td>{{ item.temperatureValueF }}</td>
+                    <td>{{ item.shockMagnitude }}</td>
+                    <td>{{ item.shockElapsedTime }}</td>
+                    <td>{{ item.shockX }}</td>
+                    <td>{{ item.shockY }}</td>
+                    <td>{{ item.shockZ }}</td>
+                    <td>{{ item.light  | number : 2 }}</td>
+                    <td>{{ item.rssi }}</td>
+                    <td>{{ item.locationName }}</td>
+                    <td>{{ (item.beaconType == "Sentinel 100L") ? null : item.latitude }}</td>
+                    <td>{{ (item.beaconType == "Sentinel 100L") ? null : item.longitude }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

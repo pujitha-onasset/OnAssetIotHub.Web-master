@@ -1,0 +1,917 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <span>Configuration {{sentryConfiguration.device}}</span>
+    </div>
+    <div >
+        <div class="panel-body">
+            <div class="row" ng-show="sentryConfiguration.hasPending" >
+                <div class="col-sm-12">
+                    <div class="alert alert-info" role="alert">
+                        <i class="fa fa-info-circle fa-lg"></i>&nbsp;&nbsp;Configuration settings will be updated next time the device reports in
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 3px;" ng-show="sentryConfiguration.hasPermission.toChangeAdminConfigs">
+                <div class="col-sm-8">
+                    <ul class="nav nav-pills">
+                        <li>
+                            <button class="btn btn-default" type="button"
+                                    ng-show="!sentryConfiguration.hasPending"
+                                    ng-click="sentryConfiguration.actions.refreshConfig()" title="Queue a refresh command for the device">
+                                Queue a refresh command
+                            </button>
+                        </li>
+                        <li ng-if="sentryConfiguration.hasPermission.toChangeAdminConfigs">
+                            <button class="btn btn-default" type="button"
+                                    ng-show="!sentryConfiguration.dataLog.pending"
+                                    ng-click="sentryConfiguration.actions.dataLog.request()" title="Queue a data log request">
+                                Queue a data log request
+                            </button>
+                        </li>
+                        <li ng-if="sentryConfiguration.hasPermission.toChangeAdminConfigs">
+                            <button class="btn btn-default" type="button"
+                                    ng-show="sentryConfiguration.dataLog.pending"
+                                    ng-click="sentryConfiguration.actions.dataLog.cancel()" title="Cancel the pending data log request">
+                                Cancel data log request
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <br/>
+                    <br/>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="20%">Name</th>
+                                    <th width="40%">Current Setting</th>
+                                    <th width="40%" colspan="2">Pending Change</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-if="sentryConfiguration.hasPermission.toChangeAdminConfigs">
+                                    <th width="20%">Boot Loader</th>
+                                    <td width="40%">
+                                        {{ !sentryConfiguration.firmware.current.bootVersion ? 'Unknown' : sentryConfiguration.firmware.current.bootVersion }}
+                                    </td>
+                                    <td width="5%" class="text-center">
+                                        <button class="btn btn-default btn-sm" title="Cancel this command"
+                                                ng-if="sentryConfiguration.hasPermission.toCancelCommands"
+                                                ng-click="sentryConfiguration.actions.cancelFirmwareCommand()"
+                                                ng-show="sentryConfiguration.firmware.pending">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                    </td>
+                                    <td width="35%">
+                                            <span ng-show="sentryConfiguration.firmware.pending">
+                                                {{ sentryConfiguration.firmware.pending.bootVersion }}
+                                            </span>
+                                    </td>
+                                </tr><!--boot loader-->
+                                <tr ng-if="sentryConfiguration.hasPermission.toChangeConfigs">
+                                    <th width="20%">Button Control</th>
+                                    <td width="40%">
+                                        <span ng-show="!sentryConfiguration.operationState.current.operationState">
+                                           Allow button to turn off device 
+                                        </span>
+                                        <span ng-show="sentryConfiguration.operationState.current.operationState">
+                                           Prevent button from turning off device
+                                        </span>
+                                       
+                                    </td>
+                                    <td width="5%" ng-if="!sentryConfiguration.operationState.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Cancel this command"
+                                                ng-click="sentryConfiguration.actions.operationState.cancel()"
+                                                ng-if="sentryConfiguration.hasPermission.toCancelCommands"
+                                                ng-show="sentryConfiguration.operationState.pending">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                        <button class="btn btn-default btn-sm" title="Change this setting"
+                                                ng-click="sentryConfiguration.actions.operationState.begin()"
+                                                ng-if="sentryConfiguration.hasPermission.toChangeConfigs"ng-show="!sentryConfiguration.operationState.pending">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>
+                                    </td>
+                                    <td width="35%" ng-if="!sentryConfiguration.operationState.form.isChanging">
+                                        <span ng-show="sentryConfiguration.operationState.pending && !sentryConfiguration.operationState.pending.operationState">
+                                           Allow button to turn off device 
+                                        </span>
+                                        <span ng-show="sentryConfiguration.operationState.pending && sentryConfiguration.operationState.pending.operationState">
+                                           Prevent button from turning off device
+                                        </span>
+                                    </td>
+                                    <td width="40%" colspan="2" ng-if="sentryConfiguration.operationState.form.isChanging">
+                                        <form name="operationStateForm" id="operationStateForm"
+                                              ng-submit="sentryConfiguration.actions.operationState.submit()"
+                                              ng-show="sentryConfiguration.operationState.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group">
+                                                <label for="operationState">Button control *</label>
+                                                <select id="operationState" class="form-control" ng-model="sentryConfiguration.operationState.form.operationState">
+                                                    <option ng-value="0" ng-selected="!sentryConfiguration.reportServer.form.operationState">Allow button to turn off device</option>
+                                                    <option ng-value="1" ng-selected="sentryConfiguration.reportServer.form.operationState">Prevent button from turning off device</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="sentryConfiguration.actions.operationState.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                </tr><!--button control-->
+                                <tr ng-if="sentryConfiguration.hasPermission.toChangeConfigs">
+                                    <th width="20%">Configuration as of</th>
+                                    <td width="40%">
+                                        <span local-datetime utc-datetime="{{sentryConfiguration.standardReportingInterval.current.dateLogged}}" date-format="L" time-format="LTS" ng-if="sentryConfiguration.standardReportingInterval.current && sentryConfiguration.standardReportingInterval.current.dateLogged"></span>
+                                        <span ng-if="!sentryConfiguration.standardReportingInterval.current || !sentryConfiguration.standardReportingInterval.current.dateLogged">Unknown</span>
+                                    </td>
+                                    <td width="5%" class="text-center">
+                                    </td>
+                                    <td width="35%">
+                                    </td>
+                                </tr><!-- as of -->
+                                <tr ng-if="sentryConfiguration.hasPermission.toChangeConfigs">
+                                    <th width="20%">Data Frequency</th>
+                                    <td width="40%">
+                                        <span ng-hide="sentryConfiguration.standardReportingInterval.current.reportingIntervalInMinutes">
+                                            Unknown
+                                        </span>
+                                        <span ng-show="sentryConfiguration.standardReportingInterval.current.reportingIntervalInMinutes
+                                            && !sentryConfiguration.extendedReportingInterval.current.isExtendedReportingIntervalOn">
+
+                                            Every {{ sentryConfiguration.standardReportingInterval.current.text }}<br/>
+                                        </span>
+                                        <span ng-show="sentryConfiguration.standardReportingInterval.current.reportingIntervalInMinutes
+                                            && sentryConfiguration.extendedReportingInterval.current.isExtendedReportingIntervalOn">
+
+                                            Every {{ sentryConfiguration.standardReportingInterval.current.text }} while in motion<br/>
+                                            Every {{ sentryConfiguration.extendedReportingInterval.current.text }} while at rest<br/>
+                                        </span>
+                                    </td>
+                                    <td width="5%" ng-if="!sentryConfiguration.standardReportingInterval.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Cancel this command"
+                                                ng-click="sentryConfiguration.actions.dataFrequency.cancel()"
+                                                ng-if="sentryConfiguration.hasPermission.toCancelCommands"
+                                                ng-show="(sentryConfiguration.standardReportingInterval.pending && sentryConfiguration.standardReportingInterval.pending.id) ||(
+                                                sentryConfiguration.extendedReportingInterval.pending && sentryConfiguration.extendedReportingInterval.pending.id)">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                        <button class="btn btn-default btn-sm" title="Change this setting"
+                                                ng-click="sentryConfiguration.actions.dataFrequency.begin()"
+                                                ng-if="sentryConfiguration.hasPermission.toChangeConfigs"
+                                                ng-show="!sentryConfiguration.standardReportingInterval.pending &&
+                                                !sentryConfiguration.extendedReportingInterval.pending">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>
+                                    </td>
+                                    <td width="35%" ng-if="!sentryConfiguration.standardReportingInterval.form.isChanging">
+                                        <span ng-show="sentryConfiguration.standardReportingInterval.pending.text">
+                                            {{ sentryConfiguration.standardReportingInterval.pending.text }}<br/>
+                                        </span>
+                                        <span ng-show="sentryConfiguration.extendedReportingInterval.pending.text">
+                                            {{ sentryConfiguration.extendedReportingInterval.pending.text }}<br/>
+                                        </span>
+                                    </td>
+                                    <td width="40%" colspan="2"  ng-if="sentryConfiguration.standardReportingInterval.form.isChanging">
+                                        <form name="dataFrequencyForm" id="dataFrequencyForm"
+                                              ng-submit="sentryConfiguration.actions.dataFrequency.submit()"
+                                              ng-show="sentryConfiguration.standardReportingInterval.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group" ng-if="sentryConfiguration.hasPermission.toChangeConfigs" >
+                                                <label>
+                                                    <input type="checkbox" name="extendedIntervalOn" id="extendedIntervalOn"
+                                                           ng-model="sentryConfiguration.extendedReportingInterval.form.on"> At rest mode enabled
+                                                </label>
+                                            </div>
+                                            <div class="form-group" ng-class="{'has-error': dataFrequencyForm.standardInterval.$invalid && !dataFrequencyForm.standardInterval.$pristine}">
+                                                <label for="standardInterval">{{ sentryConfiguration.extendedReportingInterval.form.on ? 'While in motion' : 'Every' }} *</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="standardInterval" name="standardInterval"
+                                                           placeholder="Enter {{ sentryConfiguration.standardReportingInterval.form.unit }}"
+                                                           ng-model="sentryConfiguration.standardReportingInterval.form.value"
+                                                           min="{{ sentryConfiguration.standardReportingInterval.form.min }}"
+                                                           max="{{ sentryConfiguration.standardReportingInterval.form.max }}">
+                                                    <div class="input-group-btn">
+                                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                                                aria-haspopup="true" aria-expanded="false">
+                                                            {{ sentryConfiguration.standardReportingInterval.form.unit }} <span class="caret"></span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-right">
+                                                            <li><a role="button" ng-click="sentryConfiguration.standardReportingInterval.form.changeUnit('minutes')">minutes</a></li>
+                                                            <li><a role="button" ng-click="sentryConfiguration.standardReportingInterval.form.changeUnit('hours')">hours</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="dataFrequencyForm.standardInterval.$invalid && !dataFrequencyForm.standardInterval.$pristine" >
+                                                    <i class="fa fa-exclamation-circle"></i>&nbsp;Value must be between {{ sentryConfiguration.standardReportingInterval.form.min }} and {{ sentryConfiguration.standardReportingInterval.form.max }}
+                                                </p>
+                                            </div>
+                                            <div class="form-group" ng-class="{'has-error': dataFrequencyForm.extendedInterval.$invalid && !dataFrequencyForm.extendedInterval.$pristine}"
+                                                 ng-show="sentryConfiguration.extendedReportingInterval.form.on">
+                                                <label for="extendedInterval">While at rest *</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="extendedInterval" name="extendedInterval"
+                                                           placeholder="Enter {{ sentryConfiguration.extendedReportingInterval.form.unit }}"
+                                                           ng-model="sentryConfiguration.extendedReportingInterval.form.value"
+                                                           ng-required="sentryConfiguration.extendedReportingInterval.form.on"
+                                                           min="{{ sentryConfiguration.extendedReportingInterval.form.min }}"
+                                                           max="{{ sentryConfiguration.extendedReportingInterval.form.max }}">
+                                                    <div class="input-group-btn">
+                                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                                                aria-haspopup="true" aria-expanded="false">
+                                                            {{ sentryConfiguration.extendedReportingInterval.form.unit }} <span class="caret"></span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-right">
+                                                            <li><a role="button" ng-click="sentryConfiguration.extendedReportingInterval.form.changeUnit('minutes')">minutes</a></li>
+                                                            <li><a role="button" ng-click="sentryConfiguration.extendedReportingInterval.form.changeUnit('hours')">hours</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="dataFrequencyForm.extendedInterval.$invalid && !dataFrequencyForm.extendedInterval.$pristine" >
+                                                    <i class="fa fa-exclamation-circle"></i>&nbsp;Value must be between {{ sentryConfiguration.extendedReportingInterval.form.min }} and {{ sentryConfiguration.extendedReportingInterval.form.max }}
+                                                </p>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="dataFrequencyForm.$invalid"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="sentryConfiguration.actions.dataFrequency.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                </tr><!--data frequency-->
+                                <tr ng-if="sentryConfiguration.hasPermission.toChangeAdminConfigs">
+                                    <th width="20%">Data Gateway</th>
+                                    <td width="40%">
+                                        <span ng-show="!sentryConfiguration.reportServer.current.serverAddress">
+                                            Unknown
+                                        </span>
+                                        <span ng-show="sentryConfiguration.reportServer.current.serverAddress">
+                                            {{ sentryConfiguration.reportServer.current.serverAddress + ':' + sentryConfiguration.reportServer.current.port }}
+                                        </span>
+                                    </td>
+                                    <td width="5%" ng-show="!sentryConfiguration.reportServer.form.isChanging" >
+                                        <button class="btn btn-default btn-sm" title="Cancel this command"
+                                                ng-if="sentryConfiguration.hasPermission.toCancelCommands"
+                                                ng-click="sentryConfiguration.actions.reportServer.cancel()"
+                                                ng-show="sentryConfiguration.reportServer.pending">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                        <button class="btn btn-default btn-sm" title="Change this setting"
+                                                ng-if="sentryConfiguration.hasPermission.toChangeConfigs"
+                                                ng-click="sentryConfiguration.actions.reportServer.begin()"
+                                                ng-show="!sentryConfiguration.reportServer.pending">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>
+
+                                    </td>
+                                    <td width="35%" ng-show="!sentryConfiguration.reportServer.form.isChanging" >
+                                        <span ng-show="sentryConfiguration.reportServer.pending.serverAddress">
+                                            {{ sentryConfiguration.reportServer.pending.serverAddress + ':' + sentryConfiguration.reportServer.pending.port }}
+                                        </span>
+                                    </td>
+                                    <td width="40%" colspan="2"  ng-show="sentryConfiguration.reportServer.form.isChanging">
+                                        <form name="serverForm" id="serverForm"
+                                              ng-submit="sentryConfiguration.actions.reportServer.submit()"
+                                              ng-show="sentryConfiguration.reportServer.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group" ng-class="{'has-error': serverForm.serverUrl.$invalid && !serverForm.serverUrl.$pristine}">
+                                                <label>Server *</label>
+                                                <select class="form-control"  ng-model="sentryConfiguration.reportServer.form.server">
+                                                    <option ng-repeat="gateway in sentryConfiguration.reportServer.gateways"
+                                                            ng-value="gateway"
+                                                            ng-selected="gateway === sentryConfiguration.reportServer.form.server">
+                                                        {{ gateway + ':' + sentryConfiguration.reportServer.form.port }}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="serverForm.$invalid"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="sentryConfiguration.actions.reportServer.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                </tr><!--data servers-->
+                                <tr ng-if="sentryConfiguration.hasPermission.toChangeAdminConfigs">
+                                    <th width="20%">Firmware Version</th>
+                                    <td width="40%">
+                                        {{ !sentryConfiguration.firmware.current.applicationVersion ? 'Unknown' : sentryConfiguration.firmware.current.applicationVersion }}
+                                    </td>
+                                    <td width="5%" class="text-center">
+                                        <button class="btn btn-default btn-sm" title="Cancel this command"
+                                                ng-if="sentryConfiguration.hasPermission.toCancelCommands"
+                                                ng-click="sentryConfiguration.actions.cancelFirmwareCommand()"
+                                                ng-show="sentryConfiguration.firmware.pending">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                    </td>
+                                    <td width="35%">
+                                        <span ng-show="sentryConfiguration.firmware.pending">
+                                            {{ sentryConfiguration.firmware.pending.applicationVersion }}
+                                        </span>
+                                    </td>
+                                </tr><!--firmware version-->
+                                <tr ng-if="sentryConfiguration.hasPermission.toChangeAdminConfigs">
+                                    <th width="20%">Ftp Server</th>
+                                    <td width="40%">
+                                        <span ng-hide="sentryConfiguration.ftpServer.current.serverUrl">
+                                            Unknown
+                                        </span>
+                                        <span ng-show="sentryConfiguration.ftpServer.current.serverUrl">
+                                            {{ sentryConfiguration.ftpServer.current.serverUrl + ':' + sentryConfiguration.ftpServer.current.serverPort }}
+                                        </span>
+                                    </td>
+                                    <td width="5%" class="text-center">
+                                        <button class="btn btn-default btn-sm" title="Cancel this command"
+                                                ng-if="sentryConfiguration.hasPermission.toCancelCommands"
+                                                ng-click="sentryConfiguration.actions.ftpServer.cancel()"
+                                                ng-show="sentryConfiguration.ftpServer.pending">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                    </td>
+                                    <td width="35%">
+                                        <span ng-show="sentryConfiguration.ftpServer.pending">
+                                            {{ sentryConfiguration.ftpServer.pending.serverUrl + ':' + sentryConfiguration.ftpServer.pending.serverPort }}
+                                        </span>
+                                    </td>
+                                </tr><!--ftpserver-->
+                                <tr ng-if="sentryConfiguration.hasPermission.toChangeConfigs">
+                                    <th width="20%">Humidity</th>
+                                    <td width="40%">
+                                        <span ng-hide="sentryConfiguration.humidity.current.isMonitoringOn">
+                                            Not configured
+                                        </span>
+                                        <span ng-show="sentryConfiguration.humidity.current.isMonitoringOn">
+                                            Monitor humidity for values <br/>
+                                            below {{ sentryConfiguration.humidity.current.minHum }} % <br/>
+                                            or above {{ sentryConfiguration.humidity.current.maxHum }} %
+                                        </span>
+                                    </td>
+                                    <td width="5%" ng-if="!sentryConfiguration.humidity.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Cancel this command"
+                                                ng-if="sentryConfiguration.hasPermission.toCancelCommands"
+                                                ng-click="sentryConfiguration.actions.humidity.cancel()"
+                                                ng-show="sentryConfiguration.humidity.pending">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                        <button class="btn btn-default btn-sm" title="Change this setting"
+                                                ng-click="sentryConfiguration.actions.humidity.begin()"
+                                                ng-if="sentryConfiguration.hasPermission.toChangeConfigs"
+                                                ng-show="!sentryConfiguration.humidity.pending">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>                                        
+                                    </td>
+                                    <td width="35%" ng-if="!sentryConfiguration.humidity.form.isChanging">
+                                        <span ng-show="sentryConfiguration.humidity.pending && !sentryConfiguration.humidity.pending.isMonitoringOn">
+                                            Turn off
+                                        </span>
+                                        <span ng-show="sentryConfiguration.humidity.pending && sentryConfiguration.humidity.pending.isMonitoringOn">
+                                            Monitor humidity for values <br/>
+                                            below {{ sentryConfiguration.humidity.pending.minHum }} %<br/>
+                                            or above {{ sentryConfiguration.humidity.pending.maxHum }} %
+                                        </span>
+                                    </td>
+                                    <td width="40%" colspan="2"  ng-if="sentryConfiguration.humidity.form.isChanging">
+                                        <form name="humidityForm" id="humidityForm"
+                                              ng-submit="sentryConfiguration.actions.humidity.submit()"
+                                              ng-show="sentryConfiguration.humidity.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group">
+                                                <label>
+                                                    <input type="checkbox" name="humidityOn" id="humidityOn"
+                                                           ng-model="sentryConfiguration.humidity.form.on"> Monitor humidity
+                                                </label>
+                                            </div>
+                                            <div class="form-group" ng-show="sentryConfiguration.humidity.form.on" ng-class="{'has-error': humidityForm.humidityBelow.$invalid && !humidityForm.humidityBelow.$pristine }">
+                                                <label for="humidityBelow">for values below *</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="humidityBelow" name="humidityBelow"
+                                                           placeholder="Enter value between {{ sentryConfiguration.humidity.form.belowMin }} and {{ sentryConfiguration.humidity.form.belowMax }}"
+                                                           ng-model="sentryConfiguration.humidity.form.below"
+                                                           ng-change="sentryConfiguration.humidity.form.onChange()"
+                                                           min="{{ sentryConfiguration.humidity.form.belowMin }}"
+                                                           max="{{ sentryConfiguration.humidity.form.belowMax }}"
+                                                           ng-required="sentryConfiguration.humidity.form.on">
+                                                    <span class="input-group-addon">%</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="humidityForm.humidityBelow.$invalid && !humidityForm.humidityBelow.$pristine"><i class="fa fa-exclamation-circle"></i>&nbsp;Humidity must be between {{ sentryConfiguration.humidity.form.belowMin }} and {{ sentryConfiguration.humidity.form.belowMax }}</p>
+                                            </div>
+                                            <div class="form-group" ng-show="sentryConfiguration.humidity.form.on" ng-class="{'has-error': humidityForm.humidityAbove.$invalid && !humidityForm.humidityAbove.$pristine }">
+                                                <label for="humidityAbove">or above *</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="humidityAbove" name="humidityAbove"
+                                                           placeholder="Enter value between {{ sentryConfiguration.humidity.form.aboveMin }} and {{ sentryConfiguration.humidity.form.aboveMax }}"
+                                                           ng-model="sentryConfiguration.humidity.form.above"
+                                                           ng-change="sentryConfiguration.humidity.form.onChange()"
+                                                           min="{{ sentryConfiguration.humidity.form.aboveMin }}"
+                                                           max="{{ sentryConfiguration.humidity.form.aboveMax }}"
+                                                           ng-required="sentryConfiguration.humidity.form.on">
+                                                    <span class="input-group-addon">%</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="humidityForm.humidityAbove.$invalid && !humidityForm.humidityAbove.$pristine"><i class="fa fa-exclamation-circle"></i>&nbsp;Humidity must be between {{ sentryConfiguration.humidity.form.aboveMin }} and {{ sentryConfiguration.humidity.form.aboveMax }}</p>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="humidityForm.$invalid"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="sentryConfiguration.actions.humidity.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    
+                                </tr><!--humidity-->
+                                <tr ng-if="sentryConfiguration.hasPermission.toChangeConfigs">
+                                    <th width="20%">Light</th>
+                                    <td width="40%">
+                                        <span ng-hide="sentryConfiguration.light.current.isMonitoringOn">
+                                            Not configured
+                                        </span>
+                                        <span ng-show="sentryConfiguration.light.current.isMonitoringOn">
+                                            Monitor light for values<br/>
+                                            below {{ sentryConfiguration.light.current.minLux }} lux <br/>
+                                            or above {{ sentryConfiguration.light.current.maxLux }} lux<br/>
+                                        </span>
+                                    </td>
+                                    <td width="5%" ng-if="!sentryConfiguration.light.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Cancel this command"
+                                                ng-if="sentryConfiguration.hasPermission.toCancelCommands"
+                                                ng-click="sentryConfiguration.actions.light.cancel()"
+                                                ng-show="sentryConfiguration.light.pending">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                        <button class="btn btn-default btn-sm" title="Change this setting"
+                                                ng-click="sentryConfiguration.actions.light.begin()"
+                                                ng-if="sentryConfiguration.hasPermission.toChangeConfigs"
+                                                ng-show="!sentryConfiguration.light.pending">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>                                        
+                                    </td>
+                                    <td width="35%" ng-if="!sentryConfiguration.light.form.isChanging">
+                                        <span ng-show="sentryConfiguration.light.pending && !sentryConfiguration.light.pending.isMonitoringOn">
+                                            Turn off
+                                        </span>
+                                        <span ng-show="sentryConfiguration.light.pending && sentryConfiguration.light.pending.isMonitoringOn">
+                                            Monitor light for values<br/>
+                                            below {{ sentryConfiguration.light.pending.minLux }} lux<br/>
+                                            or above {{ sentryConfiguration.light.pending.maxLux }} lux<br/>
+                                        </span>
+                                    </td>
+                                    <td width="40%" colspan="2"  ng-if="sentryConfiguration.light.form.isChanging">
+                                        <form name="lightForm" id="lightForm"
+                                              ng-submit="sentryConfiguration.actions.light.submit()"
+                                              ng-show="sentryConfiguration.light.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group">
+                                                <label>
+                                                    <input type="checkbox" name="lightOn" id="lightOn"
+                                                           ng-model="sentryConfiguration.light.form.on"> Monitor light
+                                                </label>
+                                            </div>
+                                            <div class="form-group" ng-show="sentryConfiguration.light.form.on" ng-class="{'has-error': lightForm.lightBelow.$invalid && !lightForm.lightBelow.$pristine}">
+                                                <label for="lightBelow">for values below *</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="lightBelow" name="lightBelow"
+                                                           placeholder="Enter value between {{ sentryConfiguration.light.form.belowMin }} and {{ sentryConfiguration.light.form.belowMax }}"
+                                                           ng-model="sentryConfiguration.light.form.below"
+                                                           ng-change="sentryConfiguration.light.form.onChange()"
+                                                           min="{{ sentryConfiguration.light.form.belowMin }}"
+                                                           max="{{ sentryConfiguration.light.form.belowMax }}"
+                                                           ng-required="sentryConfiguration.light.form.on">
+                                                    <span class="input-group-addon">lux</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="lightForm.lightBelow.$invalid && !lightForm.lightBelow.$pristine"><i class="fa fa-exclamation-circle"></i>&nbsp;Light value must be between {{ sentryConfiguration.light.form.belowMin }} and {{ sentryConfiguration.light.form.belowMax }}</p>
+                                            </div>
+                                            <div class="form-group" ng-show="sentryConfiguration.light.form.on" ng-class="{'has-error': lightForm.lightAbove.$invalid && !lightForm.lightAbove.$pristine}">
+                                                <label for="lightAbove">or above *</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="lightAbove" name="lightAbove"
+                                                           placeholder="Enter value between {{ sentryConfiguration.light.form.aboveMin }} and {{ sentryConfiguration.light.form.aboveMax }}"
+                                                           ng-model="sentryConfiguration.light.form.above"
+                                                           ng-change="sentryConfiguration.light.form.onChange()"
+                                                           min="{{ sentryConfiguration.light.form.aboveMin }}"
+                                                           max="{{ sentryConfiguration.light.form.aboveMax }}"
+                                                           ng-required="sentryConfiguration.light.form.on">
+                                                    <span class="input-group-addon">lux</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="lightForm.lightAbove.$invalid && !lightForm.lightAbove.$pristine"><i class="fa fa-exclamation-circle"></i>&nbsp;Light value must be between {{ sentryConfiguration.light.form.aboveMin }} and {{ sentryConfiguration.light.form.aboveMax }}</p>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="lightForm.$invalid"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="sentryConfiguration.actions.light.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    
+                                </tr><!--light-->
+                                <tr ng-if="sentryConfiguration.hasPermission.toChangeConfigs">
+                                    <th width="20%">Pressure</th>
+                                    <td width="40%">
+                                        <span ng-hide="sentryConfiguration.pressure.current.isMonitoringOn">
+                                            Not configured
+                                        </span>
+                                        <span ng-show="sentryConfiguration.pressure.current.isMonitoringOn">
+                                            Monitor pressure for values <br/>
+                                            below {{ sentryConfiguration.pressure.current.minkPa }} kPa<br/>
+                                            or above {{ sentryConfiguration.pressure.current.maxkPa }} kPa
+                                        </span>
+                                    </td>
+                                    <td width="5%" ng-if="!sentryConfiguration.pressure.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Cancel this command"
+                                                ng-if="sentryConfiguration.hasPermission.toCancelCommands"
+                                                ng-click="sentryConfiguration.actions.pressure.cancel()"
+                                                ng-show="sentryConfiguration.pressure.pending">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                        <button class="btn btn-default btn-sm" title="Change this setting"
+                                                ng-click="sentryConfiguration.actions.pressure.begin()"
+                                                ng-if="sentryConfiguration.hasPermission.toChangeConfigs"
+                                                ng-show="!sentryConfiguration.pressure.pending">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>                                        
+                                    </td>
+                                    <td width="35%" ng-if="!sentryConfiguration.pressure.form.isChanging">
+                                        <span ng-show="sentryConfiguration.pressure.pending && !sentryConfiguration.pressure.pending.isMonitoringOn">
+                                            Turn off
+                                        </span>
+                                        <span ng-show="sentryConfiguration.pressure.pending && sentryConfiguration.pressure.pending.isMonitoringOn">
+                                            Monitor pressure for values <br/>
+                                            below {{ sentryConfiguration.pressure.pending.minkPa }} kPa<br/>
+                                            or above {{ sentryConfiguration.pressure.pending.maxkPa }} kPa
+                                        </span>
+                                    </td>
+                                    <td width="40%" colspan="2"  ng-if="sentryConfiguration.pressure.form.isChanging">
+                                        <form name="pressureForm" id="pressureForm"
+                                              ng-submit="sentryConfiguration.actions.pressure.submit()"
+                                              ng-show="sentryConfiguration.pressure.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group">
+                                                <label>
+                                                    <input type="checkbox" name="pressureOn" id="pressureOn"
+                                                           ng-model="sentryConfiguration.pressure.form.on"> Monitor pressure
+                                                </label>
+                                            </div>
+                                            <div class="form-group" ng-show="sentryConfiguration.pressure.form.on" ng-class="{'has-error': pressureForm.pressureBelow.$invalid && !pressureForm.pressureBelow.$pristine }">
+                                                <label for="pressureBelow">for values below *</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="pressureBelow" name="pressureBelow"
+                                                           placeholder="Enter value between {{ sentryConfiguration.pressure.form.belowMin }} and {{ sentryConfiguration.pressure.form.belowMax }}"
+                                                           ng-model="sentryConfiguration.pressure.form.below"
+                                                           ng-change="sentryConfiguration.pressure.form.onChange()"
+                                                           min="{{ sentryConfiguration.pressure.form.belowMin }}"
+                                                           max="{{ sentryConfiguration.pressure.form.belowMax }}"
+                                                           ng-required="sentryConfiguration.pressure.form.on">
+                                                    <span class="input-group-addon">kPa</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="pressureForm.pressureBelow.$invalid && !pressureForm.pressureBelow.$pristine"><i class="fa fa-exclamation-circle"></i>&nbsp;Pressure must be between {{ sentryConfiguration.pressure.form.belowMin }} and {{ sentryConfiguration.pressure.form.belowMax }}</p>
+                                            </div>
+                                            <div class="form-group" ng-show="sentryConfiguration.pressure.form.on" ng-class="{'has-error': pressureForm.pressureAbove.$invalid && !pressureForm.pressureAbove.$pristine }">
+                                                <label for="pressureAbove">or above *</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="pressureAbove" name="pressureAbove"
+                                                           placeholder="Enter value between {{ sentryConfiguration.pressure.form.aboveMin }} and {{ sentryConfiguration.pressure.form.aboveMax }}"
+                                                           ng-model="sentryConfiguration.pressure.form.above"
+                                                           ng-change="sentryConfiguration.pressure.form.onChange()"
+                                                           min="{{ sentryConfiguration.pressure.form.aboveMin }}"
+                                                           max="{{ sentryConfiguration.pressure.form.aboveMax }}"
+                                                           ng-required="sentryConfiguration.pressure.form.on">
+                                                    <span class="input-group-addon">kPa</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="pressureForm.pressureAbove.$invalid && !pressureForm.pressureAbove.$pristine"><i class="fa fa-exclamation-circle"></i>&nbsp;Pressure must be between {{ sentryConfiguration.pressure.form.aboveMin }} and {{ sentryConfiguration.pressure.form.aboveMax }}</p>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="pressureForm.$invalid"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="sentryConfiguration.actions.pressure.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    
+                                </tr><!--pressure-->
+                                <tr ng-if="sentryConfiguration.hasPermission.toChangeConfigs">
+                                    <th width="20%">Shock</th>
+                                    <td width="40%">
+                                        <span ng-hide="sentryConfiguration.shock.current.isMonitoringOn">
+                                            Not configured
+                                        </span>
+                                        <span ng-show="sentryConfiguration.shock.current.isMonitoringOn">
+                                            Monitor shock for values<br/>
+                                            above {{ sentryConfiguration.shock.current.maxGForce }}g<br/>
+                                        </span>
+                                    </td>
+                                    <td width="5%" ng-if="!sentryConfiguration.shock.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Cancel this command"
+                                                ng-if="sentryConfiguration.hasPermission.toCancelCommands"
+                                                ng-click="sentryConfiguration.actions.shock.cancel()"
+                                                ng-show="sentryConfiguration.shock.pending">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                        <button class="btn btn-default btn-sm" title="Change this setting"
+                                                ng-click="sentryConfiguration.actions.shock.begin()"
+                                                ng-if="sentryConfiguration.hasPermission.toChangeConfigs"
+                                                ng-show="!sentryConfiguration.shock.pending">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>                                        
+                                    </td>
+                                    <td width="35%" ng-if="!sentryConfiguration.shock.form.isChanging">
+                                        <span ng-show="sentryConfiguration.shock.pending && !sentryConfiguration.shock.pending.isMonitoringOn">
+                                            Turn off
+                                        </span>
+                                        <span ng-show="sentryConfiguration.shock.pending && sentryConfiguration.shock.pending.isMonitoringOn">
+                                            Monitor shock for values<br/>
+                                            above {{ sentryConfiguration.shock.pending.maxGForce }}g<br/>
+                                        </span>
+                                    </td>
+                                    <td width="40%" colspan="2"  ng-if="sentryConfiguration.shock.form.isChanging">
+                                        <form name="shockForm" id="shockForm"
+                                              ng-submit="sentryConfiguration.actions.shock.submit()"
+                                              ng-show="sentryConfiguration.shock.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group">
+                                                <label>
+                                                    <input type="checkbox" name="shockOn" id="shockOn"
+                                                           ng-model="sentryConfiguration.shock.form.on"> Monitor shock
+                                                </label>
+                                            </div>
+                                            <div class="form-group" ng-show="sentryConfiguration.shock.form.on" ng-class="{'has-error': shockForm.shockMax.$invalid && !shockForm.shockMax.$pristine}">
+                                                <label for="shockMax">for values above *</label>
+                                                <input type="number" class="form-control" id="shockMax" name="shockMax"
+                                                       placeholder="Enter value between {{ sentryConfiguration.shock.form.min }} and {{ sentryConfiguration.shock.form.max }}"
+                                                       ng-model="sentryConfiguration.shock.form.above"
+                                                       min="{{ sentryConfiguration.shock.form.min }}"
+                                                       max="{{ sentryConfiguration.shock.form.max }}"
+                                                       ng-required="sentryConfiguration.shock.form.on">
+                                                <p class="help-block text-right" ng-show="shockForm.shockMax.$invalid && !shockForm.shockMax.$pristine"><i class="fa fa-exclamation-circle"></i>&nbsp;Shock value must be between {{ sentryConfiguration.shock.form.min }} and {{ sentryConfiguration.shock.form.max }}</p>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="shockForm.$invalid"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="sentryConfiguration.actions.shock.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                </tr><!--shock-->
+                                <tr ng-if="sentryConfiguration.hasPermission.toChangeConfigs">
+                                    <th width="20%">Temperature</th>
+                                    <td width="40%">
+                                        <span ng-hide="sentryConfiguration.temperature.current.isMonitoringOn">
+                                            Not configured
+                                        </span>
+                                        <span ng-show="sentryConfiguration.temperature.current.isMonitoringOn">
+                                            Monitor temperature for values<br/>
+                                            below {{ sentryConfiguration.temperature.current.minCelsius }}&deg;C ({{ sentryConfiguration.temperature.fahrenheit(sentryConfiguration.temperature.current.minCelsius, 'round') }}&deg;F)<br/>
+                                            or above {{ sentryConfiguration.temperature.current.maxCelsius }}&deg;C ({{ sentryConfiguration.temperature.fahrenheit(sentryConfiguration.temperature.current.maxCelsius, 'round') }}&deg;F)<br/>
+                                        </span>
+                                    </td>
+                                    <td width="5%" ng-if="!sentryConfiguration.temperature.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Cancel this command"
+                                                ng-click="sentryConfiguration.actions.temperature.cancel()"
+                                                ng-if="sentryConfiguration.hasPermission.toCancelCommands"
+                                                ng-show="sentryConfiguration.temperature.pending">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                        <button class="btn btn-default btn-sm" title="Change this setting"
+                                                ng-click="sentryConfiguration.actions.temperature.begin()"
+                                                ng-if="sentryConfiguration.hasPermission.toChangeConfigs"
+                                                ng-show="!sentryConfiguration.temperature.pending">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>
+                                    </td>
+                                    <td width="35%" ng-if="!sentryConfiguration.temperature.form.isChanging">
+                                        <span ng-show="sentryConfiguration.temperature.pending && !sentryConfiguration.temperature.pending.isMonitoringOn">
+                                            Turn off
+                                        </span>
+                                        <span ng-show="sentryConfiguration.temperature.pending && sentryConfiguration.temperature.pending.isMonitoringOn">
+                                            Monitor temperature for values<br/>
+                                            below {{ sentryConfiguration.temperature.pending.minCelsius }}&deg;C ({{ sentryConfiguration.temperature.fahrenheit(sentryConfiguration.temperature.pending.minCelsius, 'round') }}&deg;F)<br/>
+                                            or above {{ sentryConfiguration.temperature.pending.maxCelsius }}&deg;C ({{ sentryConfiguration.temperature.fahrenheit(sentryConfiguration.temperature.pending.maxCelsius, 'round') }}&deg;F)<br/>
+                                        </span>
+                                    </td>
+                                    <td width="40%" colspan="2"  ng-if="sentryConfiguration.temperature.form.isChanging">
+                                        <form name="temperatureForm" id="temperatureForm"
+                                              ng-submit="sentryConfiguration.actions.temperature.submit()"
+                                              ng-show="sentryConfiguration.temperature.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group">
+                                                <label>
+                                                    <input type="checkbox" name="temperatureOn" id="temperatureOn"
+                                                           ng-model="sentryConfiguration.temperature.form.on"> Monitor temperature
+                                                </label>
+                                            </div>
+                                            <div class="form-group" ng-show="sentryConfiguration.temperature.form.on" ng-class="{'has-error': temperatureForm.temperatureBelow.$invalid && !temperatureForm.temperatureBelow.$pristine}">
+                                                <label for="temperatureBelow">for values below *</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="temperatureBelow" name="temperatureBelow"
+                                                           placeholder="Enter a value between {{ sentryConfiguration.temperature.form.belowMin }} and {{ sentryConfiguration.temperature.form.belowMax }}"
+                                                           ng-model="sentryConfiguration.temperature.form.below"
+                                                           ng-change="sentryConfiguration.temperature.form.onChange()"
+                                                           min="{{ sentryConfiguration.temperature.form.belowMin }}"
+                                                           max="{{ sentryConfiguration.temperature.form.belowMax }}"
+                                                           ng-required="sentryConfiguration.temperature.form.on">
+                                                    <div class=input-group-btn>
+                                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">&deg;{{ sentryConfiguration.temperature.form.unit === 'c' ? 'C' : 'F'}}  <span class="caret"></span></button>
+                                                        <ul class="dropdown-menu dropdown-menu-right">
+                                                            <li><a role="button" ng-click="sentryConfiguration.temperature.form.changeUnit('c')">&deg;C</a></li>
+                                                            <li><a role="button" ng-click="sentryConfiguration.temperature.form.changeUnit('f')">&deg;F</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <p  class="help-block text-right" ng-show="temperatureForm.temperatureBelow.$invalid && !temperatureForm.temperatureBelow.$pristine"><i class="fa fa-exclamation-circle"></i>&nbsp;Temperature value must be between {{ sentryConfiguration.temperature.form.belowMin }} and {{ sentryConfiguration.temperature.form.belowMax }}</p>
+                                            </div>
+                                            <div class="form-group" ng-show="sentryConfiguration.temperature.form.on"  ng-class="{'has-error': temperatureForm.temperatureAbove.$invalid && !temperatureForm.temperatureAbove.$pristine}">
+                                                <label for="temperatureAbove">or above *</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="temperatureAbove" name="temperatureAbove"
+                                                           placeholder="Enter a value between {{ sentryConfiguration.temperature.form.aboveMin }} and {{ sentryConfiguration.temperature.form.aboveMax }}"
+                                                           ng-model="sentryConfiguration.temperature.form.above"
+                                                           ng-change="sentryConfiguration.temperature.form.onChange()"
+                                                           min="{{ sentryConfiguration.temperature.form.aboveMin }}"
+                                                           max="{{ sentryConfiguration.temperature.form.aboveMax }}"
+                                                           ng-required="sentryConfiguration.temperature.form.on">
+                                                    <div class=input-group-btn>
+                                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">&deg;{{ sentryConfiguration.temperature.form.unit === 'c' ? 'C' : 'F'}}  <span class="caret"></span></button>
+                                                        <ul class="dropdown-menu dropdown-menu-right">
+                                                            <li><a role="button" ng-click="sentryConfiguration.temperature.form.changeUnit('c')">&deg;C</a></li>
+                                                            <li><a role="button" ng-click="sentryConfiguration.temperature.form.changeUnit('f')">&deg;F</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="temperatureForm.temperatureAbove.$invalid && !temperatureForm.temperatureAbove.$pristine"><i class="fa fa-exclamation-circle"></i>&nbsp;Temperature value must be between {{ sentryConfiguration.temperature.form.aboveMin }} and {{ sentryConfiguration.temperature.form.aboveMax }}</p>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="temperatureForm.$invalid"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="sentryConfiguration.actions.temperature.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+
+                                </tr><!--temperature-->
+                                <!--Tilt-->
+                                <!--
+                                <tr ng-if="sentryConfiguration.hasPermission.toChangeConfigs">
+                                    <th width="20%">Tilt</th>
+                                    <td width="40%">
+                                        <span ng-hide="sentryConfiguration.tilt.current.isMonitoringOn">
+                                            Not configured
+                                        </span>
+                                        <span ng-show="sentryConfiguration.tilt.current.isMonitoringOn">
+                                            Monitor tilt for values<br/>
+                                            above {{ sentryConfiguration.tilt.current.maxTilt }}&deg;<br/>
+                                        </span>
+                                    </td>
+                                    <td width="5%" ng-if="!sentryConfiguration.tilt.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Cancel this command"
+                                                ng-if="sentryConfiguration.hasPermission.toCancelCommands"
+                                                ng-click="sentryConfiguration.actions.tilt.cancel()"
+                                                ng-show="sentryConfiguration.tilt.pending">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                        <button class="btn btn-default btn-sm" title="Change this setting"
+                                                ng-click="sentryConfiguration.actions.tilt.begin()"
+                                                ng-if="sentryConfiguration.hasPermission.toChangeConfigs"
+                                                ng-show="!sentryConfiguration.tilt.pending">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>                                        
+                                    </td>
+                                    <td width="35%" ng-if="!sentryConfiguration.tilt.form.isChanging">
+                                        <span ng-show="sentryConfiguration.tilt.pending && !sentryConfiguration.tilt.pending.isMonitoringOn">
+                                            Turn off
+                                        </span>
+                                        <span ng-show="sentryConfiguration.tilt.pending && sentryConfiguration.tilt.pending.isMonitoringOn">
+                                            Monitor tilt for values<br/>
+                                            above {{ sentryConfiguration.tilt.pending.maxTil}}&deg;<br/>
+                                        </span>
+                                    </td>
+                                    <td width="40%" colspan="2"  ng-if="sentryConfiguration.tilt.form.isChanging">
+                                        <form name="tiltForm" id="tiltForm"
+                                              ng-submit="sentryConfiguration.actions.tilt.submit()"
+                                              ng-show="sentryConfiguration.tilt.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group">
+                                                <label>
+                                                    <input type="checkbox" name="tiltOn" id="tiltOn"
+                                                           ng-model="sentryConfiguration.tilt.form.on"> Monitor tilt
+                                                </label>
+                                            </div>
+                                            <div class="form-group" ng-show="sentryConfiguration.tilt.form.on" ng-class="{'has-error': tiltForm.tiltMax.$invalid && !tiltForm.tiltMax.$pristine}">
+                                                <label for="tiltMax">for values above *</label>
+                                                <input type="number" class="form-control" id="tiltMax" name="tiltMax"
+                                                       placeholder="Enter value between {{ sentryConfiguration.tilt.form.min }} and {{ sentryConfiguration.tilt.form.max }}"
+                                                       ng-model="sentryConfiguration.tilt.form.above"
+                                                       min="{{ sentryConfiguration.tilt.form.min }}"
+                                                       max="{{ sentryConfiguration.tilt.form.max }}"
+                                                       ng-required="sentryConfiguration.tilt.form.on">
+                                                <p class="help-block text-right" ng-show="tiltForm.tiltMax.$invalid && !tiltForm.tiltMax.$pristine"><i class="fa fa-exclamation-circle"></i>&nbsp;Tilt value must be between {{ sentryConfiguration.tilt.form.min }} and {{ sentryConfiguration.tilt.form.max }}</p>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="tiltForm.$invalid"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="sentryConfiguration.actions.tilt.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                </tr> -->
+                                <!--tilt-->
+                                 <!--Wifi Config-->
+                                 <tr ng-if="sentryConfiguration.hasPermission.toChangeConfigs">
+                                    <th width="20%">Wi-Fi</th>
+                                    <td width="40%">
+                                        <span ng-hide="sentryConfiguration.wifi.current.isConfigured">
+                                            Not configured
+                                        </span>
+                                        <span ng-show="sentryConfiguration.wifi.current.isConfigured">
+                                            Configured Wi-Fi <br/>
+                                            Access Point Name (SSID) : {{ sentryConfiguration.wifi.current.ssid }} <br/>
+                                           <!-- password {{ sentryConfiguration.wifi.current.password }} -->
+                                        </span>
+                                    </td>
+                                    <td width="5%" ng-if="!sentryConfiguration.wifi.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Cancel this command"
+                                                ng-if="sentryConfiguration.hasPermission.toCancelCommands"
+                                                ng-click="sentryConfiguration.actions.wifi.cancel()"
+                                                ng-show="sentryConfiguration.wifi.pending">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                        <button class="btn btn-default btn-sm" title="Change this setting"
+                                                ng-click="sentryConfiguration.actions.wifi.begin()"
+                                                ng-if="sentryConfiguration.hasPermission.toChangeConfigs"
+                                                ng-show="!sentryConfiguration.wifi.pending">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>                                        
+                                    </td>
+                                    <td width="35%" ng-if="!sentryConfiguration.wifi.form.isChanging">
+                                        <span ng-show="sentryConfiguration.wifi.pending && !sentryConfiguration.wifi.pending.isConfigured">
+                                            Turn off
+                                        </span>
+                                        <span ng-show="sentryConfiguration.wifi.pending && sentryConfiguration.wifi.pending.isConfigured">
+                                            Configured Wi-Fi <br/>
+                                            Access Point Name (SSID) : {{ sentryConfiguration.wifi.pending.ssid }} <br/>
+                                        </span>
+                                    </td>
+                                    <td width="40%" colspan="2"  ng-if="sentryConfiguration.wifi.form.isChanging">
+                                        <form name="wifiForm" id="wifiForm"
+                                              ng-submit="sentryConfiguration.actions.wifi.submit()"
+                                              ng-show="sentryConfiguration.wifi.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group">
+                                                <label>
+                                                    <input type="checkbox" name="wifiOn" id="wifiOn"
+                                                           ng-model="sentryConfiguration.wifi.form.on"> Configure Wi-Fi
+                                                </label>
+                                            </div>
+                                            <div class="form-group" ng-show="sentryConfiguration.wifi.form.on"ng-class="{'has-error': !wifiForm.ssid.isPristine && wifiForm.ssid.hasError() }">
+                                                <label for="ssid">Access Point Name (SSID) *</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="text" class="form-control" id="ssid" name="ssid"
+                                                           placeholder="Enter the ssid up to 32 characters, no leading or trailing spaces"
+                                                           ng-model="sentryConfiguration.wifi.form.ssid"
+                                                           ng-change="sentryConfiguration.wifi.form.onChange()"
+                                                           maxlength="32"
+                                                           ng-required="sentryConfiguration.wifi.form.on">
+                                                </div>
+											<p class="help-block text-right" ng-show="!wifiForm.ssid.isPristine && wifiForm.ssid.errors.isBlank">
+												 <i class="fa fa-exclamation-circle"></i>&nbsp;SSID must be max 32 </p>
+                                            </div>
+                                            <div class="form-group" ng-show="sentryConfiguration.wifi.form.on" ng-class="{'has-error': !wifiForm.password.isPristine && wifiForm.password.hasError()}">
+                                                <label for="password">Access Point Password </label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="password" class="form-control" id="password" name="password"
+													      placeholder="Enter the password up to 63 characters, no leading or trailing spaces"
+                                                           ng-model="sentryConfiguration.wifi.form.password"
+                                                           ng-change="sentryConfiguration.wifi.form.onChange()"
+                                                          maxlength="63">
+                                                </div>
+												<p class="help-block text-right" ng-show="!wifiForm.password.isPristine && wifiForm.password.errors.isBadFormat">
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="wifiForm.$invalid"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="sentryConfiguration.actions.wifi.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>    
+                                </tr>
+                                <!--Wifi Config--> 
+                           
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,324 @@
+<div ng-controller="FulfillmentValidateController as validateUi">
+    <div class="row">
+        <div class="col-sm-12">
+            <h3>SENTRY Fulfillment Validator</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <ul class="nav nav-tabs">
+                <li role="presentation" ng-class="{'active': validateUi.currentTab === 'params'}"><a role="button" ng-click="validateUi.goToParams()">Parameters</a></li>
+                <li role="presentation" ng-class="{'active': validateUi.currentTab === 'imeis'}"><a role="button" ng-click="validateUi.goToImeis()">Imei list</a></li>
+                <li role="presentation" ng-class="{'active': validateUi.currentTab === 'results', 'disabled': !validateUi.results}"><a role="button" ng-click="validateUi.goToResults()">Results</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row" ng-show="validateUi.currentTab === 'params'">
+        <div class="col-sm-12">
+            <br/>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Select reports from</label>
+                    <div class="col-sm-4">
+                        <select class="form-control" ng-model="validateUi.selectBy">
+                            <option value="hours" ng-selected="validateUi.selectBy === 'hours'">the last few hours</option>
+                            <option value="range" ng-selected="validateUi.selectBy === 'range'">a specific date range</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="validateUi.selectBy === 'hours'">
+                    <label class="col-sm-2 control-label">Number of hours</label>
+                    <div class="col-sm-4">
+                        <input type="number" class="form-control" ng-model="validateUi.hoursSinceNow">
+                        <p class="help-block">Enter the number of hours since current time</p>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="validateUi.selectBy === 'range'">
+                    <label class="col-sm-2 control-label">From</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" ng-model="validateUi.from" placeholder="yyyy-mm-ddThh:mm">
+                        <p class="help-block">Enter the earliest date to validate against</p>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="validateUi.selectBy === 'range'">
+                    <label class="col-sm-2 control-label">To</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" ng-model="validateUi.to" placeholder="yyyy-mm-ddThh:mm">
+                        <p class="help-block">Enter the most recent date to validate against</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Minimum number of reports</label>
+                    <div class="col-sm-4">
+                        <input type="number" class="form-control" ng-model="validateUi.reportNumberMin">
+                        <p class="help-block">Enter the minimum number of reports that a device needs to transmit during the date range</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Minimum number Gps locations</label>
+                    <div class="col-sm-4">
+                        <input type="number" class="form-control" ng-model="validateUi.gpsLocationMin">
+                        <p class="help-block">Enter the minimum number of Gps reports that a device needs to transmit during the date range</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Current report ratio minimum</label>
+                    <div class="col-sm-4">
+                        <div class="input-group col-sm-12">
+                            <input type="number" class="form-control" ng-model="validateUi.storeAndForwardRatio">
+                            <span class="input-group-addon">%</span>
+                        </div>
+                        <p class="help-block">Enter the minimum ratio of Realtime vs. store & forward reports that a device should transmit during the date range</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Battery minimum</label>
+                    <div class="col-sm-4">
+                        <div class="input-group col-sm-12">
+                            <input type="number" class="form-control" ng-model="validateUi.batteryMin">
+                            <span class="input-group-addon">%</span>
+                        </div>
+                        <p class="help-block">Enter the minimum battery % that a device can transmit during the date range</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Light minimum</label>
+                    <div class="col-sm-4">
+                        <div class="input-group col-sm-12">
+                            <input type="number" class="form-control" ng-model="validateUi.lightMin">
+                            <span class="input-group-addon">lux</span>
+                        </div>
+                        <p class="help-block">Enter the minimum light value that a device can transmit during the date range</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Pressure minimum</label>
+                    <div class="col-sm-4">
+                        <div class="input-group col-sm-12">
+                            <input type="number" class="form-control" ng-model="validateUi.pressureMin">
+                            <span class="input-group-addon">kPa</span>
+                        </div>
+                        <p class="help-block">Enter the minimum pressure value that a device can transmit during the date range</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Pressure maximum</label>
+                    <div class="col-sm-4">
+                        <div class="input-group col-sm-12">
+                            <input type="number" class="form-control" ng-model="validateUi.pressureMax">
+                            <span class="input-group-addon">kPa</span>
+                        </div>
+                        <p class="help-block">Enter the maximum battery % that a device can transmit during the date range</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Temperature minimum</label>
+                    <div class="col-sm-4">
+                        <div class="input-group col-sm-12">
+                            <input type="number" class="form-control" ng-model="validateUi.temperatureMin">
+                            <span class="input-group-addon">&deg;C</span>
+                        </div>
+                        <p class="help-block">Enter the minimum temperature &deg;C value that a device can transmit during the date range</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Temperature maximum</label>
+                    <div class="col-sm-4">
+                        <div class="input-group col-sm-12">
+                            <input type="number" class="form-control" ng-model="validateUi.temperatureMax">
+                            <span class="input-group-addon">&deg;C</span>
+                        </div>
+                        <p class="help-block">Enter the maximum temperature &deg;C value that a device can transmit during the date range</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Firmware version to match</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" ng-model="validateUi.firmwareToMatch">
+                        <p class="help-block">Enter the firmware version to match.  Leave blank to skip this test.</p>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <button type="button" class="btn btn-default pull-right" ng-click="validateUi.goToImeis()">Next</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row" ng-show="validateUi.currentTab === 'imeis'">
+        <div class="col-sm-12">
+            <br/>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Validate by</label>
+                    <div class="col-sm-4">
+                        <select class="form-control" ng-model="validateUi.validateBy">
+                            <option value="device" ng-selected="validateUi.validateBy === 'device'">Device</option>
+                            <option value="list" ng-selected="validateUi.validateBy === 'list'">IMEI list</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group"  ng-show="validateUi.validateBy === 'list'">
+                    <label class="col-sm-2 control-label">List of IMEIs</label>
+                    <div class="col-sm-4">
+                        <textarea class="form-control" rows="10" ng-model="validateUi.imeiText"></textarea>
+                        <p class="help-block">Enter up to 40 IMEIs; one IMEI per row</p>
+                    </div>
+                </div>
+                <div class="form-group"  ng-show="validateUi.validateBy === 'device'">
+                    <label class="col-sm-2 control-label">IMEI</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" ng-model="validateUi.imeiSingle"/>
+                        <p class="help-block">Enter the IMEI to validate</p>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <button type="button" class="btn btn-default pull-right" ng-click="validateUi.start()" ng-if="validateUi.validateBy === 'list'">Start</button>
+                    <button type="submit" class="btn btn-default pull-right" ng-click="validateUi.start()" ng-if="validateUi.validateBy === 'device'">Start</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row" ng-show="validateUi.currentTab === 'results' && validateUi.validateBy === 'device'">
+        <div class="col-sm-12">
+            <br/>
+            <form class="form-horizontal">
+                <div class="form-group"  ng-show="validateUi.validateBy === 'device'">
+                    <label class="col-sm-2 control-label">IMEI</label>
+                    <div class="col-sm-4">
+                        <input id="anotherImei" type="text" class="form-control" ng-model="validateUi.imeiSingle"/>
+                        <p class="help-block">Enter another IMEI to validate</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <button type="submit" class="btn btn-default" ng-click="validateUi.start()">Start</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row" ng-show="validateUi.currentTab === 'results'">
+        <div class="col-sm-12">
+            <br/>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th width="10">#</th>
+                        <th width="10">Imei</th>
+                        <th width="10" class="text-center">Reports</th>
+                        <th width="10" class="text-center">Gps</th>
+                        <th width="10" class="text-center">Realtime</th>
+                        <th width="10" class="text-center">Battery</th>
+                        <th width="10" class="text-center">Light</th>
+                        <th width="10" class="text-center">Pressure</th>
+                        <th width="10" class="text-center">Temperature</th>
+                        <th width="10" class="text-center">Firmware</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="result in validateUi.results">
+                        <td width="10">{{ $index + 1 }}</td>
+                        <td><a role="button" ng-click="validateUi.goToDeviceReports(result.imei)">{{ result.imei }}</a></td>
+                        <td class="text-center">
+                            <i class="fa fa-question" ng-show="result.reports === null"></i>
+                            <i class="fa fa-lg fa-check-circle text-success" ng-show="result.reports"></i>
+                            <i class="fa fa-lg fa-times-circle text-danger" ng-show="result.reports !== null && !result.reports"></i>
+                        </td>
+                        <td class="text-center">
+                            <i class="fa fa-question" ng-show="result.gps === null"></i>
+                            <i class="fa fa-lg fa-check-circle text-success" ng-show="result.gps"></i>
+                            <i class="fa fa-lg fa-times-circle text-danger" ng-show="result.gps !== null && !result.gps"></i>
+                        </td>
+                        <td class="text-center">
+                            <i class="fa fa-question" ng-show="result.storeAndForward === null"></i>
+                            <i class="fa fa-lg fa-check-circle text-success" ng-show="result.storeAndForward"></i>
+                            <i class="fa fa-lg fa-times-circle text-danger" ng-show="result.storeAndForward !== null && !result.storeAndForward"></i>
+                        </td>
+                        <td class="text-center">
+                            <i class="fa fa-question" ng-show="result.battery === null"></i>
+                            <i class="fa fa-lg fa-check-circle text-success" ng-show="result.battery"></i>
+                            <i class="fa fa-lg fa-times-circle text-danger" ng-show="result.battery !== null && !result.battery"></i>
+                        </td>
+                        <td class="text-center">
+                            <i class="fa fa-question" ng-show="result.light === null"></i>
+                            <i class="fa fa-lg fa-check-circle text-success" ng-show="result.light"></i>
+                            <i class="fa fa-lg fa-times-circle text-danger" ng-show="result.light !== null && !result.light"></i>
+                        </td>
+                        <td class="text-center">
+                            <i class="fa fa-question" ng-show="result.pressure === null"></i>
+                            <i class="fa fa-lg fa-check-circle text-success" ng-show="result.pressure"></i>
+                            <i class="fa fa-lg fa-times-circle text-danger" ng-show="result.pressure !== null && !result.pressure"></i>
+                        </td>
+                        <td class="text-center">
+                            <i class="fa fa-question" ng-show="result.temperature === null"></i>
+                            <i class="fa fa-lg fa-check-circle text-success" ng-show="result.temperature"></i>
+                            <i class="fa fa-lg fa-times-circle text-danger" ng-show="result.temperature !== null && !result.temperature"></i>
+                        </td>
+                        <td class="text-center" ng-show="validateUi.firmwareToMatch">
+                            <i class="fa fa-question" ng-show="result.firmware === null"></i>
+                            <i class="fa fa-lg fa-check-circle text-success" ng-show="result.firmware"></i>
+                            <i class="fa fa-lg fa-times-circle text-danger" ng-show="result.firmware !== null && !result.firmware"></i>
+                        </td>
+                        <td class="text-center" ng-show="!validateUi.firmwareToMatch">
+                            n/a
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+    <div class="row" ng-show="validateUi.currentTab === 'results' && validateUi.validateBy === 'device'">
+        <div class="col-sm-12">
+            <br/>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th width="10">#</th>
+                        <th class="text-center">Datetime</th>
+                        <th class="text-center">Datetime Received</th>
+                        <th class="text-center">Msg Ref #</th>
+                        <th class="text-center">Store &amp; Forward</th>
+                        <th class="text-center">Battery (%)</th>
+                        <th class="text-center">Light (lux)</th>
+                        <th class="text-center">Pressure (kPa)</th>
+                        <th class="text-center">Report Interval</th>
+                        <th class="text-center">Temp (&deg;C)</th>
+                        <th class="text-center">Signal (db)</th>
+                        <th class="text-center">Loc Method</th>
+                        <th class="text-center">Lat/Lng</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="validateUi.imeiReports.length === 0" class="warning">
+                        <td></td>
+                        <td colspan="13">There are no device reports for this date range</td>
+                    </tr>
+                    <tr ng-show="validateUi.imeiReports.length > 0" class="warning">
+                        <td></td>
+                        <td colspan="13">Showing {{ validateUi.imeiReports.length }} reports</td>
+                    </tr>
+                    <tr ng-show="validateUi.imeiReports.length != 0"
+                        ng-repeat="report in validateUi.imeiReports">
+                        <td width="10">{{ $index + 1 }}</td>
+                        <td class="text-center"><span local-datetime utc-datetime="{{report.messageTimeStamp}}" date-format="L" time-format="LTS"></span></td>
+                        <td class="text-center"><span local-datetime utc-datetime="{{report.serverTimeStamp}}" date-format="L" time-format="LTS"></span></td>
+                        <td class="text-center">{{ report.messageRefNumber }}</td>
+                        <td class="text-center">{{ report.isStoreAndForward ? 'Yes' : 'No' }}</td>
+                        <td class="text-center">{{ report.batteryPercent }}</td>
+                        <td class="text-center">{{ report.light }}</td>
+                        <td class="text-center">{{ report.pressure }}</td>
+                        <td class="text-center">{{ validateUi.secondsService.format(report.reportInterval) }}</td>
+                        <td class="text-center">{{ report.temperatureC }}</td>
+                        <td class="text-center">{{ report.signalQuality }}</td>
+                        <td class="text-center">{{ report.locationMethod === 'CellTriangulation' ? 'Network' : report.locationMethod}}</td>
+                        <td class="text-center">{{ report.locationMethod ?  report.latitude + ', ' + report.longitude : '' }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>

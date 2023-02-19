@@ -1,0 +1,148 @@
+<div class="row">
+    <div class="col-sm-12">
+        <ul class="nav nav-pills">
+            <li role="presentation">
+                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    Change View <i class="fa fa-lg fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu">
+                    <li role="presentation"><a role="button" ng-click="watchlistTrackingFilterbar.navToMap()" ng-hide="$state.current.name === 'watchlist.tracking'">&nbsp;<i class="fa fa-map-o fa-fw"></i> Map view</a></li>
+                    <li role="presentation"><a role="button" ng-click="watchlistTrackingFilterbar.navToReports()" ng-hide="$state.current.name === 'watchlist.reports'">&nbsp;<i class="fa fa-table fa-fw"></i> Table view</a></li>
+                </ul>
+            </li>
+            <li role="presentation" class="pull-right"><a role="button" ng-click="watchlistTrackingFilterbar.refresh()" title="Refresh page"><i class="fa fa-lg fa-refresh"></i></a></li>
+            <li role="presentation" class="pull-right">
+                <a role="button" ng-click="watchlistTrackingFilterbar.toggleDateRangeForm()">
+                    Reports between {{ watchlistTrackingFilterbar.fromDate.label }} and {{ watchlistTrackingFilterbar.toDate.label }} <i class="fa fa-lg fa-caret-down"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+<nav class="navbar navbar-default" ng-show="watchlistTrackingFilterbar.showDateRangeForm">
+    <form class="navbar-form" ng-submit="watchlistTrackingFilterbar.submitDateRange()">
+        <div class="form-group" ng-class="{'has-error': watchlistTrackingFilterbar.fromDate.error}">
+            <label>Load reports between&nbsp;&nbsp;</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="watchlisTrackingFromDate" name="watchlisTrackingFromDate"
+                       ng-model="watchlistTrackingFilterbar.fromDate.date" ng-change="watchlistTrackingFilterbar.fromDate.isPristine = true">
+                <span class="input-group-addon">@</span>
+                <input type="text" class="form-control" id="watchlisTrackingFromTime" name="watchlisTrackingFromTime"
+                       ng-model="watchlistTrackingFilterbar.fromDate.time" ng-change="watchlistTrackingFilterbar.fromDate.isPristine = true">
+            </div>
+        </div>
+        <div class="form-group" ng-class="{'has-error': watchlistTrackingFilterbar.toDate.error}">
+            <label>&nbsp;&nbsp;and&nbsp;&nbsp;</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="watchlisTrackingToDate" name="watchlisTrackingToDate"
+                       ng-model="watchlistTrackingFilterbar.toDate.date" ng-change="watchlistTrackingFilterbar.toDate.isPristine = true">
+                <span class="input-group-addon">@</span>
+                <input type="text" class="form-control" id="watchlisTrackingToTime" name="watchlisTrackingToTime"
+                       ng-model="watchlistTrackingFilterbar.toDate.time" ng-change="watchlistTrackingFilterbar.toDate.isPristine = true">
+            </div>
+            <label>&nbsp;&nbsp;</label>
+        </div>
+        <button type="submit" class="btn btn-default navbar-btn">Submit</button>
+        <button type="button" class="btn btn-default navbar-btn" ng-click="watchlistTrackingFilterbar.resetDateRange()">Reset</button>
+        <button type="button" class="btn btn-default navbar-btn" ng-click="watchlistTrackingFilterbar.toggleDateRangeForm()">Cancel</button>
+    </form>
+    <p class="navbar-text" ng-show="watchlistTrackingFilterbar.error"><span class="text-danger"><i class="fa fa-exclamation-circle"></i>&nbsp;{{ watchlistTrackingFilterbar.error }}</span></p>
+</nav>
+<nav class="navbar navbar-default" ng-show="!watchlistTrackingFilterbar.showDateRangeForm">
+    <form class="navbar-form navbar-left">
+        <input type="text" class="form-control" placeholder="Text filter.." ng-model="watchlistTrackingFilterbar.filter.searchText">
+    </form>
+    <!--<form class="navbar-form navbar-left">
+        <div class="btn-group" role="group">
+            <button role="button" class="btn btn-default" title="Toggle warning icons" id="btn-warning" ng-click="watchlistTrackingFilterbar.toggleSeverity('warning')" ng-class="{'active': !watchlistTrackingFilterbar.filter.showWarning}">
+                <img src="../img/warning-gps.png" height="20" ng-show="watchlistTrackingFilterbar.filter.showWarning">
+                <img src="../img/warning-disabled.png" height="20" ng-show="!watchlistTrackingFilterbar.filter.showWarning">
+                &nbsp;{{watchlistTrackingFilterbar.filter.showWarning ? 'On' : 'Off'}}
+            </button>
+            <button role="button" class="btn btn-default" title="Toggle info icons" id="btn-info" ng-click="watchlistTrackingFilterbar.toggleSeverity('info')" ng-class="{'active': !watchlistTrackingFilterbar.filter.showInfo}">
+                <img src="../img/info-gps.png" height="20" ng-show="watchlistTrackingFilterbar.filter.showInfo">
+                <img src="../img/info-disabled.png" height="20" ng-show="!watchlistTrackingFilterbar.filter.showInfo">
+                &nbsp;{{watchlistTrackingFilterbar.filter.showInfo ? 'On' : 'Off'}}
+            </button>
+            <button role="button" class="btn btn-default" title="Toggle ok icons" id="btn-ok" ng-click="watchlistTrackingFilterbar.toggleSeverity('ok')" ng-class="{'active': !watchlistTrackingFilterbar.filter.showOk}">
+                <img src="../img/ok-gps.png" height="20" ng-show="watchlistTrackingFilterbar.filter.showOk">
+                <img src="../img/ok-disabled.png" height="20" ng-show="!watchlistTrackingFilterbar.filter.showOk">
+                &nbsp;{{watchlistTrackingFilterbar.filter.showOk ? 'On' : 'Off'}}
+            </button>
+        </div>
+    </form>-->
+    <form class="navbar-form navbar-left">
+        <div class="btn-group" role="group">
+            <button type="button" id="btn-property" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    title="Showing {{watchlistTrackingFilterbar.filter.filterByPropertyName}} values on the timeline">
+                {{watchlistTrackingFilterbar.filter.filterByPropertyName}}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a role="button" ng-click="watchlistTrackingFilterbar.filter.filterByBattery()">Battery (%)</a></li>
+                <li><a role="button" ng-click="watchlistTrackingFilterbar.filter.filterByHumidity()">Humidity (%)</a></li>
+                <li><a role="button" ng-click="watchlistTrackingFilterbar.filter.filterByLight()">Light (lux)</a></li>
+                <li><a role="button" ng-click="watchlistTrackingFilterbar.filter.filterByPressure()">Pressure (kPa)</a></li>
+                <li><a role="button" ng-click="watchlistTrackingFilterbar.filter.filterByShock()">Shock (g)</a></li>
+                <li><a role="button" ng-click="watchlistTrackingFilterbar.filter.filterByTemperatureC()">Temperature (&deg;C)</a></li>
+                <li><a role="button" ng-click="watchlistTrackingFilterbar.filter.filterByTemperatureF()">Temperature (&deg;F)</a></li>
+            </ul>
+        </div>
+        &nbsp;
+        <div class="btn-group" role="group">
+            <button type="button" id="btn-filter-option" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    title="Filter option">
+                values {{ watchlistTrackingFilterbar.filter.range.filterOption !== 'none' ? watchlistTrackingFilterbar.filter.range.filterOption : '' }}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a role="button" ng-click="watchlistTrackingFilterbar.filter.range.filterOption = 'none'">values</a></li>
+                <li><a role="button" ng-click="watchlistTrackingFilterbar.filter.range.filterOption = 'above'">values above</a></li>
+                <li><a role="button" ng-click="watchlistTrackingFilterbar.filter.range.filterOption = 'below'">values below</a></li>
+                <li><a role="button" ng-click="watchlistTrackingFilterbar.filter.range.filterOption = 'between'">values between</a></li>
+                <li><a role="button" ng-click="watchlistTrackingFilterbar.filter.range.filterOption = 'outside'">values outside</a></li>
+            </ul>
+        </div>
+        &nbsp;
+        <span ng-show="watchlistTrackingFilterbar.filter.range.filterOption === 'above'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="watchlistTrackingFilterbar.filter.range.min"
+                       max="watchlistTrackingFilterbar.filter.range.max"
+                       ng-model="watchlistTrackingFilterbar.filter.range.above">
+                <span class="input-group-addon">{{watchlistTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        <span ng-show="watchlistTrackingFilterbar.filter.range.filterOption === 'below'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="watchlistTrackingFilterbar.filter.range.min"
+                       max="watchlistTrackingFilterbar.filter.range.max"
+                       ng-model="watchlistTrackingFilterbar.filter.range.below">
+                <span class="input-group-addon">{{watchlistTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        <span ng-show="watchlistTrackingFilterbar.filter.range.filterOption === 'between' || watchlistTrackingFilterbar.filter.range.filterOption === 'outside'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="watchlistTrackingFilterbar.filter.range.min"
+                       max="watchlistTrackingFilterbar.filter.range.max"
+                       ng-model="watchlistTrackingFilterbar.filter.range.from">
+                <span class="input-group-addon">{{watchlistTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+            &nbsp;&nbsp;and&nbsp;&nbsp;
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="watchlistTrackingFilterbar.filter.range.min"
+                       max="watchlistTrackingFilterbar.filter.range.max"
+                       ng-model="watchlistTrackingFilterbar.filter.range.to">
+                <span class="input-group-addon">{{watchlistTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        &nbsp;
+        <button role="button" id="btn-reset-property" class="btn btn-default" title="Reset filter values"
+                ng-click="watchlistTrackingFilterbar.resetPropertyFilter()"
+                ng-show="watchlistTrackingFilterbar.filter.range.filterOption !== 'none'">
+            <i class="fa fa-undo fa-lg"></i>
+        </button>
+
+    </form>
+</nav>

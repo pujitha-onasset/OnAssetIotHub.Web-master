@@ -1,0 +1,125 @@
+<div ng-controller="LatestShipmentTrackingListController as latestShipmentTrackingList">
+    <div latest-shipment-tracking-filterbar></div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div sentry-report-column-selector></div>
+            <div class="table-responsive">
+                 <export-table-to file-name="Reports" table-id-to-export="reportsTableList"></export-table-to>
+                <table class="table table-hover" id="reportsTableList">
+                    <thead>
+                    <tr>
+                        <th width="10">#</th>
+                        <th width="10" class="noExport">Sev</th>
+                        <th>Shipment</th>
+                        <th class="noExport"></th>
+                        <th>Status</th>
+                        <th><i class="fa fa-home"></i>&nbsp;Origin<br/><i class="fa fa-flag-checkered"></i>&nbsp;Destination</th>
+                        <th>Device</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.age">Age</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.messageTimeStamp">Datetime</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.serverTimeStamp">Datetime Received</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.reportGuid">Report Guid</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.reportId">Report Id</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.messageRefNumber">Msg Ref #</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.isStoreAndForward">Store &amp; Forward</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.battery">Battery (%)</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.isButtonPushed">Button Pushed</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.light">Light (lux)</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.humidity">Humidity (%)</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.isMotionDetected">Motion</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.pressure">Pressure (kPa)</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.reportInterval">Report Interval</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.shockMagnitude">Shock (g)</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.shockXYZ">Shock (x, y, z)</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.temperatureC">Temp (&deg;C)</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.temperatureF">Temp (&deg;F)</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.temperatureProbe1C">Probe 1 (&deg;C)</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.temperatureProbe1F">Probe 1 (&deg;F)</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.temperatureProbe2C">Probe 2 (&deg;C)</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.temperatureProbe2F">Probe 2 (&deg;F)</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.tiltMagnitude">Tilt (&deg;)</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.tiltXYZ">Tilt (x, y, z)</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.communicationType">Comm Type</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.signalQuality">Signal (db)</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.locationMethod">Loc Method</th>
+                        <th class="text-center" ng-if="latestShipmentTrackingList.columns.latLng">Lat/Lng</th>
+                        <th class="text-left" ng-if="latestShipmentTrackingList.columns.alarms">Alarm(s)</th>
+                        <th class="text-left" ng-if="latestShipmentTrackingList.columns.alarms">Active Alarm(s)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="latestShipmentTrackingList.reportsService.reports.length === 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="{{ latestShipmentTrackingList.columns.count + 7 }}">There are no device reports for this date range</td>
+                    </tr>
+                    <tr ng-show="latestShipmentTrackingList.reportsService.reports.length > 0" class="warning noExport">
+                        <td></td>
+                        <td colspan="{{ latestShipmentTrackingList.columns.count + 7 }}">Showing {{ filteredReports.length }} / {{ latestShipmentTrackingList.reportsService.reports.length }} reports</td>
+                    </tr>
+                    <tr ng-show="filteredReports.length !== 0"
+                        ng-repeat="report in filteredReports = (latestShipmentTrackingList.reportsService.reports | filter: latestShipmentTrackingList.filterService.reports.filter)"
+                        ng-class="{'text-danger': report.severity === 'warning', 'text-info': report.severity === 'info','text-ok': report.severity === 'ok','selected-report': latestShipmentTrackingList.selectedGuid === report.reportGuid}">
+                        <td width="10">{{ $index + 1 }}</td>
+                        <td width="10" class="noExport">
+                            <a data-map-icon-image style="border: none;" role="button" ng-click="latestShipmentTrackingList.selectReport(report)" data-severity="{{report.severity}}" data-location-method="{{report.locationMethod | locationMethod: report.latitude:report.longitude}}" selected="{{ latestShipmentTrackingList.selectedGuid === report.reportGuid }}"></a>
+                        </td>
+                        <td>
+                            <a role="button" class="device-link" ng-click="latestShipmentTrackingList.goToShipmentAdmin(report)" title="Manage Shipment">{{ report.shipment.referenceNumber }}</a>
+                        </td>
+                        <td class="noExport">
+                            <a style="border: none;" role="button" class="device-link" ng-click="latestShipmentTrackingList.goToShipmentAdmin(report)" title="Manage Shipment"><i class="fa fa-pencil fa-fw"></i></a>
+                            <a style="border: none;" role="button" class="device-link" ng-click="latestShipmentTrackingList.goToShipmentMap(report)" title="Track Shipment"><i class="fa fa-map-o fa-fw"></i></a>
+                            <a style="border: none;" role="button" class="device-link" ng-click="latestShipmentTrackingList.goToShipmentReports(report)" title="Shipment Reports"><i class="fa fa-table fa-fw"></i></a>
+                        </td>
+                        <td>{{ report.shipment.status }}</td>
+                        <td><i class="fa fa-home"></i>&nbsp;{{ report.shipment.origin }}<br/><i class="fa fa-flag-checkered"></i>&nbsp;{{ report.shipment.destination }}</td>
+                        <td>
+                            <a role="button" ng-click="$state.go('device.admin',{ deviceTagId: report.deviceTagId, referrer: 'shipments.reports' })">
+                                <span ng-if="report.deviceName === report.deviceTagId">{{ report.deviceTagId }}</span>
+                                <span ng-if="report.deviceName !== report.deviceTagId">{{ report.deviceName }}<br/><small>[{{ report.deviceTagId }}]</small></span>
+                            </a>
+                        </td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.age"><span data-time-from-now utc-datetime="{{report.messageTimeStamp}}"></span></td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.messageTimeStamp"><span local-datetime utc-datetime="{{report.messageTimeStamp}}" date-format="L" time-format="LTS"></span></td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.serverTimeStamp"><span local-datetime utc-datetime="{{report.serverTimeStamp}}" date-format="L" time-format="LTS"></span></td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.reportGuid">{{ report.reportGuid }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.reportId">{{ report.reportId }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.messageRefNumber">{{ report.messageRefNumber }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.isStoreAndForward">{{ report.isStoreAndForward ? 'Yes' : 'No' }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.battery">{{ report.batteryPercent }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.isButtonPushed">{{ report.isButtonPushed ? 'Yes' : 'No' }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.light">{{ report.light }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.humidity">{{ report.humidity }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.isMotionDetected">{{ report.isMotionDetected || report.isVibrationDetected ? 'Yes' : 'No' }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.pressure">{{ report.pressure }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.reportInterval">{{ latestShipmentTrackingList.secondsService.format(report.reportInterval) }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.shockMagnitude">{{ report.isShockExceeded ? report.shockMagnitude : '' }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.shockXYZ">{{ report.isShockExceeded ? report.shockX + ', ' + report.shockY + ', ' + report.shockZ : '' }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.temperatureC">{{ report.temperatureC }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.temperatureF">{{ report.temperatureF }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.temperatureProbe1C">{{ report.temperatureProbe1C }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.temperatureProbe1F">{{ report.temperatureProbe1F }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.temperatureProbe2C">{{ report.temperatureProbe2C }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.temperatureProbe2F">{{ report.temperatureProbe2F }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.tiltMagnitude">{{ report.isTiltExceeded ? report.tiltMagnitude : '' }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.tiltXYZ">{{ report.isTiltExceeded ? report.tiltX + ', ' + report.tiltY + ', ' + report.tiltZ : '' }}</td>                       <td class="text-center" ng-if="latestShipmentTrackingList.columns.communicationType">{{ report.communicationType }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.signalQuality">{{ report.signalQuality }}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.locationMethod">{{ report.locationMethod | locationMethod: report.latitude:report.longitude}}</td>
+                        <td class="text-center" ng-if="latestShipmentTrackingList.columns.latLng">{{ report.locationMethod ?  report.latitude + ', ' + report.longitude : '' }}</td>
+                        <td class="text-left" ng-if="latestShipmentTrackingList.columns.alarms">
+                            <span  ng-repeat="alarm in report.alarms" >
+                               {{ alarm.groupName }}  <br/>
+                            </span>
+                        </td>
+                        <td class="text-left" ng-if="latestShipmentTrackingList.columns.activatedAlarms">
+                            <span  ng-repeat="alarm in report.activatedAlarms" ng-class="{'text-danger': alarm.severity === 'warning', 'text-info': alarm.severity === 'info', 'text-ok': alarm.severity === 'ok'}">
+                                {{ alarm.alarmName }};<br/>
+                            </span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

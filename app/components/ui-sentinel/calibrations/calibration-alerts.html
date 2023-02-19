@@ -1,0 +1,77 @@
+<div ng-controller="CalibrationAlertsController as calibrationAlerts">
+
+    <div class="row" style="padding-top: 30px">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Calibration Alerts
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <p>Calibration alerts configuration for Alarm-Contacts</p>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th width="15%" class="sortcolumn" ng-click="calibrationAlerts.sortBy(['lastname', 'firstname'])">Name<span class="sortorder" ng-show="calibrationAlerts.propertyName.toString() === 'lastname,firstname'" ng-class="{reverse: calibrationAlerts.reverse}"></span></th>
+                                        <th width="15%" class="sortcolumn" ng-click="calibrationAlerts.sortBy('emailAddress')">Email<span class="sortorder" ng-show="calibrationAlerts.propertyName === 'emailAddress'" ng-class="{reverse: calibrationAlerts.reverse}"></span></th>
+                                        <th class="text-center sortcolumn" ng-click="calibrationAlerts.sortBy('enableAlert')">Enable Alerts<span class="sortorder" ng-show="calibrationAlerts.propertyName === 'enableAlert'" ng-class="{reverse: calibrationAlerts.reverse}"></span></th>
+                                        <th class="text-center sortcolumn" ng-click="calibrationAlerts.sortBy('daysBeforeNextCalibration')">Days before the next calibration<span class="sortorder" ng-show="calibrationAlerts.propertyName === 'daysBeforeNextCalibration'" ng-class="{reverse: calibrationAlerts.reverse}"></span></th>
+                                        <th class="text-center sortcolumn" ng-click="calibrationAlerts.sortBy('emailAlert')">Email notification<span class="sortorder" ng-show="calibrationAlerts.propertyName === 'emailAlert'" ng-class="{reverse: calibrationAlerts.reverse}"></span></th>
+                                        <th class="text-center sortcolumn" ng-click="calibrationAlerts.sortBy('smsAlert')">SMS notification<span class="sortorder" ng-show="calibrationAlerts.propertyName === 'smsAlert'" ng-class="{reverse: calibrationAlerts.reverse}"></span></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-show="calibrationAlerts.subscribers.length === 0" class="warning">
+                                        <td colspan="7">There are no Calibrations Alerts configurations for this client</td>
+                                    </tr>
+                                    <tr ng-repeat="subscriber in calibrationAlerts.subscribers">
+                                    <tr ng-show="calibrationAlerts.subscribers.length != 0" ng-repeat="subscriber in calibrationAlerts.subscribers | orderBy:calibrationAlerts.propertyName:calibrationAlerts.reverse">
+                                        <td width="15%">
+                                            {{subscriber.lastname}}, {{subscriber.firstname}}
+                                        </td>
+                                        <td width="15%">
+                                            {{subscriber.emailAddress}}
+                                        </td>
+                                        <td class="text-center">
+                                            <button class="btn btn-default" id="btn-enableAlert-{{subscriber.id}}"
+                                                    ng-click="calibrationAlerts.actions.subscriber.toggleEnableAlertForSubscriber(subscriber)"
+                                                    ng-disabled="!calibrationAlerts.hasPermission.toChange">
+                                                <i class="fa fa-fw {{subscriber.enableAlert ? 'fa-check-square' : 'fa-square-o'}}"></i>{{  subscriber.enableAlert ? 'Yes' : 'No' }}
+                                            </button>
+                                        </td>
+                                        <td class="text-center">
+                                        	
+                                            <input type="number" ng-disabled="!calibrationAlerts.hasPermission.toChange || !subscriber.enableAlert" ng-model="subscriber.daysBeforeNextCalibration" ng-change="calibrationAlerts.actions.subscriber.toggleDaysBeforeNextCalibrationForSubscriber(subscriber,subscriber.daysBeforeNextCalibration)">
+								       
+                                        </td>
+                                        <td class="text-center">
+                                            <button class="btn btn-default" id="btn-emailAlert-{{subscriber.id}}"
+                                                    ng-click="calibrationAlerts.actions.subscriber.toggleEmailAlertForSubscriber(subscriber)"
+                                                    ng-disabled="!calibrationAlerts.hasPermission.toChange || !subscriber.enableAlert">
+                                                <i class="fa fa-fw {{subscriber.emailAlert ? 'fa-check-square' : 'fa-square-o'}}"></i>{{  subscriber.emailAlert ? 'Yes' : 'No' }}
+                                            </button>
+                                        </td>
+                                       
+                                        <td class="text-center">
+                                             <button class="btn btn-default" id="btn-smsAlert-{{subscriber.id}}"
+                                                    ng-click="calibrationAlerts.actions.subscriber.toggleSmsAlertForSubscriber(subscriber)"
+                                                    ng-disabled="!calibrationAlerts.hasPermission.toChange || !subscriber.enableAlert">
+                                                <i class="fa fa-fw {{subscriber.smsAlert ? 'fa-check-square' : 'fa-square-o'}}"></i>{{  subscriber.smsAlert ? 'Yes' : 'No' }}
+                                            </button>
+                                        </td>
+                                       
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div><!-- subscribers -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>

@@ -1,0 +1,170 @@
+<div class="row">
+    <div class="col-sm-12">
+        <ul class="nav nav-pills">
+            <li role="presentation">
+                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    Change View <i class="fa fa-lg fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu">
+                    <li role="presentation"><a role="button" ng-click="latestDeviceTrackingFilterbar.navToDevicesMap()" ng-show="$state.current.name === 'devices.reports'">&nbsp;<i class="fa fa-map-o fa-fw"></i> Map view</a></li>
+                    <li role="presentation"><a role="button" ng-click="latestDeviceTrackingFilterbar.navToDevicesReports()" ng-show="$state.current.name === 'devices.map'">&nbsp;<i class="fa fa-table fa-fw"></i> Table view</a></li>
+                </ul>
+            </li>
+            <li role="presentation" class="pull-right"><a role="button" ng-click="latestDeviceTrackingFilterbar.refresh()" title="Refresh page"><i class="fa fa-lg fa-refresh"></i></a></li>
+            <li role="presentation" class="pull-right">
+                <a role="button" ng-click="latestDeviceTrackingFilterbar.toggleDateRangeForm()">
+                    Reports between {{ latestDeviceTrackingFilterbar.fromDate.label }} and {{ latestDeviceTrackingFilterbar.toDate.label }} <i class="fa fa-lg fa-caret-down"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+<nav class="navbar navbar-default" ng-show="latestDeviceTrackingFilterbar.showDateRangeForm">
+    <form class="navbar-form" ng-submit="latestDeviceTrackingFilterbar.submitDateRange()">
+        <div class="form-group" ng-class="{'has-error': latestDeviceTrackingFilterbar.fromDate.error}">
+            <label>Load reports between&nbsp;&nbsp;</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="latestDeviceTrackingFromDate" name="latestDeviceTrackingFromDate"
+                       ng-model="latestDeviceTrackingFilterbar.fromDate.date" ng-change="latestDeviceTrackingFilterbar.fromDate.isPristine = true">
+                <span class="input-group-addon">@</span>
+                <input type="text" class="form-control" id="latestDeviceTrackingFromTime" name="latestDeviceTrackingFromTime"
+                       ng-model="latestDeviceTrackingFilterbar.fromDate.time" ng-change="latestDeviceTrackingFilterbar.fromDate.isPristine = true">
+            </div>
+        </div>
+        <div class="form-group" ng-class="{'has-error': latestDeviceTrackingFilterbar.toDate.error}">
+            <label>&nbsp;&nbsp;and&nbsp;&nbsp;</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="latestDeviceTrackingToDate" name="latestDeviceTrackingToDate"
+                       ng-model="latestDeviceTrackingFilterbar.toDate.date" ng-change="latestDeviceTrackingFilterbar.toDate.isPristine = true">
+                <span class="input-group-addon">@</span>
+                <input type="text" class="form-control" id="latestDeviceTrackingToTime" name="latestDeviceTrackingToTime"
+                       ng-model="latestDeviceTrackingFilterbar.toDate.time" ng-change="latestDeviceTrackingFilterbar.toDate.isPristine = true">
+            </div>
+            <label>&nbsp;&nbsp;</label>
+        </div>
+        <button type="submit" class="btn btn-default navbar-btn">Submit</button>
+        <button type="button" class="btn btn-default navbar-btn" ng-click="latestDeviceTrackingFilterbar.resetDateRange()">Reset</button>
+        <button type="button" class="btn btn-default navbar-btn" ng-click="latestDeviceTrackingFilterbar.toggleDateRangeForm()">Cancel</button>
+    </form>
+    <p class="navbar-text" ng-show="latestDeviceTrackingFilterbar.error"><span class="text-danger"><i class="fa fa-exclamation-circle"></i>&nbsp;{{ latestDeviceTrackingFilterbar.error }}</span></p>
+</nav>
+<nav class="navbar navbar-default" ng-show="!latestDeviceTrackingFilterbar.showDateRangeForm">
+    <form class="navbar-form navbar-left">
+        <input type="text" class="form-control" placeholder="Text filter.." ng-model="latestDeviceTrackingFilterbar.filter.searchText">
+    </form>
+    <form class="navbar-form navbar-left">
+        <div class="btn-group" role="group">
+            <button role="button" class="btn btn-default" title="Toggle warning icons" id="btn-warning" ng-click="latestDeviceTrackingFilterbar.toggleSeverity('warning')" ng-class="{'active': !latestDeviceTrackingFilterbar.filter.showWarning}">
+                <img src="../img/warning-gps.png" height="20" ng-show="latestDeviceTrackingFilterbar.filter.showWarning">
+                <img src="../img/warning-disabled.png" height="20" ng-show="!latestDeviceTrackingFilterbar.filter.showWarning">
+                &nbsp;{{latestDeviceTrackingFilterbar.filter.showWarning ? 'On' : 'Off'}}
+            </button>
+            <button role="button" class="btn btn-default" title="Toggle info icons" id="btn-info" ng-click="latestDeviceTrackingFilterbar.toggleSeverity('info')" ng-class="{'active': !latestDeviceTrackingFilterbar.filter.showInfo}">
+                <img src="../img/info-gps.png" height="20" ng-show="latestDeviceTrackingFilterbar.filter.showInfo">
+                <img src="../img/info-disabled.png" height="20" ng-show="!latestDeviceTrackingFilterbar.filter.showInfo">
+                &nbsp;{{latestDeviceTrackingFilterbar.filter.showInfo ? 'On' : 'Off'}}
+            </button>
+            <button role="button" class="btn btn-default" title="Toggle ok icons" id="btn-ok" ng-click="latestDeviceTrackingFilterbar.toggleSeverity('ok')" ng-class="{'active': !latestDeviceTrackingFilterbar.filter.showOk}">
+                <img src="../img/ok-gps.png" height="20" ng-show="latestDeviceTrackingFilterbar.filter.showOk">
+                <img src="../img/ok-disabled.png" height="20" ng-show="!latestDeviceTrackingFilterbar.filter.showOk">
+                &nbsp;{{latestDeviceTrackingFilterbar.filter.showOk ? 'On' : 'Off'}}
+            </button>
+        </div>
+    </form>
+    <form class="navbar-form navbar-left">
+        <div class="btn-group" role="group">
+            <button type="button" id="btn-property" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    title="Showing {{latestDeviceTrackingFilterbar.filter.filterByPropertyName}} values on the timeline">
+                {{latestDeviceTrackingFilterbar.filter.filterByPropertyName}}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                    <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.filterByBattery()">Battery (%)</a></li>
+                    <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.filterByDewPointC()">DewPoint (&deg;C)</a></li>
+                    <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.filterByDewPointF()">DewPoint (&deg;F)</a></li>
+                    <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.filterByHumidity()">Humidity (%)</a></li>
+                    <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.filterByLight()">Light (lux)</a></li>
+                    <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.filterByPressure()">Pressure (kPa)</a></li>
+                    <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.filterByShock()">Shock (g)</a></li>
+                    <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.filterByTemperatureC()">Temperature (&deg;C)</a></li>
+                    <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.filterByTemperatureF()">Temperature (&deg;F)</a></li>
+                    <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.filterByTempProbe1C()">Temperature Probe 1 (&deg;C)</a></li>
+                    <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.filterByTempProbe1F()">Temperature Probe 1 (&deg;F)</a></li>
+                    <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.filterByTempProbe2C()">Temperature Probe 2 (&deg;C)</a></li>
+                    <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.filterByTempProbe2F()">Temperature Probe 2 (&deg;F)</a></li>
+                    <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.filterByTilt()">Tilt (&deg;)</a></li>
+                </ul>
+        </div>
+        &nbsp;
+        <div class="btn-group" role="group">
+            <button type="button" id="btn-filter-option" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    title="Filter option">
+                values {{ latestDeviceTrackingFilterbar.filter.range.filterOption !== 'none' ? latestDeviceTrackingFilterbar.filter.range.filterOption : '' }}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.setFilterOption('none')">values</a></li>
+                <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.setFilterOption('above')">values above</a></li>
+                <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.setFilterOption('below')">values below</a></li>
+                <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.setFilterOption('between')">values between</a></li>
+                <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.setFilterOption('outside')">values outside</a></li>
+            </ul>
+        </div>
+        &nbsp;
+        <span ng-show="latestDeviceTrackingFilterbar.filter.range.filterOption === 'above'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="latestDeviceTrackingFilterbar.filter.range.min"
+                       max="latestDeviceTrackingFilterbar.filter.range.max"
+                       ng-model="latestDeviceTrackingFilterbar.filter.range.above">
+                <span class="input-group-addon">{{latestDeviceTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        <span ng-show="latestDeviceTrackingFilterbar.filter.range.filterOption === 'below'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="latestDeviceTrackingFilterbar.filter.range.min"
+                       max="latestDeviceTrackingFilterbar.filter.range.max"
+                       ng-model="latestDeviceTrackingFilterbar.filter.range.below">
+                <span class="input-group-addon">{{latestDeviceTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        <span ng-show="latestDeviceTrackingFilterbar.filter.range.filterOption === 'between' || latestDeviceTrackingFilterbar.filter.range.filterOption === 'outside'">
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="latestDeviceTrackingFilterbar.filter.range.min"
+                       max="latestDeviceTrackingFilterbar.filter.range.max"
+                       ng-model="latestDeviceTrackingFilterbar.filter.range.from">
+                <span class="input-group-addon">{{latestDeviceTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+            &nbsp;&nbsp;and&nbsp;&nbsp;
+            <div class="input-group">
+                <input type="number" class="form-control" style="width: 80px;"
+                       min="latestDeviceTrackingFilterbar.filter.range.min"
+                       max="latestDeviceTrackingFilterbar.filter.range.max"
+                       ng-model="latestDeviceTrackingFilterbar.filter.range.to">
+                <span class="input-group-addon">{{latestDeviceTrackingFilterbar.filter.range.suffix}}</span>
+            </div>
+        </span>
+        &nbsp;
+        <button role="button" id="btn-reset-property" class="btn btn-default" title="Reset filter values"
+                ng-click="latestDeviceTrackingFilterbar.resetPropertyFilter()"
+                ng-show="latestDeviceTrackingFilterbar.filter.range.filterOption !== 'none'">
+            <i class="fa fa-undo fa-lg"></i>
+        </button>
+
+    </form>
+    <form class="navbar-form navbar-left">
+        <div class="btn-group" role="group">
+            <button type="button" id="btn-status" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    title="Showing {{latestDeviceTrackingFilterbar.filter.filterByDeviceType}} Devices">
+                {{latestDeviceTrackingFilterbar.filter.filterByDeviceType}}&nbsp;&nbsp;<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <!--<li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.filterByDeviceType = 'Sentry'">Sentry</a></li>
+                <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.filterByDeviceType = 'Sentinel'">Sentinel</a></li>-->
+                <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.setFilterByDeviceType('Sentry')">Sentry</a></li>
+                <li><a role="button" ng-click="latestDeviceTrackingFilterbar.filter.setFilterByDeviceType('Sentinel')">Sentinel</a></li>
+                
+            </ul>
+        </div>
+    </form>
+</nav>

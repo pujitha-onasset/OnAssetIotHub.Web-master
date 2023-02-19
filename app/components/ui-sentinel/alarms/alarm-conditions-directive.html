@@ -1,0 +1,928 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <a role="button" ng-click="alarmConditions.panel.toggle()">Conditions</a>
+        <span class="pull-right text-right">
+            <a role="button" ng-click="alarmConditions.panel.toggle()">
+                <i class="fa fa-lg" ng-class="{'fa-caret-right': alarmConditions.panel.isCollapsed, 'fa-caret-down': !alarmConditions.panel.isCollapsed}" title="Expand"></i>
+            </a>
+        </span>
+        <span class="pull-right text-right" ng-show="!alarmConditions.panel.isCollapsed"><a role="button" ng-click="alarmConditions.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+    </div>
+    <div ng-class="{'collapse': alarmConditions.panel.isCollapsed}">
+        <div class="panel-body">
+            <div class="row" style="margin-top: 3px;">
+                <div class="col-sm-8">
+                    <ul class="nav nav-pills">
+                    </ul>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="200">Name</th>
+                                    <th colspan="2">Trigger condition(s)</th>
+                                    <th width="10"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><!-- battery -->
+                                    <th width="200">Battery</th>
+                                    <td width="10" class="text-right" ng-if="!alarmConditions.battery.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Change this condition"
+                                                ng-click="alarmConditions.battery.actions.begin()"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-pencil fa-lg"></i>
+                                        </button>
+                                    </td>
+                                    <td ng-if="!alarmConditions.battery.form.isChanging">
+                                                <span ng-if="alarmConditions.battery.model.below !== null && alarmConditions.battery.model.above !== null">
+                                                    When battery is below {{ alarmConditions.battery.model.below }}%
+                                                    or above {{ alarmConditions.battery.model.above }}%
+                                                </span>
+                                                <span ng-if="alarmConditions.battery.model.below !== null && alarmConditions.battery.model.above === null">
+                                                    When battery is below {{ alarmConditions.battery.model.below }}%
+                                                </span>
+                                                <span ng-if="alarmConditions.battery.model.below === null && alarmConditions.battery.model.above !== null">
+                                                    When battery is above {{ alarmConditions.battery.model.above }}%
+                                                </span>
+                                    </td>
+                                    <td colspan="3" ng-if="alarmConditions.battery.form.isChanging">
+                                        <form name="batteryForm" id="batteryForm"
+                                              ng-submit="alarmConditions.battery.actions.submit()"
+                                              ng-show="alarmConditions.battery.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group" ng-class="{'has-error': batteryForm.batteryBelow.$invalid && !batteryForm.batteryBelow.$pristine}">
+                                                <label for="batteryBelow">Trigger when battery is below</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="batteryBelow" name="batteryBelow"
+                                                           placeholder="Enter battery level between {{ alarmConditions.battery.form.belowMin }} and {{ alarmConditions.battery.form.belowMax }}"
+                                                           ng-model="alarmConditions.battery.form.below"
+                                                           ng-change="alarmConditions.battery.form.onChange()"
+                                                           min="{{ alarmConditions.battery.form.belowMin }}" max="{{ alarmConditions.battery.form.belowMax }}">
+                                                    <span class="input-group-addon">%</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="batteryForm.batteryBelow.$invalid && !batteryForm.batteryBelow.$pristine" ><i class="fa fa-exclamation-circle"></i>&nbsp;Battery level must be between {{ alarmConditions.battery.form.belowMin }} and {{ alarmConditions.battery.form.belowMax }}</p>
+                                            </div>
+                                            <div class="form-group" ng-class="{'has-error': batteryForm.batteryAbove.$invalid && !batteryForm.batteryAbove.$pristine}">
+                                                <label for="batteryAbove">Trigger when battery is above</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="batteryAbove" name="batteryAbove"
+                                                           placeholder="Enter battery level between {{ alarmConditions.battery.form.aboveMin }} and {{ alarmConditions.battery.form.aboveMax }}"
+                                                           ng-model="alarmConditions.battery.form.above"
+                                                           ng-change="alarmConditions.battery.form.onChange()"
+                                                           min="{{ alarmConditions.battery.form.aboveMin }}" max="{{ alarmConditions.battery.form.aboveMax }}">
+                                                    <span class="input-group-addon">%</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="batteryForm.batteryAbove.$invalid && !batteryForm.batteryAbove.$pristine" ><i class="fa fa-exclamation-circle"></i>&nbsp;Battery level must be between {{ alarmConditions.battery.form.aboveMin }} and {{ alarmConditions.battery.form.aboveMax }}</p>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="batteryForm.$invalid && !batteryForm.$pristine"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="alarmConditions.battery.actions.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td width="10" ng-if="!alarmConditions.battery.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Remove this condition"
+                                                ng-click="alarmConditions.battery.actions.remove()"
+                                                ng-show="alarmConditions.battery.model.above !== null || alarmConditions.battery.model.below !== null"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr><!--battery-->
+                                <tr><!-- button -->
+                                    <th width="200">Button</th>
+                                    <td width="10" ng-if="!alarmConditions.button.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Change this condition"
+                                                ng-click="alarmConditions.button.actions.begin()"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-pencil fa-lg"></i>
+                                        </button>
+                                    </td>
+                                    <td ng-if="!alarmConditions.button.form.isChanging">
+                                            <span ng-if="alarmConditions.button.model.pushed === 'yes'">
+                                                {{ alarmConditions.isFirstCondition('button') ? 'When' : 'and when' }} button has been pushed
+                                            </span>
+                                            <span ng-if="alarmConditions.button.model.pushed === 'no'">
+                                                {{ alarmConditions.isFirstCondition('button') ? 'When' : 'and when' }}  button has not been pushed
+                                            </span>
+                                    </td>
+                                    <td colspan="2" ng-if="alarmConditions.button.form.isChanging">
+                                        <form name="buttonForm" id="buttonForm"
+                                              ng-submit="alarmConditions.button.actions.submit()"
+                                              ng-show="alarmConditions.button.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group">
+                                                <label for="buttonPushed">Trigger when</label>
+                                                <select id="buttonPushed" class="form-control" ng-model="alarmConditions.button.form.pushed">
+                                                    <option value="" ng-selected="alarmConditions.button.form.pushed === ''"></option>
+                                                    <option value="yes" ng-selected="alarmConditions.button.form.pushed === 'yes'">Button has been pushed</option>
+                                                    <option value="no" ng-selected="alarmConditions.button.form.pushed === 'no'">Button has not been pushed</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="alarmConditions.button.actions.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td width="10" ng-if="!alarmConditions.button.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Remove this condition"
+                                                ng-click="alarmConditions.button.actions.remove()"
+                                                ng-show="alarmConditions.button.model.pushed"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr><!--button-->
+                                <tr><!-- geofence -->
+                                    <th width="200">Geofence</th>
+                                    <td width="10" ng-if="!alarmConditions.geofence.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Change this condition"
+                                                ng-click="alarmConditions.geofence.actions.begin()"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-pencil fa-lg"></i>
+                                        </button>
+                                    </td>
+                                    <td ng-if="!alarmConditions.geofence.form.isChanging">
+                                        <span ng-if="alarmConditions.geofence.model.option === 'in-any'">
+                                            {{ alarmConditions.isFirstCondition('geofence') ? 'When' : 'and when' }}  inside any geofence
+                                        </span>
+                                        <span ng-if="alarmConditions.geofence.model.option === 'not-in-any'">
+                                            {{ alarmConditions.isFirstCondition('geofence') ? 'When' : 'and when' }}  outside all geofences
+                                        </span>
+                                        <span ng-if="alarmConditions.geofence.model.option === 'in'">
+                                            {{ alarmConditions.isFirstCondition('geofence') ? 'When' : 'and when' }}  inside <a role="button" ng-click="alarmConditions.geofence.actions.goToGeofence(alarmConditions.geofence.model.geofence)">{{ alarmConditions.geofence.model.geofence.name }}</a>
+                                        </span>
+                                        <span ng-if="alarmConditions.geofence.model.option === 'not-in'">
+                                            {{ alarmConditions.isFirstCondition('geofence') ? 'When' : 'and when' }}  outside <a role="button" ng-click="alarmConditions.geofence.actions.goToGeofence(alarmConditions.geofence.model.geofence)">{{ alarmConditions.geofence.model.geofence.name }}</a>
+                                        </span>
+                                    </td>
+                                    <td colspan="2" ng-if="alarmConditions.geofence.form.isChanging">
+                                        <form name="geofenceForm" id="geofenceForm"
+                                              ng-submit="alarmConditions.geofence.actions.submit()"
+                                              ng-show="alarmConditions.geofence.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group">
+                                                <label for="geofence">Trigger when</label>
+                                                <select id="geofence" class="form-control" ng-model="alarmConditions.geofence.form.option">
+                                                    <option value="" ng-selected="alarmConditions.geofence.form.option === ''"></option>
+                                                    <option value="in" ng-selected="alarmConditions.geofence.form.option === 'in'">Inside {{ alarmConditions.geofence.form.geofence !== null ? alarmConditions.geofence.form.geofence.name : '...' }}</option>
+                                                    <option value="not-in" ng-selected="alarmConditions.geofence.form.option === 'not-in'">Outside {{ alarmConditions.geofence.form.geofence !== null ? alarmConditions.geofence.form.geofence.name : '...' }}</option>
+                                                    <option value="in-any" ng-selected="alarmConditions.geofence.form.option === 'in-any'">Inside any geofence</option>
+                                                    <option value="not-in-any" ng-selected="alarmConditions.geofence.form.option === 'not-in-any'">Outside all geofences</option>
+                                                </select>
+                                                <p class="help-block text-right"
+                                                   ng-show="alarmConditions.geofence.form.geofence === null &&
+                                                   (alarmConditions.geofence.form.option === 'in' || alarmConditions.geofence.form.option === 'not-in')">
+
+                                                    &nbsp;<i class="fa fa-info-circle"></i>&nbsp;Click on a geofence in the list below to complete this condition
+                                                </p>
+                                            </div>
+                                            <div class="form-group"
+                                                 ng-if="(alarmConditions.geofence.form.option === 'in' || alarmConditions.geofence.form.option === 'not-in')">
+                                                <label>Select the geofence</label>
+                                                <div class="input-group col-sm-12">
+                                                    <span class="input-group-addon"><i class="fa fa-filter"></i></span>
+                                                    <input type="text" class="form-control" ng-model="alarmConditions.geofence.form.filterText" placeholder="Enter text to filter the list of geofences">
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <ul class="list-unstyled">
+                                                        <li ng-show="alarmConditions.geofence.form.geofences.length > 0 && alarmConditions.geofence.form.geofences.length >= alarmConditions.geofence.form.geofenceLimit"><i class="fa fa-info-circle"></i>&nbsp;Only showing first {{alarmConditions.geofence.form.geofenceLimit}} geofences.  If you don't see a geofence, enter a more specific search text and try again</li>
+                                                        <li ng-repeat="geofence in alarmConditions.geofence.form.geofences | filter: alarmConditions.geofence.form.filter | orderBy: 'name' | limitTo: alarmConditions.geofence.form.geofenceLimit">
+                                                            <a role="button" ng-click="alarmConditions.geofence.actions.selectGeofence(geofence)">
+                                                                <i class="fa fa-fw text-muted" ng-class="{'fa-check-square': alarmConditions.geofence.form.geofence === geofence, 'fa-square-o': alarmConditions.geofence.form.geofence !== geofence }"></i>
+                                                                <i class="fa fa-fw text-muted" ng-class="{'fa-circle': geofence.type === 'radius', 'fa-stop': geofence.type === 'polygon' }"
+                                                                   title="{{ geofence.type === 'radius' ? 'This is a radial geofence' : 'This is a polygon geofence' }}"></i>
+                                                                &nbsp;<strong>{{ geofence.name }}</strong> (<small>{{geofence.address}}</small>)
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default"
+                                                            ng-disabled="alarmConditions.geofence.form.geofence === null && (alarmConditions.geofence.form.option === 'in' || alarmConditions.geofence.form.option === 'not-in')">
+                                                        <i class="fa fa-save"></i> Save
+                                                    </button>
+                                                    <button type="button" class="btn btn-default" ng-click="alarmConditions.geofence.actions.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td width="10" ng-if="!alarmConditions.geofence.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Remove this condition"
+                                                ng-click="alarmConditions.geofence.actions.remove()"
+                                                ng-show="alarmConditions.geofence.model.option"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr><!--geofence-->
+                                <tr><!-- light -->
+                                    <th width="200">Light</th>
+                                    <td width="10" ng-if="!alarmConditions.light.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Change this condition"
+                                                ng-click="alarmConditions.light.actions.begin()"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-pencil fa-lg"></i>
+                                        </button>
+                                    </td>
+                                    <td ng-if="!alarmConditions.light.form.isChanging">
+                                        <span ng-if="alarmConditions.light.model.below !== null && alarmConditions.light.model.above !== null">
+                                            {{ alarmConditions.isFirstCondition('light') ? 'When' : 'and when' }}  light is below {{ alarmConditions.light.model.below }} lux
+                                            or above {{ alarmConditions.light.model.above }} lux
+                                        </span>
+                                        <span ng-if="alarmConditions.light.model.below !== null && alarmConditions.light.model.above === null">
+                                            {{ alarmConditions.isFirstCondition('light') ? 'When' : 'and when' }}  light is below {{ alarmConditions.light.model.below }} lux
+                                        </span>
+                                        <span ng-if="alarmConditions.light.model.below === null && alarmConditions.light.model.above !== null">
+                                            {{ alarmConditions.isFirstCondition('light') ? 'When' : 'and when' }}  light is above {{ alarmConditions.light.model.above }} lux
+                                        </span>
+                                    </td>
+                                    <td colspan="2" ng-if="alarmConditions.light.form.isChanging">
+                                        <form name="lightForm" id="lightForm"
+                                              ng-submit="alarmConditions.light.actions.submit()"
+                                              ng-show="alarmConditions.light.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group" ng-class="{'has-error': lightForm.lightBelow.$invalid && !lightForm.lightBelow.$pristine }">
+                                                <label for="lightBelow">Trigger when light is below</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="lightBelow" name="lightBelow"
+                                                           placeholder="Enter light value between {{ alarmConditions.light.form.belowMin }} and {{ alarmConditions.light.form.belowMax }}"
+                                                           ng-model="alarmConditions.light.form.below"
+                                                           ng-change="alarmConditions.light.form.onChange()"
+                                                           min="{{ alarmConditions.light.form.belowMin }}"
+                                                           max="{{ alarmConditions.light.form.belowMax }}">
+                                                    <span class="input-group-addon">lux</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="lightForm.lightBelow.$invalid && !lightForm.lightBelow.$pristine" ><i class="fa fa-exclamation-circle"></i>&nbsp;Light value must be between {{ alarmConditions.light.form.belowMin }} and {{ alarmConditions.light.form.belowMax }}</p>
+                                            </div>
+                                            <div class="form-group" ng-class="{'has-error': lightForm.lightAbove.$invalid && !lightForm.lightAbove.$pristine }">
+                                                <label for="lightAbove">Trigger when light is above</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="lightAbove" name="lightAbove"
+                                                           placeholder="Enter light value between {{ alarmConditions.light.form.aboveMin }} and {{ alarmConditions.light.form.aboveMax }}"
+                                                           ng-model="alarmConditions.light.form.above"
+                                                           ng-change="alarmConditions.light.form.onChange()"
+                                                           min="{{ alarmConditions.light.form.aboveMin }}" max="{{ alarmConditions.light.form.aboveMax }}">
+                                                    <span class="input-group-addon">lux</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="lightForm.lightAbove.$invalid && !lightForm.lightAbove.$pristine" ><i class="fa fa-exclamation-circle"></i>&nbsp;Light value must be between {{ alarmConditions.light.form.aboveMin }} and {{ alarmConditions.light.form.aboveMax }}</p>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="lightForm.$invalid"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="alarmConditions.light.actions.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td width="10" ng-if="!alarmConditions.light.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Remove this condition"
+                                                ng-click="alarmConditions.light.actions.remove()"
+                                                ng-show="alarmConditions.light.model.above !== null || alarmConditions.light.model.below !== null"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr><!--light-->
+                                 <tr><!-- humidity -->
+                                    <th width="200">Humidity</th>
+                                    <td width="10" ng-if="!alarmConditions.humidity.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Change this condition"
+                                                ng-click="alarmConditions.humidity.actions.begin()"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-pencil fa-lg"></i>
+                                        </button>
+                                    </td>
+                                    <td ng-if="!alarmConditions.humidity.form.isChanging">
+                                        <span ng-if="alarmConditions.humidity.model.below !== null && alarmConditions.humidity.model.above !== null">
+                                            {{ alarmConditions.isFirstCondition('humidity') ? 'When' : 'and when' }}  humidity is below {{ alarmConditions.humidity.model.below }} %
+                                            or above {{ alarmConditions.humidity.model.above }} %
+                                        </span>
+                                        <span ng-if="alarmConditions.humidity.model.below !== null && alarmConditions.humidity.model.above === null">
+                                            {{ alarmConditions.isFirstCondition('humidity') ? 'When' : 'and when' }}  humidity is below {{ alarmConditions.humidity.model.below }} %
+                                        </span>
+                                        <span ng-if="alarmConditions.humidity.model.below === null && alarmConditions.humidity.model.above !== null">
+                                            {{ alarmConditions.isFirstCondition('humidity') ? 'When' : 'and when' }}  humidity is above {{ alarmConditions.humidity.model.above }} %
+                                        </span>
+                                    </td>
+                                    <td colspan="2" ng-if="alarmConditions.humidity.form.isChanging">
+                                        <form name="humidityForm" id="humidityForm"
+                                              ng-submit="alarmConditions.humidity.actions.submit()"
+                                              ng-show="alarmConditions.humidity.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group" ng-class="{'has-error': humidityForm.humidityBelow.$invalid && !humidityForm.humidityBelow.$pristine }">
+                                                <label for="humidityBelow">Trigger when humidity is below</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="humidityBelow" name="humidityBelow"
+                                                           placeholder="Enter humidity value between {{ alarmConditions.humidity.form.belowMin }} and {{ alarmConditions.humidity.form.belowMax }}"
+                                                           ng-model="alarmConditions.humidity.form.below"
+                                                           ng-change="alarmConditions.humidity.form.onChange()"
+                                                           min="{{ alarmConditions.humidity.form.belowMin }}"
+                                                           max="{{ alarmConditions.humidity.form.belowMax }}">
+                                                    <span class="input-group-addon">%</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="humidityForm.humidityBelow.$invalid && !humidityForm.humidityBelow.$pristine" ><i class="fa fa-exclamation-circle"></i>&nbsp;humidity value must be between {{ alarmConditions.humidity.form.belowMin }} and {{ alarmConditions.humidity.form.belowMax }}</p>
+                                            </div>
+                                            <div class="form-group" ng-class="{'has-error': humidityForm.humidityAbove.$invalid && !humidityForm.humidityAbove.$pristine }">
+                                                <label for="humidityAbove">Trigger when humidity is above</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="humidityAbove" name="humidityAbove"
+                                                           placeholder="Enter humidity value between {{ alarmConditions.humidity.form.aboveMin }} and {{ alarmConditions.humidity.form.aboveMax }}"
+                                                           ng-model="alarmConditions.humidity.form.above"
+                                                           ng-change="alarmConditions.humidity.form.onChange()"
+                                                           min="{{ alarmConditions.humidity.form.aboveMin }}" max="{{ alarmConditions.humidity.form.aboveMax }}">
+                                                    <span class="input-group-addon">%</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="humidityForm.humidityAbove.$invalid && !humidityForm.humidityAbove.$pristine" ><i class="fa fa-exclamation-circle"></i>&nbsp;humidity value must be between {{ alarmConditions.humidity.form.aboveMin }} and {{ alarmConditions.humidity.form.aboveMax }}</p>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="humidityForm.$invalid"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="alarmConditions.humidity.actions.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td width="10" ng-if="!alarmConditions.humidity.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Remove this condition"
+                                                ng-click="alarmConditions.humidity.actions.remove()"
+                                                ng-show="alarmConditions.humidity.model.above !== null || alarmConditions.humidity.model.below !== null"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr><!--humidity-->
+                                <tr><!-- location -->
+                                    <th width="200">Location</th>
+                                    <td width="10" ng-if="!alarmConditions.location.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Change this condition"
+                                                ng-click="alarmConditions.location.actions.begin()"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-pencil fa-lg"></i>
+                                        </button>
+                                    </td>
+                                    <td ng-if="!alarmConditions.location.form.isChanging">
+                                            <span ng-if="alarmConditions.location.model.method !== null">
+                                                {{ alarmConditions.isFirstCondition('location') ? 'When' : 'and when' }}  location method via {{ alarmConditions.location.model.method === 'Cellular' ? 'Network' : alarmConditions.location.model.method }}
+                                            </span>
+                                    </td>
+                                    <td colspan="2" ng-if="alarmConditions.location.form.isChanging">
+                                        <form name="locationForm" id="locationForm"
+                                              ng-submit="alarmConditions.location.actions.submit()"
+                                              ng-show="alarmConditions.location.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group">
+                                                <label for="locationMethod">Trigger when location method is via </label>
+                                                <select id="locationMethod" class="form-control" ng-model="alarmConditions.location.form.method">
+                                                    <option value="" ng-selected="alarmConditions.location.form.method === ''"></option>
+                                                    <option value="Cellular" ng-selected="alarmConditions.location.form.method === 'Cellular'">Network</option>
+                                                    <option value="GPS" ng-selected="alarmConditions.location.form.method === 'GPS'">GPS</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="alarmConditions.location.actions.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td width="10" ng-if="!alarmConditions.location.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Remove this condition"
+                                                ng-click="alarmConditions.location.actions.remove()"
+                                                ng-show="alarmConditions.location.model.method"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr><!--location-->
+                                <tr><!-- motion -->
+                                    <th width="200">Motion</th>
+                                    <td width="10" ng-if="!alarmConditions.motion.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Change this condition"
+                                                ng-click="alarmConditions.motion.actions.begin()"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-pencil fa-lg"></i>
+                                        </button>
+                                    </td>
+                                    <td ng-if="!alarmConditions.motion.form.isChanging">
+                                            <span ng-if="alarmConditions.motion.model.detected === 'yes'">
+                                                {{ alarmConditions.isFirstCondition('motion') ? 'When' : 'and when' }}  motion has been detected
+                                            </span>
+                                            <span ng-if="alarmConditions.motion.model.detected === 'no'">
+                                                {{ alarmConditions.isFirstCondition('motion') ? 'When' : 'and when' }}  motion has not been detected
+                                            </span>
+                                    </td>
+                                    <td colspan="2" ng-if="alarmConditions.motion.form.isChanging">
+                                        <form name="motionForm" id="motionForm"
+                                              ng-submit="alarmConditions.motion.actions.submit()"
+                                              ng-show="alarmConditions.motion.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group">
+                                                <label for="motionDetected">Trigger when</label>
+                                                <select id="motionDetected" class="form-control" ng-model="alarmConditions.motion.form.detected">
+                                                    <option value="" ng-selected="alarmConditions.motion.form.detected === ''"></option>
+                                                    <option value="yes" ng-selected="alarmConditions.motion.form.detected === 'yes'">Motion has been detected</option>
+                                                    <option value="no" ng-selected="alarmConditions.motion.form.detected === 'no'">Motion has not been detected</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="alarmConditions.motion.actions.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td width="10" ng-if="!alarmConditions.motion.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Remove this condition"
+                                                ng-click="alarmConditions.motion.actions.remove()"
+                                                ng-show="alarmConditions.motion.model.detected"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr><!--motion-->
+                                <tr><!-- pressure -->
+                                    <th width="200">Pressure</th>
+                                    <td width="10" ng-if="!alarmConditions.pressure.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Change this condition"
+                                                ng-click="alarmConditions.pressure.actions.begin()"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-pencil fa-lg"></i>
+                                        </button>
+                                    </td>
+                                    <td ng-if="!alarmConditions.pressure.form.isChanging">
+                                        <span ng-if="alarmConditions.pressure.model.below !== null && alarmConditions.pressure.model.above !== null">
+                                            {{ alarmConditions.isFirstCondition('pressure') ? 'When' : 'and when' }}  pressure is below {{ alarmConditions.pressure.model.below }} kPa
+                                            or above {{ alarmConditions.pressure.model.above }} kPa
+                                        </span>
+                                        <span ng-if="alarmConditions.pressure.model.below !== null && alarmConditions.pressure.model.above === null">
+                                            {{ alarmConditions.isFirstCondition('pressure') ? 'When' : 'and when' }}  pressure is below {{ alarmConditions.pressure.model.below }} kPa
+                                        </span>
+                                        <span ng-if="alarmConditions.pressure.model.below === null && alarmConditions.pressure.model.above !== null">
+                                            {{ alarmConditions.isFirstCondition('pressure') ? 'When' : 'and when' }}  pressure is above {{ alarmConditions.pressure.model.above }} kPa
+                                        </span>
+                                    </td>
+                                    <td colspan="2" ng-if="alarmConditions.pressure.form.isChanging">
+                                        <form name="pressureForm" id="pressureForm"
+                                              ng-submit="alarmConditions.pressure.actions.submit()"
+                                              ng-show="alarmConditions.pressure.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group" ng-class="{'has-error': pressureForm.pressureBelow.$invalid }">
+                                                <label for="pressureBelow">Trigger when pressure is below</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="pressureBelow" name="pressureBelow"
+                                                           placeholder="Enter a pressure value between {{ alarmConditions.pressure.form.belowMin }} and {{ alarmConditions.pressure.form.belowMax }}"
+                                                           ng-model="alarmConditions.pressure.form.below"
+                                                           ng-change="alarmConditions.pressure.form.onChange()"
+                                                           min="{{ alarmConditions.pressure.form.belowMin }}"
+                                                           max="{{ alarmConditions.pressure.form.belowMax }}">
+                                                    <span class="input-group-addon">kPa</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="pressureForm.pressureBelow.$invalid" ><i class="fa fa-exclamation-circle"></i>&nbsp;Pressure value must be between {{ alarmConditions.pressure.form.belowMin }} and {{ alarmConditions.pressure.form.belowMax }}</p>
+                                            </div>
+                                            <div class="form-group" ng-class="{'has-error': pressureForm.pressureAbove.$invalid}">
+                                                <label for="pressureAbove">Trigger when pressure is above</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="pressureAbove" name="pressureAbove"
+                                                           placeholder="Enter a pressure value between {{ alarmConditions.pressure.form.aboveMin }} and {{ alarmConditions.pressure.form.aboveMax }}"
+                                                           ng-model="alarmConditions.pressure.form.above"
+                                                           ng-change="alarmConditions.pressure.form.onChange()"
+                                                           min="{{ alarmConditions.pressure.form.aboveMin }}"
+                                                           max="{{ alarmConditions.pressure.form.aboveMax }}">
+                                                    <span class="input-group-addon">kPa</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="pressureForm.pressureAbove.$invalid"><i class="fa fa-exclamation-circle"></i>&nbsp;Pressure value must be between {{ alarmConditions.pressure.form.aboveMin }} and {{ alarmConditions.pressure.form.aboveMax }}</p>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="pressureForm.$invalid"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="alarmConditions.pressure.actions.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td width="10" ng-if="!alarmConditions.pressure.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Remove this condition"
+                                                ng-click="alarmConditions.pressure.actions.remove()"
+                                                ng-show="alarmConditions.pressure.model.above || alarmConditions.pressure.model.below"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr><!--pressure-->
+                                <!--<tr>route
+                                    <th width="200">Route</th>
+                                    <td width="10" ng-if="!alarmConditions.route.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Change this condition"
+                                                ng-click="alarmConditions.route.actions.begin()"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-pencil fa-lg"></i>
+                                        </button>
+                                    </td>
+                                    <td ng-if="!alarmConditions.route.form.isChanging">
+                                        <span ng-if="alarmConditions.route.model.option === 'on'">
+                                            {{ alarmConditions.isFirstCondition('route') ? 'When' : 'and when' }}  on <a role="button" ng-click="alarmConditions.route.actions.goToRoute(alarmConditions.route.model.route)">{{ alarmConditions.route.model.route.routeName }}</a>
+                                        </span>
+                                        <span ng-if="alarmConditions.route.model.option === 'not-on'">
+                                            {{ alarmConditions.isFirstCondition('route') ? 'When' : 'and when' }}  not on <a role="button" ng-click="alarmConditions.route.actions.goToRoute(alarmConditions.route.model.route)">{{ alarmConditions.route.model.route.routeName }}</a>
+                                        </span>
+                                    </td>
+                                    <td colspan="2" ng-if="alarmConditions.route.form.isChanging">
+                                        <form name="routeForm" id="routeForm"
+                                              ng-submit="alarmConditions.route.actions.submit()"
+                                              ng-show="alarmConditions.route.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group">
+                                                <label for="routeDetected">Trigger when</label>
+                                                <select id="routeDetected" class="form-control" ng-model="alarmConditions.route.form.option">
+                                                    <option value="" ng-selected="alarmConditions.route.form.option === ''"></option>
+                                                    <option value="on" ng-selected="alarmConditions.route.form.option === 'on'">On {{ alarmConditions.route.form.route !== null ? alarmConditions.route.form.route.routeName : '...' }}</option>
+                                                    <option value="not-on" ng-selected="alarmConditions.route.form.option === 'not-on'">Not on {{ alarmConditions.route.form.route !== null ? alarmConditions.route.form.route.routeName : '...' }}</option>
+                                                </select>
+                                                <p class="help-block text-right" ng-show="(alarmConditions.route.form.option === 'on' || alarmConditions.route.form.option === 'not-on') && alarmConditions.route.form.route === null">
+                                                    &nbsp;<i class="fa fa-exclamation-circle"></i>&nbsp;Click on a route in the list below to complete this condition
+                                                </p>
+                                            </div>
+                                            <div class="form-group"
+                                                 ng-if="(alarmConditions.route.form.option === 'on' || alarmConditions.route.form.option === 'not-on')">
+                                                <label>Select the route</label>
+                                                <div class="input-group input-group-sm col-sm-12">
+                                                    <span class="input-group-addon"><i class="fa fa-filter"></i></span>
+                                                    <input type="text" class="form-control" ng-model="alarmConditions.route.form.filterText" placeholder="Enter text to filter the list of routes">
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <ul class="list-unstyled">
+                                                        <li ng-show="alarmConditions.route.form.routes.length > 0 && alarmConditions.route.form.routes.length >= alarmConditions.route.form.routeLimit"><i class="fa fa-info-circle"></i>&nbsp;Only showing first {{alarmConditions.route.form.routeLimit}} routes.  If you don't see a route, enter a more specific search text and try again</li>
+                                                        <li ng-repeat="route in alarmConditions.route.form.routes | filter: alarmConditions.route.form.filter | orderBy: 'routeName' | limitTo: alarmConditions.route.form.routeLimit">
+                                                            <a role="button" ng-click="alarmConditions.route.actions.selectRoute(route)">
+                                                                <i class="fa fa-fw text-muted" ng-class="{'fa-check-square': alarmConditions.route.form.route === route, 'fa-square-o': alarmConditions.route.form.route !== route }"></i>
+                                                                &nbsp;<strong>{{ route.routeName }}</strong> (<small>{{route.startAddress}}  <i class="fa fa-long-arrow-right"></i>  {{route.endAddress}}</small>)
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>                                                
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="(alarmConditions.route.form.option === 'on' || alarmConditions.route.form.option === 'not-on') && alarmConditions.route.form.route === null"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="alarmConditions.route.actions.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td width="10" ng-if="!alarmConditions.route.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Remove this condition"
+                                                ng-click="alarmConditions.route.actions.remove()"
+                                                ng-show="alarmConditions.route.model.option"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr> route-->
+                                <tr><!-- shock -->
+                                    <th width="200">Shock</th>
+                                    <td width="10" ng-if="!alarmConditions.shock.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Change this condition"
+                                                ng-click="alarmConditions.shock.actions.begin()"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-pencil fa-lg"></i>
+                                        </button>
+                                    </td>
+                                    <td ng-if="!alarmConditions.shock.form.isChanging">
+                                        <span ng-if="alarmConditions.shock.model.above !== null">
+                                            {{ alarmConditions.isFirstCondition('shock') ? 'When' : 'and when' }}  shock is above {{ alarmConditions.shock.model.above }} g
+                                        </span>
+                                    </td>
+                                    <td colspan="2" ng-if="alarmConditions.shock.form.isChanging">
+                                        <form name="shockForm" id="shockForm"
+                                              ng-submit="alarmConditions.shock.actions.submit()"
+                                              ng-show="alarmConditions.shock.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group" ng-class="{'has-error': shockForm.shockAbove.$invalid && !shockForm.shockAbove.$pristine}">
+                                                <label for="shockAbove">Trigger when shock is above</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="shockAbove" name="shockAbove"
+                                                           placeholder="Enter a shock value between {{ alarmConditions.shock.form.min }} and {{ alarmConditions.shock.form.max }}"
+                                                           ng-model="alarmConditions.shock.form.above"
+                                                           min="{{ alarmConditions.shock.form.min }}" max="{{ alarmConditions.shock.form.max }}">
+                                                    <span class="input-group-addon">g</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="shockForm.shockAbove.$invalid && !shockForm.shockAbove.$pristine"><i class="fa fa-exclamation-circle"></i>&nbsp;Shock value must be between {{ alarmConditions.shock.form.min }} and {{ alarmConditions.shock.form.max }}</p>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="shockForm.$invalid"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="alarmConditions.shock.actions.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td width="10" ng-if="!alarmConditions.shock.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Remove this condition"
+                                                ng-click="alarmConditions.shock.actions.remove()"
+                                                ng-show="alarmConditions.shock.model.above || alarmConditions.shock.model.detected"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr><!--shock-->
+                                <tr><!-- store and forward -->
+                                    <th width="200">Store & Forward</th>
+                                    <td width="10" ng-if="!alarmConditions.storeAndForward.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Change this condition"
+                                                ng-click="alarmConditions.storeAndForward.actions.begin()"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-pencil fa-lg"></i>
+                                        </button>
+                                    </td>
+                                    <td ng-if="!alarmConditions.storeAndForward.form.isChanging">
+                                        <span ng-if="alarmConditions.storeAndForward.model.option === 'no'">
+                                            {{ alarmConditions.isFirstCondition('storeAndForward') ? 'When' : 'and when' }} device report is a store & forward report
+                                        </span>
+                                        <span ng-if="alarmConditions.storeAndForward.model.option === 'yes'">
+                                            {{ alarmConditions.isFirstCondition('storeAndForward') ? 'When' : 'and when' }} device report is not a store & forward report
+                                        </span>
+                                    </td>
+                                    <td colspan="2" ng-if="alarmConditions.storeAndForward.form.isChanging">
+                                        <form name="storeAndForwardForm" id="storeAndForwardForm"
+                                              ng-submit="alarmConditions.storeAndForward.actions.submit()"
+                                              ng-show="alarmConditions.storeAndForward.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group">
+                                                <label for="storeAndForwardMethod">Trigger when </label>
+                                                <select id="storeAndForwardMethod" class="form-control" ng-model="alarmConditions.storeAndForward.form.option">
+                                                    <option value="" ng-selected="alarmConditions.storeAndForward.form.option === ''"></option>
+                                                    <option value="no" ng-selected="alarmConditions.storeAndForward.form.option === 'no'">Device report is a store & forward report</option>
+                                                    <option value="yes" ng-selected="alarmConditions.storeAndForward.form.option === 'yes'">Device report is not a store & forward report</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="alarmConditions.storeAndForward.actions.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td width="10" ng-if="!alarmConditions.storeAndForward.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Remove this condition"
+                                                ng-click="alarmConditions.storeAndForward.actions.remove()"
+                                                ng-show="alarmConditions.storeAndForward.model.option"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr><!--store and forward-->
+                                <tr><!-- temperature -->
+                                    <th width="200">Temperature</th>
+                                    <td width="10" ng-if="!alarmConditions.temperature.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Change this condition"
+                                                ng-click="alarmConditions.temperature.actions.begin()"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-pencil fa-lg"></i>
+                                        </button>
+                                    </td>
+                                    <td ng-if="!alarmConditions.temperature.form.isChanging">
+                                        <span ng-if="alarmConditions.temperature.model.below !== null && alarmConditions.temperature.model.above !== null">
+                                            {{ alarmConditions.isFirstCondition('temperature') ? 'When' : 'and when' }}  temperature is below {{ alarmConditions.temperature.model.below }}&deg;{{ alarmConditions.temperature.model.belowUnit }}
+                                            or above {{ alarmConditions.temperature.model.above }}&deg;{{ alarmConditions.temperature.model.aboveUnit }}
+                                        </span>
+                                        <span ng-if="alarmConditions.temperature.model.below !== null && alarmConditions.temperature.model.above === null">
+                                            {{ alarmConditions.isFirstCondition('temperature') ? 'When' : 'and when' }}  temperature is below {{ alarmConditions.temperature.model.below }}&deg;{{ alarmConditions.temperature.model.belowUnit }}
+                                        </span>
+                                        <span ng-if="alarmConditions.temperature.model.below === null && alarmConditions.temperature.model.above !== null">
+                                            {{ alarmConditions.isFirstCondition('temperature') ? 'When' : 'and when' }}  temperature is above {{ alarmConditions.temperature.model.above }}&deg;{{ alarmConditions.temperature.model.aboveUnit }}
+                                        </span>
+                                    </td>
+                                    <td colspan="2" ng-if="alarmConditions.temperature.form.isChanging">
+                                        <form name="temperatureForm" id="temperatureForm"
+                                              ng-submit="alarmConditions.temperature.actions.submit()"
+                                              ng-show="alarmConditions.temperature.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group" ng-class="{'has-error': temperatureForm.tempBelow.$invalid }">
+                                                <label for="tempBelow">Trigger when temperature is below</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="tempBelow" name="tempBelow"
+                                                           placeholder="Enter a temperature value between {{ alarmConditions.temperature.form.belowMin }} and {{ alarmConditions.temperature.form.belowMax }}"
+                                                           ng-model="alarmConditions.temperature.form.below"
+                                                           ng-change="alarmConditions.temperature.form.onChange()"
+                                                           min="{{ alarmConditions.temperature.form.belowMin }}"
+                                                           max="{{ alarmConditions.temperature.form.belowMax }}">
+                                                    <div class=input-group-btn>
+                                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">&deg;{{ alarmConditions.temperature.form.unit === 'c' ? 'C' : 'F'}}  <span class="caret"></span></button>
+                                                        <ul class="dropdown-menu dropdown-menu-right">
+                                                            <li><a role="button" ng-click="alarmConditions.temperature.form.changeUnit('c')">&deg;C</a></li>
+                                                            <li><a role="button" ng-click="alarmConditions.temperature.form.changeUnit('f')">&deg;F</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="temperatureForm.tempBelow.$invalid" ><i class="fa fa-exclamation-circle"></i>&nbsp;Temperature value must be between {{ alarmConditions.temperature.form.belowMin }} and {{ alarmConditions.temperature.form.belowMax }}</p>
+                                            </div>
+                                            <div class="form-group" ng-class="{'has-error': temperatureForm.tempAbove.$invalid }">
+                                                <label for="tempAbove">Trigger when temperature is above</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="tempAbove" name="tempAbove"
+                                                           placeholder="Enter a temperature value between {{ alarmConditions.temperature.form.aboveMin }} and {{ alarmConditions.temperature.form.aboveMax }}"
+                                                           ng-model="alarmConditions.temperature.form.above"
+                                                           ng-change="alarmConditions.temperature.form.onChange()"
+                                                           min="{{ alarmConditions.temperature.form.aboveMin }}"
+                                                           max="{{ alarmConditions.temperature.form.aboveMax }}">
+                                                    <div class=input-group-btn>
+                                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">&deg;{{ alarmConditions.temperature.form.unit === 'c' ? 'C' : 'F'}}  <span class="caret"></span></button>
+                                                        <ul class="dropdown-menu dropdown-menu-right">
+                                                            <li><a role="button" ng-click="alarmConditions.temperature.form.changeUnit('c')">&deg;C</a></li>
+                                                            <li><a role="button" ng-click="alarmConditions.temperature.form.changeUnit('f')">&deg;F</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="temperatureForm.tempAbove.$invalid"><i class="fa fa-exclamation-circle"></i>&nbsp;Temperature value must be between {{ alarmConditions.temperature.form.aboveMin }} and {{ alarmConditions.temperature.form.aboveMax }}</p>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="temperatureForm.$invalid"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="alarmConditions.temperature.actions.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td width="10" ng-if="!alarmConditions.temperature.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Remove this condition"
+                                                ng-click="alarmConditions.temperature.actions.remove()"
+                                                ng-show="alarmConditions.temperature.model.above !== null || alarmConditions.temperature.model.below !== null"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr><!--temperature-->
+                               <tr> 
+                                   <!-- temperature probe  -->
+                                    <th width="200">Temperature Probe</th>
+                                    <td width="10" ng-if="!alarmConditions.temperatureProbe.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Change this condition"
+                                                ng-click="alarmConditions.temperatureProbe.actions.begin()"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-pencil fa-lg"></i>
+                                        </button>
+                                    </td>
+                                    <td ng-if="!alarmConditions.temperatureProbe.form.isChanging">
+                                        <span ng-if="alarmConditions.temperatureProbe.model.below !== null && alarmConditions.temperatureProbe.model.above !== null">
+                                            {{ alarmConditions.isFirstCondition('temperatureProbe') ? 'When' : 'and when' }}  temperature probe is below {{ alarmConditions.temperatureProbe.model.below }}&deg;{{ alarmConditions.temperatureProbe.model.belowUnit }}
+                                            or above {{ alarmConditions.temperatureProbe.model.above }}&deg;{{ alarmConditions.temperatureProbe.model.aboveUnit }}
+                                        </span>
+                                        <span ng-if="alarmConditions.temperatureProbe.model.below !== null && alarmConditions.temperatureProbe.model.above === null">
+                                            {{ alarmConditions.isFirstCondition('temperatureProbe') ? 'When' : 'and when' }}  temperature probe is below {{ alarmConditions.temperatureProbe.model.below }}&deg;{{ alarmConditions.temperatureProbe.model.belowUnit }}
+                                        </span>
+                                        <span ng-if="alarmConditions.temperatureProbe.model.below === null && alarmConditions.temperatureProbe.model.above !== null">
+                                            {{ alarmConditions.isFirstCondition('temperatureProbe') ? 'When' : 'and when' }}  temperature probe is above {{ alarmConditions.temperatureProbe.model.above }}&deg;{{ alarmConditions.temperatureProbe.model.aboveUnit }}
+                                        </span>
+                                    </td>
+                                    <td colspan="2" ng-if="alarmConditions.temperatureProbe.form.isChanging">
+                                        <form name="temperatureProbeForm" id="temperatureProbeForm"
+                                              ng-submit="alarmConditions.temperatureProbe.actions.submit()"
+                                              ng-show="alarmConditions.temperatureProbe.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group" ng-class="{'has-error': temperatureProbeForm.tempProbeBelow.$invalid }">
+                                                <label for="tempProbeBelow">Trigger when temperature probe is below</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="tempProbeBelow" name="tempProbeBelow"
+                                                           placeholder="Enter a temperature value between {{ alarmConditions.temperatureProbe.form.belowMin }} and {{ alarmConditions.temperatureProbe.form.belowMax }}"
+                                                           ng-model="alarmConditions.temperatureProbe.form.below"
+                                                           ng-change="alarmConditions.temperatureProbe.form.onChange()"
+                                                           min="{{ alarmConditions.temperatureProbe.form.belowMin }}"
+                                                           max="{{ alarmConditions.temperatureProbe.form.belowMax }}">
+                                                    <div class=input-group-btn>
+                                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">&deg;{{ alarmConditions.temperatureProbe.form.unit === 'c' ? 'C' : 'F'}}  <span class="caret"></span></button>
+                                                        <ul class="dropdown-menu dropdown-menu-right">
+                                                            <li><a role="button" ng-click="alarmConditions.temperatureProbe.form.changeUnit('c')">&deg;C</a></li>
+                                                            <li><a role="button" ng-click="alarmConditions.temperatureProbe.form.changeUnit('f')">&deg;F</a></li>
+                                                        </ul>
+                                                    </div>                                                    
+                                                </div>
+                                                <p class="help-block text-right" ng-show="temperatureProbeForm.tempProbeBelow.$invalid"><i class="fa fa-exclamation-circle"></i>&nbsp;Temperature value must be between {{ alarmConditions.temperatureProbe.form.belowMin }} and {{ alarmConditions.temperatureProbe.form.belowMax }}</p>
+                                            </div>
+                                            <div class="form-group" ng-class="{'has-error': temperatureProbeForm.tempProbeAbove.$invalid }">
+                                                <label for="tempProbeAbove">Trigger when temperature probe is above</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="tempProbeAbove" name="tempProbeAbove"
+                                                           placeholder="Enter a temperature value between {{ alarmConditions.temperatureProbe.form.aboveMin }} and {{ alarmConditions.temperatureProbe.form.aboveMax }}"
+                                                           ng-model="alarmConditions.temperatureProbe.form.above"
+                                                           ng-change="alarmConditions.temperatureProbe.form.onChange()"
+                                                           min="{{ alarmConditions.temperatureProbe.form.aboveMin }}"
+                                                           max="{{ alarmConditions.temperatureProbe.form.aboveMax }}">
+                                                    <div class=input-group-btn>
+                                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">&deg;{{ alarmConditions.temperatureProbe.form.unit === 'c' ? 'C' : 'F'}}  <span class="caret"></span></button>
+                                                        <ul class="dropdown-menu dropdown-menu-right">
+                                                            <li><a role="button" ng-click="alarmConditions.temperatureProbe.form.changeUnit('c')">&deg;C</a></li>
+                                                            <li><a role="button" ng-click="alarmConditions.temperatureProbe.form.changeUnit('f')">&deg;F</a></li>
+                                                        </ul>
+                                                    </div>                                                    
+                                                </div>
+                                                <p class="help-block text-right" ng-show="temperatureProbeForm.tempProbeAbove.$invalid"><i class="fa fa-exclamation-circle"></i>&nbsp;Temperature value must be between {{ alarmConditions.temperatureProbe.form.aboveMin }} and {{ alarmConditions.temperatureProbe.form.aboveMax }}</p>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="temperatureProbeForm.$invalid"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="alarmConditions.temperatureProbe.actions.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td width="10" ng-if="!alarmConditions.temperatureProbe.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Remove this condition"
+                                                ng-click="alarmConditions.temperatureProbe.actions.remove()"
+                                                ng-show="alarmConditions.temperatureProbe.model.above !== null || alarmConditions.temperatureProbe.model.below !== null"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr> 
+                                <!-- temperatureProbe -->
+                                <tr><!-- tilt -->
+                                    <th width="200">Tilt</th>
+                                    <td width="10" ng-if="!alarmConditions.tilt.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Change this condition"
+                                                ng-click="alarmConditions.tilt.actions.begin()"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-pencil fa-lg"></i>
+                                        </button>
+                                    </td>
+                                    <td ng-if="!alarmConditions.tilt.form.isChanging">
+                                        <span ng-if="alarmConditions.tilt.model.below !== null && alarmConditions.tilt.model.above !== null">
+                                            {{ alarmConditions.isFirstCondition('tilt') ? 'When' : 'and when' }}  tilt is below {{ alarmConditions.tilt.model.below }} &deg;
+                                            or above {{ alarmConditions.tilt.model.above }} &deg;
+                                        </span>
+                                        <span ng-if="alarmConditions.tilt.model.below !== null && alarmConditions.tilt.model.above === null">
+                                            {{ alarmConditions.isFirstCondition('tilt') ? 'When' : 'and when' }}  tilt is below {{ alarmConditions.tilt.model.below }} &deg;
+                                        </span>
+                                        <span ng-if="alarmConditions.tilt.model.below === null && alarmConditions.tilt.model.above !== null">
+                                            {{ alarmConditions.isFirstCondition('tilt') ? 'When' : 'and when' }}  tilt is above {{ alarmConditions.tilt.model.above }} &deg;
+                                        </span>
+                                    </td>
+                                    <td colspan="2" ng-if="alarmConditions.tilt.form.isChanging">
+                                        <form name="tiltForm" id="tiltForm"
+                                              ng-submit="alarmConditions.tilt.actions.submit()"
+                                              ng-show="alarmConditions.tilt.form.isChanging"
+                                              novalidate>
+                                            <div class="form-group" ng-class="{'has-error': tiltForm.tiltBelow.$invalid && !tiltForm.tiltBelow.$pristine }">
+                                                <label for="tiltBelow">Trigger when tilt is below</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="tiltBelow" name="tiltBelow"
+                                                           placeholder="Enter tilt value between {{ alarmConditions.tilt.form.belowMin }} and {{ alarmConditions.tilt.form.belowMax }}"
+                                                           ng-model="alarmConditions.tilt.form.below"
+                                                           ng-change="alarmConditions.tilt.form.onChange()"
+                                                           min="{{ alarmConditions.tilt.form.belowMin }}"
+                                                           max="{{ alarmConditions.tilt.form.belowMax }}">
+                                                    <span class="input-group-addon">&deg;</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="tiltForm.tiltBelow.$invalid && !tiltForm.tiltBelow.$pristine" ><i class="fa fa-exclamation-circle"></i>&nbsp;tilt value must be between {{ alarmConditions.tilt.form.belowMin }} and {{ alarmConditions.tilt.form.belowMax }}</p>
+                                            </div>
+                                            <div class="form-group" ng-class="{'has-error': tiltForm.tiltAbove.$invalid && !tiltForm.tiltAbove.$pristine }">
+                                                <label for="tiltAbove">Trigger when tilt is above</label>
+                                                <div class="input-group col-sm-12">
+                                                    <input type="number" class="form-control" id="tiltAbove" name="tiltAbove"
+                                                           placeholder="Enter tilt value between {{ alarmConditions.tilt.form.aboveMin }} and {{ alarmConditions.tilt.form.aboveMax }}"
+                                                           ng-model="alarmConditions.tilt.form.above"
+                                                           ng-change="alarmConditions.tilt.form.onChange()"
+                                                           min="{{ alarmConditions.tilt.form.aboveMin }}" max="{{ alarmConditions.tilt.form.aboveMax }}">
+                                                    <span class="input-group-addon">&deg;</span>
+                                                </div>
+                                                <p class="help-block text-right" ng-show="tiltForm.tiltAbove.$invalid && !tiltForm.tiltAbove.$pristine" ><i class="fa fa-exclamation-circle"></i>&nbsp;tilt value must be between {{ alarmConditions.tilt.form.aboveMin }} and {{ alarmConditions.tilt.form.aboveMax }}</p>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-default" ng-disabled="tiltForm.$invalid"><i class="fa fa-save"></i> Save</button>
+                                                    <button type="button" class="btn btn-default" ng-click="alarmConditions.tilt.actions.end()"><i class="fa fa-times"></i> Cancel</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td width="10" ng-if="!alarmConditions.tilt.form.isChanging">
+                                        <button class="btn btn-default btn-sm" title="Remove this condition"
+                                                ng-click="alarmConditions.tilt.actions.remove()"
+                                                ng-show="alarmConditions.tilt.model.above !== null || alarmConditions.tilt.model.below !== null"
+                                                ng-if="alarmConditions.hasPermission.toChange">
+                                            <i class="fa fa-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr><!--tilt-->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

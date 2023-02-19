@@ -1,0 +1,70 @@
+<div ng-controller="SentryCommandsQueueController as sentryCommandsQueue">
+    <!-- Modals -->
+    <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="cancelModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="sentryCommandsQueue.cancelCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="cancelModalLabel"><i class="fa fa-exclamation-triangle"></i> Cancel <strong>{{sentryCommandsQueue.command.commandId}}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="sentryCommandsQueue.cancelErrorMessage" class="alert alert-danger">{{ sentryCommandsQueue.cancelErrorMessage }}</div>
+                    <p>Are you sure you want to cancel command <strong>{{sentryCommandsQueue.command.commandId}}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="sentryCommandsQueue.cancelCancel()">No</button>
+                    <button type="button" class="btn btn-primary" ng-click="sentryCommandsQueue.cancelCommand()">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <br/>
+            <div feedback></div>
+
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th width="20">#</th>
+                        <th width="60"></th>
+                        <th width="300">Command</th>
+                        <th width="150">Time queued</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-show="sentryCommandsQueue.pendingCommands.length != 0" ng-repeat="command in sentryCommandsQueue.pendingCommands">
+                        <td width="20">{{ $index + 1 }}</td>
+                        <td width="60">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-default dropdown-toggle" type="button" id="dropdown{{$index}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdown{{$index}}">
+                                    <li><a data-toggle="modal" data-target="#cancelModal" ng-click="sentryCommandsQueue.cancelBegin(command)" ng-if="sentryCommandsQueue.hasPermission.toCancelCommands">Cancel</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="300">{{ command.command }}</td>
+                        <td width="150">
+                            <span local-datetime utc-datetime="{{command.timeQueued}}" date-format="L" time-format="LTS"></span>
+                        </td>
+                    </tr>
+                    <tr ng-show="sentryCommandsQueue.pendingCommands.length === 0" class="warning">
+                        <td></td>
+                        <td colspan="3">There are no pending commands for this device</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>

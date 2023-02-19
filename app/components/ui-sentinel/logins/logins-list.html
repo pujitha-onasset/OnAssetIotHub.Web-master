@@ -1,0 +1,242 @@
+<div ng-controller="LoginsListController as loginsListUi">
+    <div ng-if="loginsListUi.errorMessage" class="alert alert-danger">{{ loginsListUi.errorMessage }}</div>
+    <!-- Modals -->
+    <div class="modal fade" id="changeNameModal" tabindex="-1" role="dialog" aria-labelledby="changeNameModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-warning">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="loginsListUi.changeNameCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="changeNameModalLabel"><i class="fa fa-exclamation-circle"></i> Change name for <strong>{{loginsListUi.login.userName}}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="loginsListUi.changeNameErrorMessage" class="alert alert-danger">{{ loginsListUi.changeNameErrorMessage }}</div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-3">New name</label>
+                            <div class="col-sm-6">
+                                <input type="text" id="txt-NewName" class="form-control" ng-model="loginsListUi.newName">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="loginsListUi.changeNameCancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="loginsListUi.changeNameSubmit()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="changeRoleModal" tabindex="-1" role="dialog" aria-labelledby="changeRoleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-warning">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="loginsListUi.changeRoleCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="changeRoleModalLabel"><i class="fa fa-exclamation-circle"></i> Change role for <strong>{{loginsListUi.login.userName}}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="loginsListUi.changeRoleErrorMessage" class="alert alert-danger">{{ loginsListUi.changeRoleErrorMessage }}</div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-3">Role</label>
+                            <div class="col-sm-6">
+                                <select class="form-control"
+                                    ng-model="loginsListUi.newRole"
+                                    ng-options="role.value as role.label for role in loginsListUi.availableRoles">
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="loginsListUi.changeRoleCancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="loginsListUi.changeRoleSubmit()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="loginsListUi.deleteCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="deleteModalLabel"><i class="fa fa-exclamation-triangle"></i> Delete <strong>{{loginsListUi.login.userName}}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="loginsListUi.deleteErrorMessage" class="alert alert-danger">{{ loginsListUi.deleteErrorMessage }}</div>
+                    <p>Are you sure you want to delete <strong>{{loginsListUi.login.userName}}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="loginsListUi.deleteCancel()">No</button>
+                    <button type="button" class="btn btn-primary" ng-click="loginsListUi.deleteSubmit()">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="suspendModal" tabindex="-1" role="dialog" aria-labelledby="suspendModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="loginsListUi.suspendCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="suspendModalLabel"><i class="fa fa-exclamation-triangle"></i> Suspend <strong>{{loginsListUi.login.userName}}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="loginsListUi.suspendErrorMessage" class="alert alert-danger">{{ loginsListUi.suspendErrorMessage }}</div>
+                    <p>Are you sure you want to suspend <strong>{{loginsListUi.login.userName}}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="loginsListUi.suspendCancel()">No</button>
+                    <button type="button" class="btn btn-primary" ng-click="loginsListUi.suspendSubmit()">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="unlockModal" tabindex="-1" role="dialog" aria-labelledby="unlockModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="loginsListUi.unlockCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="unlockModalLabel"><i class="fa fa-exclamation-triangle"></i> Unlock <strong>{{loginsListUi.login.userName}}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="loginsListUi.unlockErrorMessage" class="alert alert-danger">{{ loginsListUi.unlockErrorMessage }}</div>
+                    <p>Are you sure you want to unlock <strong>{{loginsListUi.login.userName}}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="loginsListUi.unlockCancel()">No</button>
+                    <button type="button" class="btn btn-primary" ng-click="loginsListUi.unlockSubmit()">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-warning">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="loginsListUi.passwordCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="changePasswordModalLabel"><i class="fa fa-exclamation-circle"></i> Change Password for <strong>{{loginsListUi.login.userName}}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="loginsListUi.changePasswordErrorMessage" class="alert alert-danger">{{ loginsListUi.changePasswordErrorMessage }}</div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-3">New password</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" ng-model="loginsListUi.password">
+                                <span class="help-block">Password must be 8 or more characters and contain uppercase, lowercase, numbers, and symbols</span>
+                            </div>
+                            <div class="col-sm-3">
+                                <button role="button" ng-click="loginsListUi.passwordGenerate('update')" title="generate a random password"><i class="fa fa-asterisk"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="loginsListUi.passwordCancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="loginsListUi.passwordSubmit()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="addLoginModal" tabindex="-1" role="dialog" aria-labelledby="addLoginModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-success">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="loginsListUi.addLoginCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="addLoginModalLabel"><i class="fa fa-exclamation-circle"></i> Add login</h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="loginsListUi.addLoginErrorMessage" class="alert alert-danger">{{ loginsListUi.addLoginErrorMessage }}</div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-3">Account</label>
+                            <div class="col-sm-6">
+                                <select class="form-control" ng-options="account as account.name for account in loginsListUi.addLoginAccounts track by account.id" ng-model="loginsListUi.login.account" ng-disabled="!loginsListUi.hasPermission.toCreate"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3">Login name</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" ng-model="loginsListUi.login.userName" ng-readonly="!loginsListUi.hasPermission.toCreate">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3">Password</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" ng-model="loginsListUi.login.password" ng-readonly="!loginsListUi.hasPermission.toCreate">
+                                <span class="help-block">Password must be 8 or more characters and contain uppercase, lowercase, numbers, and symbols</span>
+                            </div>
+                            <div class="col-sm-3">
+                                <button role="button" ng-click="loginsListUi.passwordGenerate('add')" title="generate a random password" ng-disabled="!loginsListUi.hasPermission.toCreate"><i class="fa fa-asterisk"></i></button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3">Role</label>
+                            <div class="col-sm-6">
+                                <select id="userRole" class="form-control" ng-model="loginsListUi.login.role" ng-change="loginsListUi.role.isPristine = true" ng-disabled="!loginsListUi.hasPermission.toCreate">
+                                    <option ng-repeat="role in loginsListUi.availableRoles"  ng-value="role.value" ng-selected="loginsListUi.login.role === role.value">{{ role.label }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="loginsListUi.addLoginCancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="loginsListUi.addLoginSubmit()" ng-if="loginsListUi.hasPermission.toCreate">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th width="20">#</th>
+                    <th width="60">
+                        <button class="btn btn-sm btn-default" type="button" id="btn-addLogin"ng-if="loginsListUi.canCreateLogin()" 
+                        ng-click="loginsListUi.addLoginBegin()" data-toggle="modal" data-target="#addLoginModal" ng-if="loginsListUi.hasPermission.toCreate">
+                            New
+                        </button>
+                    </th>
+                    <th class="sortcolumn" ng-click="loginsListUi.sortBy('userName')">Login Name<span class="sortorder" ng-show="loginsListUi.propertyName === 'userName'" ng-class="{reverse: loginsListUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="loginsListUi.sortBy('role')">Role<span class="sortorder" ng-show="loginsListUi.propertyName === 'role'" ng-class="{reverse: loginsListUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="loginsListUi.sortBy('accountName')">Account Name<span class="sortorder" ng-show="loginsListUi.propertyName === 'accountName'" ng-class="{reverse: loginsListUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="loginsListUi.sortBy('dateAdded')">Date Added<span class="sortorder" ng-show="loginsListUi.propertyName === 'dateAdded'" ng-class="{reverse: loginsListUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="loginsListUi.sortBy('isLocked')">Is Locked?<span class="sortorder" ng-show="loginsListUi.propertyName === 'isLocked'" ng-class="{reverse: loginsListUi.reverse}"></span></th>
+                    <th class="sortcolumn" ng-click="loginsListUi.sortBy('dateLockoutExpires')">Lockout Expiration<span class="sortorder" ng-show="loginsListUi.propertyName === 'dateLockoutExpires'" ng-class="{reverse: loginsListUi.reverse}"></span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-show="loginsListUi.list.length === 0" class="warning">
+                    <td></td>
+                    <td colspan="4">There are no records</td>
+                </tr>
+                <tr ng-show="loginsListUi.list.length != 0" ng-repeat="item in loginsListUi.list | orderBy:loginsListUi.propertyName:loginsListUi.reverse">
+                    <td width="20">{{ $index + 1 }}</td>
+                    <td width="60">
+                        <div class="dropdown" ng-if="loginsListUi.hasPermission.toChangeName || loginsListUi.hasPermission.toChangePassword || loginsListUi.hasPermission.toChangeAccess || loginsListUi.hasPermission.toDelete">
+                            <button class="btn btn-sm btn-default dropdown-toggle" type="button" id="dropdown{{$index}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdown{{$index}}">
+                                <li><a ng-click="loginsListUi.changeNameBegin(item)" data-toggle="modal" data-target="#changeNameModal" ng-if="loginsListUi.checkPermissionsToChangeName(item)">Change name</a></li>
+                                <li><a ng-click="loginsListUi.changeRoleBegin(item)" data-toggle="modal" data-target="#changeRoleModal" ng-if="loginsListUi.checkPermissionsToChangeRole(item)">Change role</a></li>
+                                <li><a ng-click="loginsListUi.suspendBegin(item)" data-toggle="modal" data-target="#suspendModal" ng-if="!item.isLocked && loginsListUi.checkPermissionsToChangeAccess(item)">Suspend</a></li>
+                                <li><a ng-click="loginsListUi.unlockBegin(item)" data-toggle="modal" data-target="#unlockModal" ng-if="item.isLocked && loginsListUi.checkPermissionsToChangeAccess(item)">Unlock</a></li>
+                                <li><a ng-click="loginsListUi.deleteBegin(item)" data-toggle="modal" data-target="#deleteModal" ng-if="loginsListUi.checkPermissionsToDelete(item)">Delete</a></li>
+                                <li><a ng-click="loginsListUi.passwordBegin(item)" data-toggle="modal" data-target="#changePasswordModal" ng-if="loginsListUi.checkPermissionsToChangePassword(item)">Set password</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                    <td>{{ item.userName }}</td>
+                    <td>{{ item.role }}</td>
+                    <td>{{ item.accountName }}</td>
+                    <td><span local-datetime utc-datetime="{{item.dateAdded}}" date-format="L" time-format="LTS"></span></td>
+                    <td>{{ item.isLocked ? 'yes' : 'no' }}</td>
+                    <td><span local-datetime utc-datetime="{{item.dateLockoutExpires}}" date-format="L" time-format="LTS"></span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

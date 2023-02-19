@@ -1,0 +1,142 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <a role="button" ng-click="deviceGroupDevices.panel.toggle()">Devices</a>
+        <span class="pull-right text-right"><a role="button" ng-click="deviceGroupDevices.panel.toggle()"><i class="fa fa-lg" ng-class="{'fa-caret-right': deviceGroupDevices.panel.isCollapsed, 'fa-caret-down': !deviceGroupDevices.panel.isCollapsed}" title="Expand"></i></a></span>
+        <span class="pull-right text-right" ng-show="!deviceGroupDevices.panel.isCollapsed"><a role="button" ng-click="deviceGroupDevices.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+    </div>
+    <div ng-class="{'collapse': deviceGroupDevices.panel.isCollapsed}">
+        <div class="panel-body">
+            <div class="row" style="margin-top: 3px;">
+                <div class="col-sm-8" ng-if="deviceGroupDevices.hasPermission.toMove">
+                    <ul class="nav nav-pills">
+                        <li>
+                            <button class="btn btn-default" type="button" title="Cancel"
+                                    ng-show="deviceGroupDevices.mode.isExportingGroup || deviceGroupDevices.mode.isImportingGroup "
+                                    ng-click="deviceGroupDevices.actions.endMoves()">
+                                <i class="fa fa-remove"></i>&nbsp;Cancel
+                            </button>
+                            <button class="btn btn-default" type="button" title="Import device(s)"
+                                    ng-show="!deviceGroupDevices.mode.isImportingGroup && !deviceGroupDevices.mode.isExportingGroup && !deviceGroupDevices.mode.isImportingDevices "
+                                    ng-click="deviceGroupDevices.actions.beginDevicesImport()">
+                                <i class="fa fa-download"></i>&nbsp;Device Import..
+                            </button>
+                            <button class="btn btn-default" type="button" title="Import devices from another group"
+                                    ng-show="!deviceGroupDevices.mode.isImportingGroup && !deviceGroupDevices.mode.isExportingGroup && !deviceGroupDevices.mode.isImportingDevices "
+                                    ng-click="deviceGroupDevices.actions.beginGroupImport()">
+                                <i class="fa fa-sign-in"></i>&nbsp;Group Import..
+                            </button>
+                            <button class="btn btn-default" type="button" title="Export devices to another group"
+                                    ng-show="!deviceGroupDevices.mode.isImportingGroup && !deviceGroupDevices.mode.isExportingGroup && !deviceGroupDevices.mode.isImportingDevices && deviceGroupDevices.devices.length > 0 "
+                                    ng-click="deviceGroupDevices.actions.beginGroupExport()">
+                                <i class="fa fa-sign-out"></i>&nbsp;Group Export..
+                            </button>
+                        </li>
+                    </ul>
+                    <br/>
+                    <br/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <span ng-if="deviceGroupDevices.mode.isImportingGroup">
+                        <p>Click a button below to import all devices from the specified device group into this group.</p>
+                    </span>
+                    <span ng-if="deviceGroupDevices.mode.isExportingGroup">
+                        <p>Click a button below to export all devices from this device group to the specified group</p>
+                    </span>
+                    <div class="table-responsive" ng-show="!deviceGroupDevices.mode.isImportingGroup && !deviceGroupDevices.mode.isExportingGroup && !deviceGroupDevices.mode.isImportingDevices ">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="20">#</th>
+                                    <th width="160">Tag ID</th>
+                                    <th>Name</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-show="deviceGroupDevices.devices.length != 0" ng-repeat="device in deviceGroupDevices.devices | filter:deviceFilter">
+                                    <td width="20">{{ $index + 1 }}</td>
+                                    <td width="160"><a role="button" ng-click="deviceGroupDevices.actions.goToDevice(device)">{{ device.imei }}</a></td>
+                                    <td>{{ device.deviceName }}</td>
+                                    <td></td>
+                                </tr>
+                                <tr ng-show="deviceGroupDevices.devices.length === 0" class="warning">
+                                    <td width="20">&nbsp;</td>
+                                    <td colspan="5">There are no devices assigned to this group</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-responsive" ng-show="deviceGroupDevices.mode.isImportingGroup || deviceGroupDevices.mode.isExportingGroup ">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th width="40"></th>
+                                <th width="400">Name</th>
+                                <th class="text-center"># of Devices</th>
+                                <th class="text-center">Data <i class="fa fa-arrow-right" title="Forwarding"></i></th>
+                                <th class="text-center">Alarm <i class="fa fa-arrow-right" title="Forwarding"></i></th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-show="deviceGroupDevices.otherGroups.length != 0" ng-repeat="group in deviceGroupDevices.otherGroups | filter:groupFilter | orderBy: ['!isRootGroup','groupName'] ">
+                                <td width="40">
+                                    <button role="button" class="btn btn-default" title="Pull all devices from {{ group.groupName }}"
+                                            ng-click="deviceGroupDevices.actions.importGroup(group)"
+                                            ng-if="deviceGroupDevices.mode.isImportingGroup">
+                                        <i class="fa fa-sign-in"></i>
+                                    </button>
+                                    <button role="button" class="btn btn-default" title="Push all devices to {{ group.groupName }}"
+                                            ng-click="deviceGroupDevices.actions.exportGroup(group)"
+                                            ng-if="deviceGroupDevices.mode.isExportingGroup">
+                                        <i class="fa fa-sign-out"></i>
+                                    </button>
+                                </td>
+                                <td width="400">
+                                    <span ng-show="!group.isRootGroup">
+                                        <i class="fa fa-level-up fa-rotate-90"></i>&nbsp;&nbsp;
+                                    </span>
+                                    {{ group.groupName }}
+                                </td>
+                                <td class="text-center">{{ group.deviceCount }}</td>
+                                <td class="text-center"><span class="text-success"  ng-if="group.forwarding && group.forwarding.dataForwardingEndpoint"><i class="fa fa-check-circle" title="{{ group.forwarding.dataForwardingEndpoint }}"></i></span></td>
+                                <td class="text-center"><span class="text-success"  ng-if="group.forwarding && group.forwarding.alarmForwardingEndpoint"><i class="fa fa-check-circle" title="{{ group.forwarding.alarmForwardingEndpoint }}"></i></span></td>
+                                <td></td>
+                            </tr>
+                            <tr ng-show="deviceGroupDevices.otherGroups.list.length === 0" class="warning">
+                                <td width="40">&nbsp;</td>
+                                <td>There are no device groups for this client</td>
+                                <td></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-responsive" ng-show="deviceGroupDevices.mode.isImportingDevices">
+                        <span>
+                            <p>Enter a list of devices to import into this group</p>
+                        </span>
+                        <form name="addForm" id="addForm" ng-submit="deviceGroupDevices.actions.importDevices()" novalidate>
+                            <div class="form-group" ng-class="{'has-error': !deviceGroupDevices.form.isPristine && (deviceGroupDevices.form.errors.isBlank || deviceGroupDevices.form.invalidDevices.length > 0)}">
+                                <label for="deviceTagIds">Device Tag Ids*</label>
+                                    <textarea class="form-control" id="deviceTagIds" name="deviceTagIds" ng-model="deviceGroupDevices.form.deviceTagIds"
+                                              placeholder="Enter a list of Device Tag Ids, each on a separate line" rows="10" maxlength="1000"
+                                        ng-change="deviceGroupDevices.form.isPristine = true"></textarea>
+                                <p class="help-block text-right" ng-show="!deviceGroupDevices.form.isPristine && deviceGroupDevices.form.errors.isBlank">One or more device tags are required</p>
+                                <p class="help-block text-right" ng-show="!deviceGroupDevices.form.isPristine && deviceGroupDevices.form.invalidDevices.length > 0">These devices are not valid: {{ deviceGroupDevices.form.invalidDevices }}</p>
+                            </div>
+                            <div class="form-group">
+                                <div class="pull-right">
+                                    <button type="submit" class="btn btn-default"><i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                    <button type="button" class="btn btn-default" ng-click="deviceGroupDevices.actions.reset()"><i class="fa fa-undo"></i>&nbsp;&nbsp;Reset</button>
+                                    <button type="button" class="btn btn-default" ng-click="deviceGroupDevices.actions.endMoves()"><i class="fa times"></i>&nbsp;&nbsp;Cancel</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

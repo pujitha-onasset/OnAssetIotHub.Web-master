@@ -1,0 +1,54 @@
+<div ng-controller="ForgotController as forgot">
+    <br/><br/>
+    <div class="col-lg-4 col-lg-offset-4 col-md-6 col-md-offset-3 col-sm-10 col-sm-offset-1">
+        <div id="login-panel" class="panel panel-default">
+            <div class="panel-heading"> <h3 class="panel-title" ng-if="!forgot.emailSent">Forgot Password</h3>
+                <h3 class="panel-title" ng-if="forgot.emailSent">Confirm Reset Token</h3></div>
+            <div class="panel-body">
+                <div feedback></div>
+                <p ng-if="!forgot.emailSent">If your email address is on file, you will receive an email with a token that will be used to reset your password.</p><br/>
+                <p ng-if="forgot.emailSent">Please check your email and enter the provided token in the form below in order to reset your password</p><br/>
+                <form name="forgotForm" role="form" novalidate autocomplete="off" ng-if="!forgot.emailSent">
+                    <div class="form-group" ng-class="{'has-error': !forgot.email.isPristine && forgot.email.hasError()}">
+                        <label>Email address *</label>
+                        <input id="text" type="text" class="form-control" name="email" value="" ng-model="forgot.email.value" placeholder="Enter your email address" required autocomplete="off" ng-change="forgot.email.isPristine = true">
+                        <p ng-show="!forgot.email.isPristine && forgot.email.hasError()" class="help-block text-right"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid email address is required</p>
+                    </div>
+                    <div class="form-group  pull-right">
+                        <button class="btn btn-default btn-themed" id="btn-submitEmail" ng-click="forgot.submitEmail()">Submit</button>
+                        <button class="btn btn-default btn-themed" ng-click="forgot.backToLogin()">Cancel</button>
+                    </div>
+                </form>
+                <form name="resetForm" role="form" novalidate autocomplete="off" ng-if="forgot.emailSent">
+                    <div class="form-group">
+                        <label>Email address</label>
+                        <input class="form-control" ng-model="forgot.email.value" readonly>
+                    </div>
+                    <div class="form-group" ng-class="{'has-error': !forgot.token.isPristine && forgot.token.hasError()}">
+                        <label>Reset token *</label>
+                        <input id="resetToken" type="text" class="form-control" name="resetToken" ng-model="forgot.token.value" placeholder="Enter the reset token from the email" ng-change="forgot.token.isPristine = true" autocomplete="off">
+                        <p ng-show="!forgot.token.isPristine && forgot.token.errors.isBlank" class="help-block text-right"><i class="fa fa-exclamation-circle"></i>&nbsp;Reset token is required</p>
+                        <p ng-show="!forgot.token.isPristine && forgot.token.errors.isExpired" class="help-block text-right"><i class="fa fa-exclamation-circle"></i>&nbsp;Reset token is invalid or has expired.  <a role="button" ng-click="forgot.requestAnotherToken()">Request a new token</a></p>
+                    </div>
+                    <div class="form-group" ng-class="{'has-error':!forgot.password.isPristine && forgot.password.hasError()}">
+                        <label>New password *</label>
+                        <input id="newPassword" type="password" class="form-control" name="newPassword" ng-model="forgot.password.value" placeholder="Enter your new password" ng-change="forgot.password.isPristine = true" autocomplete="off">
+                        <p ng-show="!forgot.password.isPristine && forgot.password.errors.isBlank" class="help-block text-right"><i class="fa fa-exclamation-circle"></i>&nbsp;Password is required</p>
+                        <p ng-show="!forgot.password.isPristine && forgot.password.errors.isBadFormat" class="help-block text-right"><i class="fa fa-exclamation-circle"></i>&nbsp;Password must be a minimum of 8 characters and have at least one uppercase letter, one number, and one special case character</p>
+                        <p ng-show="!forgot.password.isPristine && forgot.password.errors.isRepeat" class="help-block text-right"><i class="fa fa-exclamation-circle"></i>&nbsp;The new password cannot be the same as one of your last four passwords</p>
+                    </div>
+                    <div class="form-group" ng-class="{'has-error': !forgot.confirmation.isPristine && forgot.confirmation.hasError()}">
+                        <label>Confirm password *</label>
+                        <input id="confirmation" type="password" class="form-control" name="confirmation" ng-model="forgot.confirmation.value" placeholder="Re-enter your new password for confirmation" ng-change="forgot.confirmation.isPristine = true" autocomplete="off">
+                        <p ng-show="!forgot.confirmation.isPristine && forgot.confirmation.errors.isBlank" class="help-block text-right"><i class="fa fa-exclamation-circle"></i>&nbsp;Password confirmation is required</p>
+                        <p ng-show="!forgot.confirmation.isPristine && forgot.confirmation.errors.isNotMatching" class="help-block text-right"><i class="fa fa-exclamation-circle"></i>&nbsp;Password confirmation does not match new password</p>
+                    </div>
+                    <div class="form-group  pull-right">
+                        <button class="btn btn-default btn-themed" id="btn-submitToken" ng-click="forgot.submitToken()">Submit</button>
+                        <button class="btn btn-default btn-themed" ng-click="forgot.backToLogin()">Cancel</button>
+                    </div>
+                </form>                
+            </div>
+        </div>
+    </div>
+</div>

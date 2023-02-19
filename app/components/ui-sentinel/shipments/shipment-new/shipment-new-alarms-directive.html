@@ -1,0 +1,59 @@
+<div class="row">
+    <div class="col-sm-4">
+        <form>
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-lg fa-filter"></i></span>
+                <input type="text" class="form-control" placeholder="Filter.." ng-model="shipmentNewAlarms.filterText">
+            </div>
+        </form>
+    </div>
+</div>
+<br/>
+<div class="row"> 
+    <div class="col-sm-12">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th width="20"></th>
+                    <th width="300">Alarm name</th>
+                    <th width="150">Severity</th>
+                    <th width="150" class="text-center">Alarm Type</th>
+                    <th width="150" class="text-center">Email Frequency</th>
+                    <th width="150" class="text-center">Sms Frequency</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-show="shipmentNewAlarms.device && shipmentNewAlarms.alarms.length != 0" ng-repeat="alarm in shipmentNewAlarms.alarms | filter: shipmentNewAlarms.filterText | orderBy: 'alarmName'">
+                    <td width="20">
+                        <button type="button" id="btn-toggle-alarm-{{alarm.alarmId}}" class="btn btn-default btn-sm"
+                                ng-click="shipmentNewAlarms.actions.toggleAlarm(alarm)"
+                                ng-class="{'active': alarm.isAdded}">
+                            <i class="fa {{alarm.isAdded ? 'fa-check-square' : 'fa-square-o'}}"></i>
+                        </button>
+                    </td>
+                    <td width="300"><a role="button" ng-click="shipmentNewAlarms.actions.goToAlarm(alarm.alarmId)">{{ alarm.alarmName }}</a></td>
+                    <td width="150">
+                <span class="{{ alarm.isShowAsRedDot ? 'text-danger' : 'text-info' }}">
+                    <i class="fa {{alarm.isShowAsRedDot ? 'fa-exclamation-circle' : 'fa-info-circle' }} fa-lg" title="{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}"></i>
+                    &nbsp;{{alarm.isShowAsRedDot ? 'Warning' : 'Information'}}
+                </span>
+                    </td>
+                    <td width="150" class="text-center"><i class="fa {{ alarm.alarmType == 'shipment' ? 'fa-truck' : alarm.alarmType == 'device' ? 'fa-hdd-o' : 'fa-chain-broken' }}"></i> {{ alarm.isActiveOnShipmentOnly ? 'Shipment' : alarm.isSeparationAlarm ? 'Separation' : 'Device' }}</td>
+                    <td width="150" class="text-center">{{ alarm.emailFrequency }}</td>
+                    <td width="150" class="text-center">{{ alarm.smsFrequency }}</td>
+                </tr>
+                <tr ng-show="shipmentNewAlarms.device && shipmentNewAlarms.alarms.length === 0" class="warning">
+                    <td></td>
+                    <td colspan="5">There are no shipment alarms available for this client</td>
+                </tr>
+                <tr ng-show="!shipmentNewAlarms.device" class="warning">
+                    <td></td>
+                    <td colspan="5">A device must be selected to add alarms</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

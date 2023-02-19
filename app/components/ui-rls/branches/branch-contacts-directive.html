@@ -1,0 +1,106 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <a role="button" ng-click="branchContacts.panel.toggle()">Contacts</a>
+        <span class="pull-right text-right">
+            <a role="button" ng-click="branchContacts.panel.toggle()">
+                <i class="fa fa-lg" ng-class="{'fa-caret-right': branchContacts.panel.isCollapsed, 'fa-caret-down': !branchContacts.panel.isCollapsed}" title="Expand"></i>
+            </a>
+        </span>
+        <span class="pull-right text-right" ng-show="!branchContacts.panel.isCollapsed"><a role="button" ng-click="branchContacts.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+    </div>
+    <div ng-class="{'collapse': branchContacts.panel.isCollapsed}">
+        <div class="panel-body">
+            <div class="row" style="margin-top: 3px;">
+                <div class="col-sm-8" ng-if="branchContacts.hasPermission.toChange">
+                    <ul class="nav nav-pills">
+                        <li>
+                            <button class="btn btn-default" type="button" title="Finished adding contacts"
+                                    ng-show="branchContacts.mode.isAdding"
+                                    ng-click="branchContacts.actions.endAdd()">
+                                <i class="fa fa-reply"></i>&nbsp;Finished
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Finished removing contacts"
+                                    ng-show="branchContacts.mode.isRemoving"
+                                    ng-click="branchContacts.actions.endRemove()">
+                                <i class="fa fa-reply"></i>&nbsp;Finished
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Assign contacts to the branch"
+                                    ng-hide="branchContacts.mode.isAdding || branchContacts.mode.isRemoving"
+                                    ng-click="branchContacts.actions.beginAdd()">
+                                <i class="fa fa-plus"></i>&nbsp;Add..
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn btn-default" type="button" title="Remove contacts from the branch"
+                                    ng-show="!branchContacts.mode.isAdding && !branchContacts.mode.isRemoving && branchContacts.contacts.assigned.length > 0"
+                                    ng-click="branchContacts.actions.beginRemove()">
+                                <i class="fa fa-minus"></i>&nbsp;Remove..
+                            </button>
+                        </li>
+                    </ul>
+                    <br/><br/>
+                </div>
+            </div><!--nav pills-->
+            <div class="row" ng-if="!branchContacts.mode.isAdding && !branchContacts.mode.isRemoving">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="20">#</th>
+                                    <th width="300">Email</th>
+                                    <th>Role</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-show="branchContacts.contacts.assigned.length != 0" ng-repeat="contact in branchContacts.contacts.assigned | orderBy: ['lastname', 'firstname']">
+                                    <td width="20">{{ $index + 1 }}</td>
+                                    <td width="300"><a role="button" ng-click="branchContacts.actions.goToContact(contact)">{{ contact.emailAddress}}</a></td>
+                                    <td>Tier {{contact.roleId}}</td>
+                                </tr>
+                                <tr ng-show="branchContacts.contacts.assigned.length === 0" class="warning">
+                                    <td></td>
+                                    <td colspan="3">There are no contacts assigned to this branch</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div><!--assigned devices-->
+            <div class="row" ng-if="branchContacts.mode.isRemoving">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="20"></th>
+                                    <th width="300">Email</th>
+                                    <th>Role</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-show="branchContacts.contacts.removable.length != 0" ng-repeat="contact in branchContacts.contacts.removable | orderBy: ['lastname', 'firstname']">
+                                    <td width="20">
+                                        <button class="btn btn-default btn-xs" type="button" ng-click="branchContacts.actions.remove(contact)" title="Remove {{ contact.emailAddress}}"  ng-show="!contact.isRemoved">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                    </td>
+                                    <td width="300"><a role="button" ng-click="branchContacts.actions.goToContact(contact)">{{ contact.emailAddress}}</a></td>
+                                    <td>{{ contact.roleId}}</td>
+                                </tr>
+                                <tr ng-show="branchContacts.contacts.removable.length === 0" class="warning">
+                                    <td width="20">&nbsp;</td>
+                                    <td colspan="3">There are no contacts to remove from this branch</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div><!--removable contacts-->
+        </div>
+    </div>
+</div>

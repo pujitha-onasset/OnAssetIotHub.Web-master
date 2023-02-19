@@ -1,0 +1,66 @@
+<div ng-controller="SightingsPivotController as sightingsPivotUi">
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <nav class="navbar navbar-default col-sm-12">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            Compare {{ sightingsPivotUi.pivotProperty.label}} <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="pivotProp in sightingsPivotUi.pivotProperties"><a type="button" ng-click="sightingsPivotUi.changePivotProp(pivotProp.name)">{{pivotProp.label}}</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul>
+
+            </nav>
+
+        </div>
+    </div>    
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <nav class="pull-right" aria-label="Page navigation" ng-show="sightingsPivotUi.totalPages > 1">
+                <ul class="pagination">
+                    <li ng-class="{'disabled': sightingsPivotUi.page === 1}"><a role="button" aria-label="Previous" ng-click="sightingsPivotUi.previous();"><span aria-hidden="true">&laquo;</span></a></li>
+                    <li ng-repeat="n in sightingsPivotUi.pageArray" ng-class="{'active': n === sightingsPivotUi.page}"><a href="#" aria-label="Page {{n}}"><span aria-hidden="true">{{n}}</span></a></li>
+                    <li ng-class="{'disabled': sightingsPivotUi.page === sightingsPivotUi.totalPages}"><a role="button" aria-label="Next" ng-click="sightingsPivotUi.next();"><span aria-hidden="true">&raquo;</span></a></li>
+                </ul>
+            </nav>
+            <br/>
+            <div style="text-align: center;">
+                 <export-table-to file-name="Reports" table-id-to-export="reportsSentryTableList"></export-table-to>
+            </div>
+            <table class="table table-condensed table-bordered table-striped" id="reportsSentryTableList">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Sentinel</th>
+                    <th ng-repeat="report in sightingsPivotUi.sightingReports">
+                        <span local-datetime utc-datetime="{{ report.timeOfReport }}" date-format="L" time-format="LTS"></span>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-show="!sightingsPivotUi.sightingReports" class="warning noExport">
+                    <td></td>
+                    <td>Data is loading..</td>
+                </tr>
+                <tr ng-show="sightingsPivotUi.sightingReports && sightingsPivotUi.sightingReports.length === 0" class="warning noExport">
+                    <td></td>
+                    <td colspan="{{ 2 + sightingsPivotUi.sightingReports.length}}">No records founds</td>
+                </tr>
+                <tr ng-show="sightingsPivotUi.sightingReports && sightingsPivotUi.sightingReports.length != 0" ng-repeat="mac in sightingsPivotUi.macs">
+                    <td width="20">{{ (sightingsPivotUi.page > 1) ? ((sightingsPivotUi.page - 1) * sightingsPivotUi.itemsPerPage) + $index + 1 : $index + 1 }}</td>
+                    <td>{{ mac }}</td>
+                    <td ng-repeat="report in sightingsPivotUi.sightingReports" ng-class="{'success': sightingsPivotUi.isSeen(mac, report), 'danger': !sightingsPivotUi.isSeen(mac, report)}">
+                        <i class="fa {{sightingsPivotUi.isSeen(mac, report) ? 'fa-check text-success' : 'fa-times text-danger'}}"></i>&nbsp;{{ sightingsPivotUi.pivotValue(mac, report) }}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,29 @@
+<div ng-controller="RecoveryDeviceController as recover">
+    <div class="col-lg-4 col-lg-offset-4 col-md-6 col-md-offset-3 col-sm-10 col-sm-offset-1">
+        <br/><br/>
+        <div class="row">
+            <div class="col-sm-12">
+                <br/>
+            </div>
+            <div ng-if="recover.validtoken!=null && !recover.validtoken" class="alert alert-warning">Invalid token</div>
+            <div ng-if="recover.finish!=null && recover.finish" class="alert alert-info">Recovery Success</div>
+             <div ng-if="recover.recoveryAcknowledgement!=null" class="alert alert-info">
+                 The Device was recovered the <span local-datetime utc-datetime="{{ recover.recoveryAcknowledgement }}" date-format="L" time-format="LTS">
+             </div>
+        </div>
+        <div class="panel panel-default" ng-if="recover.validtoken && !recover.finish && !recover.recoveryAcknowledgement">
+            <div class="panel-heading"><h3 class="panel-title">Recover Device</h3></div>
+            <div class="panel-body">
+                <form name="recoverForm" role="form" >
+                    <span>Recover device {{recover.device}}</span>
+                    <div class="form-group  pull-right">
+                        <button class="btn btn-default" id="btn-recover" ng-click="recover.recover()" ng-disabled="loading">Submit</button>
+                    </div>
+                </form>
+            </div>
+            <div class="panel-footer" style="text-align: center">
+                <small>&copy; <a href="http://www.onasset.com">OnAsset Intelligence, Inc.</a>  All Rights Reserved</small>
+            </div>
+        </div>
+    </div>
+</div>

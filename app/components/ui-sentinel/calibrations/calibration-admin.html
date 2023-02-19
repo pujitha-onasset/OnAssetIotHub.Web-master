@@ -1,0 +1,190 @@
+<div ng-controller="CalibrationAdminController as calibrationAdmin">
+    <div feedback></div>
+    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row" ng-if="!calibrationAdmin.mode.isNew" style="margin-top: 3px;">
+                        <div class="col-sm-8" ng-if="calibrationAdmin.hasPermission.toSave">
+                            <ul class="nav nav-pills" ng-cloak>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="Delete" ng-click="calibrationAdmin.actions.beginRemove()"
+                                            ng-show="!calibrationAdmin.mode.isRemoving">
+                                        <i class="fa fa-trash"></i> Delete
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="Yes" ng-click="calibrationAdmin.actions.remove()"
+                                            ng-show="calibrationAdmin.mode.isRemoving">
+                                        <i class="fa fa-check"></i> Yes
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="No" ng-click="calibrationAdmin.actions.cancelRemove()"
+                                            ng-show="calibrationAdmin.mode.isRemoving">
+                                        <i class="fa fa-ban"></i> No
+                                    </button>
+                                </li>
+                            </ul>
+                            <br/>
+                            <br/>
+                        </div>
+                    </div>
+                    <div class="row" ng-show="calibrationAdmin.mode.isRemoving">
+                        <div class="col-sm-12">
+                            <p><i class="fa fa-question-circle fa-lg"></i>  Do you wish to delete <strong>{{ calibrationAdmin.calibration.calibrationName }}</strong>? </p>
+                        </div>
+                    </div>
+                    <div class="row" ng-hide="calibrationAdmin.mode.isRemoving">
+                        <div class="col-sm-12">
+                            <form name="zoneForm" id="clientForm" ng-submit="calibrationAdmin.actions.submit()" novalidate>
+                                <div class="form-group">
+                                    <label>Asset Name</label>
+                                    <input type="text" class="form-control" id="assetName" name="assetName" 
+                                           ng-model="calibrationAdmin.asset.assetName"
+                                           ng-readonly="true">
+                                </div>
+                                <div class="form-group" ng-class="{'has-error': !calibrationAdmin.primarySupplierName.isPristine && calibrationAdmin.primarySupplierName.hasError()}">
+                                    <label>Primary Supplier Name</label>
+                                    <input type="text" class="form-control" id="primarySupplierName" name="primarySupplierName" placeholder="Enter a supplier name for the calibration" maxlength="80"
+                                           ng-model="calibrationAdmin.primarySupplierName.value"
+                                           ng-readonly="!calibrationAdmin.hasPermission.toSave"
+                                           ng-change="calibrationAdmin.primarySupplierName.isPristine = true">
+                                    <!--<p class="help-block text-right" ng-show="!calibrationAdmin.primarySupplierName.isPristine && calibrationAdmin.primarySupplierName.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A primary supplier name is required</p>-->
+                                </div>
+
+                                <div class="form-group" ng-class="{'has-error': !calibrationAdmin.primarySupplierAdress.isPristine && calibrationAdmin.primarySupplierAdress.hasError()}">
+                                    <label>Primary Supplier Address</label>
+                                     <div class="input-group">
+                                    <input type="text" class="form-control" id="primarySupplierAdress" name="primarySupplierAdress" placeholder="Enter a supplier address for the calibration" maxlength="80"
+                                           ng-model="calibrationAdmin.primarySupplierAdress.value"
+                                           ng-readonly="!calibrationAdmin.hasPermission.toSave"
+                                           ng-change="calibrationAdmin.primarySupplierAdress.isPristine = true">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default" title="Get address locations" ng-click="calibrationAdmin.actions.getLocations()"><i class="fa fa-fw fa-search"></i></button>
+                                    </span>
+                                    </div>       
+                                    <!--<p class="help-block text-right" ng-show="!calibrationAdmin.primarySupplierAdress.isPristine && calibrationAdmin.primarySupplierAdress.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A primary supplier address is required</p>-->
+                                    <p class="help-block text-right" ng-show="!calibrationAdmin.primarySupplierAdress.isPristine && calibrationAdmin.primarySupplierAdress.errors.isInvalid && !calibrationAdmin.primarySupplierAdress.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A valid address is required</p>
+                                    <div>
+                                        <ul class="list-unstyled">
+                                            <li ng-show="calibrationAdmin.locations.length > 0 && calibrationAdmin.locations.length < calibrationAdmin.locationLimit"><i class="fa fa-info-circle"></i>&nbsp;Click a location to use as the Primary Supplier Address</li>
+                                            <li ng-show="calibrationAdmin.locations.length > 0 && calibrationAdmin.locations.length >= calibrationAdmin.locationLimit"><i class="fa fa-info-circle"></i>&nbsp;Only showing first {{calibrationAdmin.locationLimit}} matches.  If you don't see a location, enter a more specific address and try again</li>
+                                            <li ng-repeat="location in calibrationAdmin.locations | orderBy: 'formatted_address' | limitTo: calibrationAdmin.locationLimit">
+                                                <a role="button" ng-click="calibrationAdmin.actions.selectLocation(location)">
+                                                    <strong>{{ location.formatted_address }}</strong>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" ng-class="{'has-error': !calibrationAdmin.productLine.isPristine && calibrationAdmin.productLine.hasError()}">
+                                    <label>Product Line</label>
+                                    <input type="text" class="form-control" id="productLine" name="productLine" placeholder="Enter a product line for the calibration" maxlength="80"
+                                           ng-model="calibrationAdmin.productLine.value"
+                                           ng-readonly="!calibrationAdmin.hasPermission.toSave"
+                                           ng-change="calibrationAdmin.productLine.isPristine = true">
+                                    <!--<p class="help-block text-right" ng-show="!calibrationAdmin.productLine.isPristine && calibrationAdmin.productLine.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A product line is required</p>-->
+                                </div>
+
+                                <div class="form-group" ng-class="{'has-error': !calibrationAdmin.manufacturerOfOrigin.isPristine && calibrationAdmin.manufacturerOfOrigin.hasError()}">
+                                    <label>Manufacturer of Origin</label>
+                                    <input type="text" class="form-control" id="manufacturerOfOrigin" name="manufacturerOfOrigin" placeholder="Enter a manufacturer for the calibration" maxlength="80"
+                                           ng-model="calibrationAdmin.manufacturerOfOrigin.value"
+                                           ng-readonly="!calibrationAdmin.hasPermission.toSave"
+                                           ng-change="calibrationAdmin.manufacturerOfOrigin.isPristine = true">
+
+                                    <!--<p class="help-block text-right" ng-show="!calibrationAdmin.manufacturerOfOrigin.isPristine && calibrationAdmin.manufacturerOfOrigin.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A manufacturer of origin is required</p>-->
+                                </div>
+
+                                <div class="form-group" ng-class="{'has-error': !calibrationAdmin.lastCalibrationDate.isPristine && calibrationAdmin.lastCalibrationDate.hasError()}">
+                                    <label>Last Calibration Date *</label>
+                                    <input type="text" class="form-control" id="lastCalibrationDate" name="lastCalibrationDate" 
+                                           ng-model="calibrationAdmin.lastCalibrationDate.date"
+                                           ng-readonly="!calibrationAdmin.hasPermission.toSave"
+                                           ng-change="calibrationAdmin.lastCalibrationDate.isPristine = true">
+                                    <p class="help-block text-right" ng-show="!calibrationAdmin.lastCalibrationDate.isPristine && calibrationAdmin.lastCalibrationDate.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A last calibration date is required</p>
+                                </div>
+
+                                <div class="form-group" ng-class="{'has-error': !calibrationAdmin.nextDueDate.isPristine && calibrationAdmin.nextDueDate.hasError()}">
+                                    <label>Due Date *</label>
+                                    <input type="text" class="form-control" id="nextDueDate" name="nextDueDate" 
+                                           ng-model="calibrationAdmin.nextDueDate.date"
+                                           ng-readonly="!calibrationAdmin.hasPermission.toSave"
+                                           ng-change="calibrationAdmin.nextDueDate.isPristine = true">
+                                    <p class="help-block text-right" ng-show="!calibrationAdmin.nextDueDate.isPristine && calibrationAdmin.nextDueDate.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A due date is required</p>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="comments">Special Instructions or Tips</label>
+                                    <textarea class="form-control" id="comments" name="comments"
+                                              ng-model="calibrationAdmin.specialInstructions.value"
+                                              ng-readonly="!calibrationAdmin.hasPermission.toSave"
+                                              placeholder="Enter special instructions or tips for this calibration (optional)" rows="3" maxlength="500">
+                                    </textarea>
+                                </div>
+                                <div class="form-group" ng-show="!calibrationAdmin.mode.isNew">
+                                    <label>Tech Data Sheets Stored</label>
+                                    <div>
+                                        <div class="preview clearfix-multi-upload-file">
+                                            <div class="previewData clearfix-multi-upload-file" ng-repeat="file in calibrationAdmin.techDataSheetsStored track by $index">
+                                                <div class="previewDetails" style="max-width: 400px;">
+                                                    <a href="{{file.url}}" data-lightbox="assets">{{file.name}}</a>
+                                                    <div class="detail"><b>Size: </b> {{calibrationAdmin.actions.calculateSize(file.size)}}</div>
+                                                </div>
+                                                <div class="previewControls">
+                                                    <button class="btn btn-default" ng-click="calibrationAdmin.actions.removeFile(file, $index, 'tech-data')" > <i class="fa fa-close"></i></button>
+                                                </div>
+                                            </div>   
+                                        </div>
+                                    </div>  
+                                </div>
+                                <div class="form-group">
+                                    <label>Tech Data Sheets to Upload</label>
+                                    <div>
+                                        <div file-upload accept=".csv,.dat,.doc,.docx,.key,.keychain,.log,.msg,.odt,.pages,.pdf,.pps,.ppt,.pptx,.rtf,.sdf,.tar,.txt,.xml,.xlr,.xls,.xlsx,.wpd,.wps" upload-event-name="calibrationUploadTechDataSheetListener"></div>
+                                    </div>  
+                                </div>
+
+                                <div class="form-group" ng-show="!calibrationAdmin.mode.isNew">
+                                    <label>Last Calibration Files Stored</label>
+                                    <div>
+                                        <div class="preview clearfix-multi-upload-file">
+                                        <div class="previewData clearfix-multi-upload-file" ng-repeat="file in calibrationAdmin.lastCalibrationFilesStored track by $index">
+                                            <div class="previewDetails" style="max-width: 400px;">
+                                                <a href="{{file.url}}" data-lightbox="assets">{{file.name}}</a>
+                                                <div class="detail"><b>Size: </b> {{calibrationAdmin.actions.calculateSize(file.size)}}</div>
+                                            </div>
+                                            <div class="previewControls">
+                                               <button class="btn btn-default" ng-click="calibrationAdmin.actions.removeFile(file, $index, 'last-calibration')" > <i class="fa fa-close"></i></button>
+                                            </div>
+                                            </div>   
+                                        </div>
+                                    </div>  
+                                </div>
+                                <div class="form-group">
+                                    <label>Last Calibration Files to Upload</label>
+                                    <div>
+                                        <div file-upload accept=".csv,.dat,.doc,.docx,.key,.keychain,.log,.msg,.odt,.pages,.pdf,.pps,.ppt,.pptx,.rtf,.sdf,.tar,.txt,.xml,.xlr,.xls,.xlsx,.wpd,.wps" upload-event-name="calibrationUploadLastCalibrationFileListener"></div>
+                                    </div>  
+                                </div>
+
+                                <div class="form-group">
+                                    <br/>
+                                    <br/>
+                                    <div class="pull-right">
+                                        <button type="submit" class="btn btn-default" ng-if="calibrationAdmin.hasPermission.toSave"><i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                        <button type="button" class="btn btn-default" ng-if="calibrationAdmin.hasPermission.toSave" ng-click="calibrationAdmin.actions.reset()"><i class="fa fa-undo"></i>&nbsp;&nbsp;Reset</button>
+                                        <button type="button" class="btn btn-default" ng-click="calibrationAdmin.actions.close()"><i class="fa fa-times"></i>&nbsp;&nbsp;Close</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,161 @@
+<div ng-controller="LatestSentryReportsController as latestSentryReportUi">
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <nav class="navbar navbar-default col-sm-12">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa {{latestSentryReportUi.currentPageView.icon}}"></i>&nbsp;&nbsp;{{ latestSentryReportUi.currentPageView.title}} <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="view in latestSentryReportUi.pageViews"><a type="button" ng-click="latestSentryReportUi.changeView(view.name)"><i class="fa {{view.icon}}"></i>&nbsp;&nbsp;{{view.title}}</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="navbar-form" ng-show="latestSentryReportUi.currentPageView.name === 'latest'">
+                    <div class="form-group">
+                        &nbsp;
+                        <button class="btn btn-default" type="button" ng-click="latestSentryReportUi.load()">Reload</button>
+                         &nbsp;
+                        <export-table-to file-name="Reports" table-id-to-export="reportsSentryTableList"></export-table-to>
+                    </div>
+                </form>
+                <form class="navbar-form" ng-show="latestSentryReportUi.currentPageView.name === 'hours'">
+                    <div class="form-group">
+                        <label>Hours&nbsp;</label>
+                        <input type="number" class="form-control" ng-model="latestSentryReportUi.hoursText">
+                    </div>
+                    <div class="form-group">
+                        &nbsp;
+                        <button class="btn btn-default" type="button" ng-click="latestSentryReportUi.load()">Load</button>
+                         &nbsp;
+                        <export-table-to file-name="Reports" table-id-to-export="reportsSentryTableList"></export-table-to>
+                    </div>
+                </form>
+                <form class="navbar-form" ng-show="latestSentryReportUi.currentPageView.name === 'range'">
+                    <div class="form-group">
+                        <label>From&nbsp;</label>
+                        <input type="text" data-date-time-picker data-format="YYYY-MM-DDTHH:mm:ss" class="form-control datetimepicker" ng-model="latestSentryReportUi.fromText" placeholder="yyyy-mm-ddThh:mm:ss">
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;&nbsp;To&nbsp;</label>
+                        <input type="text" data-date-time-picker data-format="YYYY-MM-DDTHH:mm:ss" class="form-control datetimepicker" ng-model="latestSentryReportUi.toText" placeholder="yyyy-mm-ddThh:mm:ss">
+                    </div>
+                    <div class="form-group">
+                        &nbsp;
+                        <button class="btn btn-default" type="button" ng-click="latestSentryReportUi.load()">Load</button>
+                        &nbsp;
+                        <export-table-to file-name="Reports" table-id-to-export="reportsSentryTableList"></export-table-to>
+                    </div>
+                </form>
+            </nav>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <nav class="pull-right" aria-label="Page navigation" ng-show="latestSentryReportUi.totalPages > 1">
+                <ul class="pagination">
+                    <li ng-class="{'disabled': latestSentryReportUi.page === 1}"><a role="button" aria-label="Previous" ng-click="latestSentryReportUi.previous();"><span aria-hidden="true">&laquo;</span></a></li>
+                    <li ng-repeat="n in latestSentryReportUi.pageArray" ng-class="{'active': n === latestSentryReportUi.page}"><a role="button" ng-click="latestSentryReportUi.gotoPage(n);" aria-label="Page {{n}}"><span aria-hidden="true">{{n}}</span></a></li>
+                    <li ng-class="{'disabled': latestSentryReportUi.page === latestSentryReportUi.totalPages}"><a role="button" aria-label="Next" ng-click="latestSentryReportUi.next();"><span aria-hidden="true">&raquo;</span></a></li>
+                </ul>
+            </nav>
+            <div ng-if="latestSentryReportUi.errorMessage" class="alert alert-danger">{{ latestSentryReportUi.errorMessage }}</div>
+            <table class="table table-striped" id="reportsSentryTableList">
+                <thead>
+                <tr>
+                    <th width="20">#</th>
+                    <th class="noExport"></th>
+                    <th>Sentry</th>
+                    <th>Msg No.</th>
+                    <th>Time of Report</th>
+                    <th>Time of Receipt</th>
+                    <th>Location Method</th>
+                    <th>Lat Lng</th>
+                    <th>Battery (%)</th>
+                    <th>DewPoint (&deg;C)</th>
+                    <th>DewPoint (&deg;F)</th>
+                    <th>ExtSwitch</th>
+                    <th>Light (lux)</th>
+                    <th>Humidity (%)</th>
+                    <th>Pressure (kPa)</th>
+                    <th>Shock X</th>
+                    <th>Shock Y</th>
+                    <th>Shock Z</th>
+                    <th>Signal (db)</th>
+                    <th>Tilt X</th>
+                    <th>Tilt Y</th>
+                    <th>Tilt Z</th>
+                    <th>Sightings</th>
+                    <th>Temp (&deg;C)</th>
+                    <th>Temp (&deg;F)</th>
+                    <th>Temp Probe 1 (&deg;C)</th>
+                    <th>Temp Probe 1 (&deg;F)</th>
+                    <th>Temp Probe 2 (&deg;C)</th>
+                    <th>Temp Probe 2 (&deg;F)</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-show="latestSentryReportUi.list.length === 0" class="warning noExport">
+                    <td></td>
+                    <td colspan="18">There are no records</td>
+                </tr>
+                <tr ng-show="latestSentryReportUi.list.length != 0" ng-repeat="item in latestSentryReportUi.list">
+                    <td width="20">{{ (latestSentryReportUi.page > 1) ? ((latestSentryReportUi.page - 1) * latestSentryReportUi.itemsPerPage) + $index + 1 : $index + 1 }}</td>
+                    <td class="noExport">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-default dropdown-toggle" type="button" id="dropdown{{$index}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdown{{$index}}">
+                                <li><a ng-click="latestSentryReportUi.gotoSightingsForReport(item)"><i class="fa fa-sm fa-search"></i>&nbsp;Sightings for this report</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a ng-click="latestSentryReportUi.gotoDeviceReports(item)"><i class="fa fa-sm fa-search"></i>&nbsp;Reports from this Sentry</a></li>
+                                <li><a ng-click="latestSentryReportUi.gotoSightingsByDevice(item)"><i class="fa fa-sm fa-search"></i>&nbsp;Sightings by this Sentry</a></li>
+                                <li><a ng-click="latestSentryReportUi.gotoSightingsPivotForDevice(item)"><i class="fa fa-sm fa-search"></i>&nbsp;Sightings Pivot for this Sentry</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a ng-click="latestSentryReportUi.gotoSeparationSimulator(item)"><i class="fa fa-sm fa-arrow-circle-right"></i>&nbsp;Separation simulator</a></li>
+                                <!--<li role="separator" class="divider"></li>-->
+                                <!--<li><a ng-click="latestSentryReportUi.goToReportSightings(item)"><i class="fa fa-sm fa-arrow-circle-right"></i>&nbsp;Warehouse simulator</a></li>-->
+                                <!--<li><a ng-click="latestSentryReportUi.goToReportSightings(item)"><i class="fa fa-sm fa-plus-square"></i>&nbsp;Add to warehouse simulator</a></li>-->
+                                <!--<li><a ng-click="latestSentryReportUi.goToReportSightings(item)"><i class="fa fa-sm fa-minus-square"></i>&nbsp;Remove from warehouse simulator</a></li>-->
+                            </ul>
+                        </div>
+                    </td>
+                    <td> <span ng-if="!item.deviceName">{{item.imei}}</span>
+                        <span ng-if="item.deviceName ">{{ item.deviceName }}<br/><small>[{{ item.imei }}]</small></span>
+                    </td>
+                    <td>{{ item.messageRefNumber }}</td>
+                    <td><span local-datetime utc-datetime="{{ item.timeOfReport }}" date-format="L" time-format="LTS"></span></td>
+                    <td><span local-datetime utc-datetime="{{ item.timeOfReceipt }}" date-format="L" time-format="LTS"></span></td>
+                    <td>{{ item.locationMethod | locationMethod: item.latitude:item.longitude }}</td>
+                    <td>{{ item.latitude }} {{ item.longitude }} <span ng-if="item.locationName">({{item.locationName}})</span></td>
+                    <td>{{ item.battery }}</td>
+                    <td>{{ item.dewPointC }}</td>
+                    <td>{{ item.dewPointF }}</td>
+                    <td>{{ item.extSwitch}}</td>
+                    <td>{{ item.lightValue }}</td>
+                    <td>{{ item.humidity }}</td>
+                    <td>{{ item.pressureValue }}</td>
+                    <td>{{ item.shockX }}</td>
+                    <td>{{ item.shockY }}</td>
+                    <td>{{ item.shockZ }}</td>
+                    <td>{{ item.signalQuality }}</td>
+                    <td>{{ item.tiltX }}</td>
+                    <td>{{ item.tiltY }}</td>
+                    <td>{{ item.tiltZ }}</td>
+                    <td>{{ item.countOfSightings }}</td>
+                    <td>{{ item.temperatureValueC }}</td>
+                    <td>{{ item.temperatureValueF }}</td>
+                    <td>{{ item.temperatureProbe1C }}</td>
+                    <td>{{ item.temperatureProbe1F }}</td>
+                    <td>{{ item.temperatureProbe2C }}</td>
+                    <td>{{ item.temperatureProbe2F }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

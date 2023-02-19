@@ -1,0 +1,845 @@
+<div ng-controller="FulfillmentImportController as importUi">
+    <div class="row">
+        <div class="col-sm-12">
+            <h3>Client Importer</h3>
+            <hr/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+            <br/>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Selections
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <table class="table">
+                        <tbody>
+                        <tr ng-show="importUi.source">
+                            <td><strong>Source Environment</strong><br/>{{ importUi.source.name}}<br/>{{importUi.source.url}}</td>
+                        </tr>
+                        <tr ng-show="importUi.sourceClient">
+                            <td><strong>Source Client</strong><br/>{{ importUi.sourceClient.clientName}}</td>
+                        </tr>
+                        <tr ng-show="importUi.sourceClient">
+                            <td><strong>Source Client's Parent</strong><br/>{{ importUi.sourceClientParent ? importUi.sourceClientParent.clientName : 'None'}}</td>
+                        </tr>
+                        <tr ng-show="importUi.targetClient">
+                            <td><strong>Target Client</strong><br/>{{ importUi.targetClient.clientName}}</td>
+                        </tr>
+                        <tr ng-show="importUi.targetClient">
+                            <td><strong>Target Client's Parent</strong><br/>{{ importUi.targetClient.parentName ? importUi.targetClient.parentName : 'None'}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-9">
+            <div class="row" ng-show="importUi.task === importUi.tasks.login">
+                <div class="col-sm-6">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                <i class="fa fa-exclamation-circle"></i> Login to source environment
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Source environment</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" ng-model="importUi.source" ng-options="item as item.name for item in importUi.sourceList">
+                                        </select>
+                                        <p class="help-block">Select the source environment</p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Username</label>
+                                    <div class="col-sm-8">
+                                        <input id="username" type="text" class="form-control" name="username" ng-model="importUi.username">
+                                        <p class="help-block">Enter your username for the environment</p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Password</label>
+                                    <div class="col-sm-8">
+                                        <input id="password" type="password" class="form-control" name="password" ng-model="importUi.password">
+                                        <p class="help-block">Enter your username for the environment</p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <button type="button" class="btn btn-default pull-right" ng-click="importUi.login()">Login</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-show="importUi.task === importUi.tasks.selectSourceClient">
+                <div class="col-sm-12">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                <i class="fa fa-exclamation-circle"></i> Select the source client
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <nav class="navbar navbar-default">
+                                <form class="navbar-form navbar-left">
+                                    <label><i class="fa fa-lg fa-filter"></i></label>&nbsp;&nbsp;
+                                    <input type="text" class="form-control" placeholder="Filter.." ng-model="clientFilter">
+                                </form>
+                            </nav>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th width="20">#</th>
+                                    <th width="10">Active</th>
+                                    <th>Name</th>
+                                    <th>Children</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-show="importUi.clientList.length === 0" class="warning">
+                                    <td></td>
+                                    <td colspan="3">There are no clients in the source environment for your login</td>
+                                </tr>
+                                <tr ng-show="importUi.clientList.length > 0" class="warning">
+                                    <td></td>
+                                    <td colspan="3">Showing {{ filteredList.length }} / {{ importUi.clientList.length }} clients</td>
+                                </tr>
+                                <tr ng-show="importUi.clientList.length != 0" ng-repeat="client in filteredList = (importUi.clientList | filter: { clientName: clientFilter})">
+                                    <td width="20">{{ $index + 1 }}</td>
+                                    <td width="10" class="text-center">
+                                        <span ng-class="{'text-success': client.isActive, 'text-danger': !client.isActive}">
+                                            <i class="fa" ng-class="{'fa-check-circle': client.isActive, 'fa-ban': !client.isActive}"></i>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a role="button" ng-click="importUi.confirmSourceClient(client)">{{ client.clientName }}</a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <br/>
+                            <button type="button" class="btn btn-default pull-right" ng-click="importUi.reset()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-show="importUi.task === importUi.tasks.confirmSourceClient">
+                <div class="col-sm-6">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                Confirm the source client
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <h5>Click the client below to import/synchronize...</h5>
+                            <br/>
+                            <div class="row">
+                                <div class="col-sm-3">&nbsp;</div>
+                                <div class="col-sm-6">
+                                    <ul>
+                                        <li ng-repeat="client in importUi.clientOptions">
+                                            <span ng-show="!$first"><i class="fa fa-level-up fa-rotate-90"></i>&nbsp;&nbsp;</span>
+                                            <a role="button" ng-click="importUi.selectSourceClient(client)">{{client.clientName}}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-sm-3">&nbsp;</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="pull-right">
+                                        <button role="button" class="btn btn-default" ng-click="importUi.startLoadSourceClients()">Cancel</button>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1">
+                                    &nbsp;
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row" ng-show="importUi.task === importUi.tasks.confirmClientExactMatch">
+                <div class="col-sm-6">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                Matching client found
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <h5>Do you want to select this target client?</h5>
+                            <br/>
+                            <div class="row">
+                                <div class="col-sm-3">&nbsp;</div>
+                                <div class="col-sm-6">
+                                    <table class="table">
+                                        <tr>
+                                            <td><strong>Target</strong><br/>{{ importUi.exactMatchClient.clientName}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Target's Parent</strong><br/>{{ importUi.exactMatchClient.parentName ? importUi.exactMatchClient.parentName : 'None'}}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-sm-3">&nbsp;</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="pull-right">
+                                        <button role="button" class="btn btn-default" ng-click="importUi.selectClientExactMath()">Yes</button>
+                                        <button role="button" class="btn btn-default" ng-click="importUi.startSearchForTargetClient()">No</button>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1">
+                                    &nbsp;
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-show="importUi.task === importUi.tasks.importClientOrSearch">
+                <div class="col-sm-6">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                No matching client found
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <h5>A matching client for <strong>{{ importUi.sourceClient.clientName }}</strong> does not exist. Do you wish to import the client or search for another target?</h5>
+                            <br/>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="pull-right">
+                                        <button role="button" class="btn btn-default" ng-click="importUi.startImportSourceClient()">Import</button>
+                                        <button role="button" class="btn btn-default" ng-click="importUi.startSearchForTargetClient()">Search</button>
+                                        <button role="button" class="btn btn-default" ng-click="importUi.cancelImportSourceClient()">Cancel</button>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1">
+                                    &nbsp;
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-show="importUi.task === importUi.tasks.taskMenu">
+                <div class="col-sm-6">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                Task Menu
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    Please select the topic area to import and synchronize:
+                                    <ol>
+                                        <li>
+                                            <a role="button" ng-click="importUi.startDeviceGroupSync()">Device Groups</a>
+                                            <span ng-show="importUi.devicesAddedComplete && importUi.devicesMovedComplete">
+                                                &nbsp;<i class="fa fa-check-circle text-success"></i>
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <a role="button" ng-click="importUi.startPolygonGeofencesToSync()">Polygon Geofences</a>
+                                            <span ng-show="importUi.polygonSyncComplete">
+                                                &nbsp;<i class="fa fa-check-circle text-success"></i>
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <a role="button" ng-click="importUi.startRadialGeofencesToSync()">Radial Geofences</a>
+                                            <span ng-show="importUi.radialSyncComplete">
+                                                &nbsp;<i class="fa fa-check-circle text-success"></i>
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <a role="button" ng-click="importUi.startRoutesToSync()">Routes</a>
+                                            <span ng-show="importUi.routeSyncComplete">
+                                                &nbsp;<i class="fa fa-check-circle text-success"></i>
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <a role="button" ng-click="importUi.startAlarmContactsToSync()">Alarm Contacts</a>
+                                            <span ng-show="importUi.alarmContactSyncComplete">
+                                                &nbsp;<i class="fa fa-check-circle text-success"></i>
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <a role="button" ng-click="importUi.startAlarmsToSync()">Alarms</a>
+                                            <span ng-show="importUi.alarmsAddedComplete && importUi.alarmActionsComplete && importUi.alarmSubscribersComplete && importUi.alarmRulesComplete && importUi.alarmDevicesComplete">
+                                                &nbsp;<i class="fa fa-check-circle text-success"></i>
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <a role="button" ng-click="importUi.startShippingContactsToSync()">Shipping Notification Contacts</a>
+                                            <span ng-show="importUi.shippingContactSyncComplete">
+                                                &nbsp;<i class="fa fa-check-circle text-success"></i>
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <a role="button" ng-click="importUi.startShippingNotificationsToSync()">Shipping Notification Settings</a>
+                                            <span ng-show="importUi.shippingSettingsSyncComplete">
+                                                &nbsp;<i class="fa fa-check-circle text-success"></i>
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <a role="button" ng-click="importUi.startShipmentTemplatesToSync()">Shipping Templates</a>
+                                            <span ng-show="importUi.shippingTemplateSyncComplete">
+                                                &nbsp;<i class="fa fa-check-circle text-success"></i>
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <a role="button" ng-click="importUi.startUsersToSync()">Users</a>
+                                            <span ng-show="importUi.userSyncComplete">
+                                                &nbsp;<i class="fa fa-check-circle text-success"></i>
+                                            </span>
+                                        </li>
+                                    </ol>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="pull-right">
+                                        <button role="button" class="btn btn-default" ng-click="importUi.reset()">Start over</button>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1">
+                                    &nbsp;
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-show="importUi.task === importUi.tasks.searchForTargetClient">
+                <div class="col-sm-12">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                <i class="fa fa-exclamation-circle"></i> Search for a target client
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <nav class="navbar navbar-default">
+                                <form class="navbar-form navbar-left">
+                                    <label><i class="fa fa-lg fa-search"></i></label>&nbsp;&nbsp;
+                                    <input type="text" class="form-control" placeholder="Search pattern.." ng-model="importUi.searchForTargetClientFilter">
+                                    <button class="btn navbar-btn btn-default" type="button" ng-click="importUi.searchForTargetClients()" ng-hide="importUi.isSearching">Search</button>
+                                    <label ng-show="importUi.isSearching">&nbsp;&nbsp;Searching...</label>
+                                </form>
+                            </nav>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th width="20">#</th>
+                                    <th width="10">Active</th>
+                                    <th>Name</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-show="importUi.targetClientList.length === 0" class="warning">
+                                    <td></td>
+                                    <td colspan="3">There are no clients in the target environment matching your criteria</td>
+                                </tr>
+                                <tr ng-show="importUi.targetClientList.length > 0" class="warning">
+                                    <td></td>
+                                    <td colspan="3">Showing {{ importUi.targetClientList.length }} results</td>
+                                </tr>
+                                <tr ng-show="importUi.targetClientList.length != 0" ng-repeat="client in importUi.targetClientList">
+                                    <td width="20">{{ $index + 1 }}</td>
+                                    <td width="10" class="text-center">
+                                        <span ng-class="{'text-success': client.isActive, 'text-danger': !client.isActive}">
+                                            <i class="fa" ng-class="{'fa-check-circle': client.isActive, 'fa-ban': !client.isActive}"></i>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a role="button" ng-click="importUi.selectTargetClient(client)">
+                                            <span ng-show="client.isChild"><i class="fa fa-level-up fa-rotate-90"></i>&nbsp;&nbsp;</span>{{ client.clientName }}
+                                        </a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <br/>
+                            <button type="button" class="btn btn-default pull-right" ng-click="importUi.cancelSearchForTargetClient()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row" ng-show="importUi.task === importUi.tasks.importClient">
+                <div class="col-sm-6">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                <i class="fa fa-exclamation-circle"></i> Login to source environment
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <form name="importClientForm" id="importClientForm" novalidate>
+                                <div class="form-group" ng-class="{'has-error': !importUi.clientName.isPristine && importUi.clientName.hasError()}">
+                                    <label for="clientName">Client name *</label>
+                                    <input type="text" class="form-control" id="clientName" name="clientName" placeholder="Enter the client's name"
+                                           ng-model="importUi.importClientName"
+                                           maxlength="80">
+                                </div>
+                                <div class="form-group">
+                                    <label>Parent client</label>
+                                    <select class="form-control" ng-model="importUi.importClientParent" ng-options="item as item.clientName for item in importUi.importClientParentList">
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <div class="pull-right">
+                                        <button type="button" class="btn btn-default" ng-click="importUi.saveImportSourceClient()"><i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                        <button type="button" class="btn btn-default" ng-click="importUi.cancelImportSourceClient()"><i class="fa fa-times"></i>&nbsp;&nbsp;Cancel</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-show="importUi.task === importUi.tasks.confirmImportDeviceGroup">
+                <div class="col-sm-6">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                Import Device Gorup?
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <h5>A matching device group for {{ importUi.sourceDeviceGroup.groupName }} is not found.  Do you want to import it?</h5>
+                            <br/>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="pull-right">
+                                        <button role="button" class="btn btn-default" ng-click="importUi.importDeviceGroup()">Yes</button>
+                                        <button role="button" class="btn btn-default" ng-click="importUi.taskMenu()">No</button>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1">
+                                    &nbsp;
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-show="importUi.task === importUi.tasks.startDeviceGroupSync">
+                <div class="col-sm-6">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                Synchronize Device Group
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <form class="form-horizontal" name="syncDeviceGroupForm" id="syncDeviceGroupForm" novalidate>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Synchronize from</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" ng-model="importUi.sourceDeviceGroup" ng-options="group as group.groupName for group in importUi.sourceDeviceGroupList">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Select</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" ng-model="importUi.syncDeviceGroupBy">
+                                            <option value="all" ng-selected="importUi.syncDeviceGroupBy === 'all'">all devices in this group</option>
+                                            <option value="list" ng-selected="importUi.syncDeviceGroupBy === 'list'">a list of devices in this group</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group"  ng-show="importUi.syncDeviceGroupBy === 'list'">
+                                    <label class="col-sm-4 control-label">List of IMEIs</label>
+                                    <div class="col-sm-8">
+                                        <textarea class="form-control" rows="10" ng-model="importUi.imeiList"></textarea>
+                                        <p class="help-block">Enter list of IMEIs; one per row</p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <button role="button" class="btn btn-default pull-right" ng-click="importUi.cancelDeviceGroupSync()">Cancel</button>
+                                    <button role="button" class="btn btn-default pull-right" ng-click="importUi.syncDeviceGroup()">Start</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-show="importUi.task === importUi.tasks.deviceSyncInProgress">
+                <div class="col-sm-12">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                Device synchronization in process
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th width="10">#</th>
+                                    <th>Imei</th>
+                                    <th class="text-center">Added</th>
+                                    <th class="text-center">Moved</th>
+                                    <th class="text-center">Configured</th>
+                                    <th class="text-center">Redirected</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-show="importUi.devicesToSync.length === 0" class="warning">
+                                    <td></td>
+                                    <td colspan="5">There are no devices to synchronize</td>
+                                </tr>
+                                <tr ng-show="importUi.devicesToSync.length != 0" ng-repeat="device in importUi.devicesToSync">
+                                    <td width="10">{{ $index + 1 }}</td>
+                                    <td>{{device.deviceTagId}}</td>
+                                    <td class="text-center">{{device.added}}</td>
+                                    <td class="text-center">{{device.moved}}</td>
+                                    <td class="text-center">{{device.opstate}}</td>
+                                    <td class="text-center">{{device.redirected}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <br/>
+                            <button type="button" class="btn btn-default pull-right" ng-hide="importUi.inProgress" ng-click="importUi.taskMenu()">Cancel</button>
+                            <button type="button" class="btn btn-default pull-right" ng-hide="importUi.inProgress" ng-click="importUi.redirectSourceDevices()">Queue Redirect</button>
+                            <button type="button" class="btn btn-default pull-right" ng-hide="importUi.inProgress" ng-click="importUi.changeOpStateForDevicesInTargetGroup()">Sync Button Mode</button>
+                            <button type="button" class="btn btn-default pull-right" ng-hide="importUi.inProgress" ng-click="importUi.moveDevicesToTargetGroup()">Move</button>
+                            <button type="button" class="btn btn-default pull-right" ng-hide="importUi.inProgress" ng-click="importUi.addDevicesToTargetEnv()">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-show="importUi.task === importUi.tasks.geofenceSyncInProgress">
+                <div class="col-sm-12">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                Importing Geofences
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th width="10">#</th>
+                                    <th>Geofence Name</th>
+                                    <th class="text-center">Type</th>
+                                    <th class="text-center">Added</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-show="importUi.geofencesToSync.length === 0" class="warning">
+                                    <td></td>
+                                    <td colspan="5">There are no geofences to synchronize</td>
+                                </tr>
+                                <tr ng-show="importUi.geofencesToSync.length != 0" ng-repeat="geofence in importUi.geofencesToSync">
+                                    <td width="10">{{ $index + 1 }}</td>
+                                    <td>{{geofence.name}}</td>
+                                    <td class="text-center">{{geofence.type}}</td>
+                                    <td class="text-center">{{geofence.added}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <br/>
+                            <button type="button" class="btn btn-default pull-right" ng-hide="importUi.inProgress" ng-click="importUi.taskMenu()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-show="importUi.task === importUi.tasks.routesSyncInProgress">
+                <div class="col-sm-12">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                Importing Routes
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th width="10">#</th>
+                                    <th>Geofence Name</th>
+                                    <th class="text-center">Added</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-show="importUi.routesToSync.length === 0" class="warning">
+                                    <td></td>
+                                    <td colspan="3">There are no routes to synchronize</td>
+                                </tr>
+                                <tr ng-show="importUi.routesToSync.length != 0" ng-repeat="route in importUi.routesToSync">
+                                    <td width="10">{{ $index + 1 }}</td>
+                                    <td>{{route.routeName}}</td>
+                                    <td class="text-center">{{route.added}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <br/>
+                            <button type="button" class="btn btn-default pull-right" ng-hide="importUi.inProgress" ng-click="importUi.taskMenu()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-show="importUi.task === importUi.tasks.alarmContactSyncInProgress">
+                <div class="col-sm-12">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                Importing Alarm Contacts
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th width="10">#</th>
+                                    <th>Name</th>
+                                    <th class="text-center">Added</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-show="importUi.alarmContactsToSync.length === 0" class="warning">
+                                    <td></td>
+                                    <td colspan="3">There are no contacts to synchronize</td>
+                                </tr>
+                                <tr ng-show="importUi.alarmContactsToSync.length != 0" ng-repeat="contact in importUi.alarmContactsToSync">
+                                    <td width="10">{{ $index + 1 }}</td>
+                                    <td>{{contact.lastname}}, {{contact.firstname}}</td>
+                                    <td class="text-center">{{contact.added}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <br/>
+                            <button type="button" class="btn btn-default pull-right" ng-hide="importUi.inProgress" ng-click="importUi.taskMenu()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-show="importUi.task === importUi.tasks.shippingContactSyncInProgress">
+                <div class="col-sm-12">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                Importing Shipping Contacts
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th width="10">#</th>
+                                    <th>Name</th>
+                                    <th class="text-center">Added</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-show="importUi.shippingContactsToSync.length === 0" class="warning">
+                                    <td></td>
+                                    <td colspan="3">There are no contacts to synchronize</td>
+                                </tr>
+                                <tr ng-show="importUi.shippingContactsToSync.length != 0" ng-repeat="contact in importUi.shippingContactsToSync">
+                                    <td width="10">{{ $index + 1 }}</td>
+                                    <td>{{contact.lastName}}, {{contact.firstName}}</td>
+                                    <td class="text-center">{{contact.added}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <br/>
+                            <button type="button" class="btn btn-default pull-right" ng-hide="importUi.inProgress" ng-click="importUi.taskMenu()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-show="importUi.task === importUi.tasks.shippingNotificationSyncInProgress">
+                <div class="col-sm-12">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                Importing Shipping Notification Settings
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th width="10">#</th>
+                                    <th>Name</th>
+                                    <th class="text-center">Added</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-show="importUi.shippingNotificationSettingsToSync.length === 0" class="warning">
+                                    <td></td>
+                                    <td colspan="3">There are no notifications to synchronize</td>
+                                </tr>
+                                <tr ng-show="importUi.shippingNotificationSettingsToSync.length != 0" ng-repeat="notification in importUi.shippingNotificationSettingsToSync">
+                                    <td width="10">{{ $index + 1 }}</td>
+                                    <td>{{notification.notificationType}}</td>
+                                    <td class="text-center">{{notification.added}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <br/>
+                            <button type="button" class="btn btn-default pull-right" ng-hide="importUi.inProgress" ng-click="importUi.taskMenu()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-show="importUi.task === importUi.tasks.shippingTemplatesSyncInProgress">
+                <div class="col-sm-12">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                Importing Shipping Templates
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th width="10">#</th>
+                                    <th>Name</th>
+                                    <th class="text-center">Added</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-show="importUi.shippingTemplatesToSync.length === 0" class="warning">
+                                    <td></td>
+                                    <td colspan="3">There are no templates to synchronize</td>
+                                </tr>
+                                <tr ng-show="importUi.shippingTemplatesToSync.length != 0" ng-repeat="template in importUi.shippingTemplatesToSync">
+                                    <td width="10">{{ $index + 1 }}</td>
+                                    <td>{{template.name}}</td>
+                                    <td class="text-center">{{template.added}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <br/>
+                            <button type="button" class="btn btn-default pull-right" ng-hide="importUi.inProgress" ng-click="importUi.taskMenu()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-show="importUi.task === importUi.tasks.userSyncInProgress">
+                <div class="col-sm-12">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                Importing Users
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th width="10">#</th>
+                                    <th>Name</th>
+                                    <th class="text-center">Added</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-show="importUi.usersToSync.length === 0" class="warning">
+                                    <td></td>
+                                    <td colspan="3">There are no users to synchronize</td>
+                                </tr>
+                                <tr ng-show="importUi.usersToSync.length != 0" ng-repeat="user in importUi.usersToSync">
+                                    <td width="10">{{ $index + 1 }}</td>
+                                    <td>{{user.lastName}}, {{user.firstName}}</td>
+                                    <td class="text-center">{{user.added}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <br/>
+                            <button type="button" class="btn btn-default pull-right" ng-hide="importUi.inProgress" ng-click="importUi.taskMenu()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-show="importUi.task === importUi.tasks.alarmSyncInProgress">
+                <div class="col-sm-12">
+                    <br/>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                Alarm synchronization in process
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th width="10">#</th>
+                                    <th>Name</th>
+                                    <th class="text-center">Added</th>
+                                    <th class="text-center">Rules</th>
+                                    <th class="text-center">Config Actions</th>
+                                    <th class="text-center">Subscribers</th>
+                                    <th class="text-center">Devices</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-show="importUi.alarmsToSync.length === 0" class="warning">
+                                    <td></td>
+                                    <td colspan="5">There are no alarms to synchronize</td>
+                                </tr>
+                                <tr ng-show="importUi.alarmsToSync.length != 0" ng-repeat="alarm in importUi.alarmsToSync">
+                                    <td width="10">{{ $index + 1 }}</td>
+                                    <td>{{alarm.alarmName}}</td>
+                                    <td class="text-center">{{alarm.added}}</td>
+                                    <td class="text-center">{{alarm.rulesAdded}}</td>
+                                    <td class="text-center">{{alarm.configActionsAdded}}</td>
+                                    <td class="text-center">{{alarm.subscribersAdded}}</td>
+                                    <td class="text-center">{{alarm.devicesAdded}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <br/>
+                            <button type="button" class="btn btn-default pull-right" ng-hide="importUi.inProgress" ng-click="importUi.taskMenu()">Cancel</button>
+                            <button type="button" class="btn btn-default pull-right" ng-hide="importUi.inProgress" ng-click="importUi.startAlarmDevicesSync()">Sync Devices</button>
+                            <button type="button" class="btn btn-default pull-right" ng-hide="importUi.inProgress" ng-click="importUi.startAlarmSubscriberSync()">Sync Subscribers</button>
+                            <button type="button" class="btn btn-default pull-right" ng-hide="importUi.inProgress" ng-click="importUi.startAlarmConfigActionSync()">Sync Actions</button>
+                            <button type="button" class="btn btn-default pull-right" ng-hide="importUi.inProgress" ng-click="importUi.startAlarmRulesToSync()">Sync Rules</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

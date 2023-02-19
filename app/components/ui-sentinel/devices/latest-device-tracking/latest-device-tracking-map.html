@@ -1,0 +1,176 @@
+<div ng-controller="LatestDeviceTrackingMapController as devicesMap">
+    <div latest-device-tracking-filterbar></div>
+    <div class="row">
+         <div class="col-lg-9 col-lg-push-3 col-md-8 col-md-push-4">
+            <div id="latestDeviceTrackingMap" class="large-map"></div>
+            <div latest-device-tracking-timeline></div>
+        </div>
+        <div class="col-lg-3 col-lg-pull-9 col-md-4 col-md-pull-8" >
+            <div class="panel panel-default panel-themed" ng-show="!devicesMap.reportsService.selected"><!-- device list -->
+                <div class="panel-heading"><strong>Most recent device reports</strong></div>
+                <div id="map-items-list" class="table-responsive">
+                    <table class="table table-condensed">
+                        <tr ng-show="devicesMap.reportsService.reports.length == 0" class="danger"><td colspan="3"><i class="fa fa-exclamation-circle fa-lg"></i>&nbsp;&nbsp;No data to display. </td></tr>
+                        <tr ng-show="devicesMap.reportsService.isFull" class="warning"><td colspan="3"><i class="fa fa-exclamation-circle fa-lg"></i>&nbsp;&nbsp;The maximum number of reports have been loaded.  Use the timeline to reduce the number of loaded records. </td></tr>
+                        <tr ng-show="devicesMap.reportsService.reports.length > 0" class="warning"><td colspan="3" class="text-right">Showing {{ devicesMap.filterService.filteredReports.length }} / {{ devicesMap.reportsService.reports.length }} reports</td></tr>
+                        <tr ng-repeat="report in devicesMap.filterService.filteredReports = (devicesMap.reportsService.reports | filter: devicesMap.filterService.filter)"
+                            ng-class="{'text-danger': report.severity === 'warning', 'text-info': report.severity === 'info', 'text-ok': report.severity === 'ok'}">
+                            <td>
+                                <div class="pull-left">
+                                    <a data-map-icon-image style="border: none;" role="button" ng-click="devicesMap.actions.selectReport(report)" data-severity="{{report.severity}}"
+                                    data-beacon-type="{{report.beaconType}}" data-location-method="{{report.locationMethod | locationMethod: report.latitude:report.longitude}}" selected="{{ devicesMap.reportsService.selected && devicesMap.reportsService.selected.reportGuid === report.reportGuid }}"></a>
+                                </div>
+                                <div>
+                                    <div class="pull-right text-right">
+                                        <small>
+                                            <span class="pull-right" time-from-now utc-datetime="{{report.messageTimeStamp}}"></span>
+                                            <span ng-show="report[devicesMap.filterService.range.property] || report[devicesMap.filterService.range.property] === 0"><br/>{{ report[devicesMap.filterService.range.property] }}{{ devicesMap.filterService.range.suffix }}</span>
+                                        </small>
+                                    </div>
+                                    <a role="button" ng-click="devicesMap.actions.selectReport(report)">
+                                        <span ng-if="report.deviceName === report.deviceTagId">{{ report.deviceTagId }}</span>
+                                        <span ng-if="report.deviceName !== report.deviceTagId">{{ report.deviceName }}<br/><small>[{{ report.deviceTagId }}]</small></span>
+                                    </a>
+                                </div>
+                                <div ng-if="report.alarms" class="text-right">
+                                    <span ng-repeat="alarm in report.alarms"><br/>{{ alarm.groupName }}</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div><!-- device list -->
+            <div class="panel panel-default panel-themed" ng-if="devicesMap.reportsService.selected"><!-- device details -->
+                <div class="panel-heading">
+                    <strong><a data-map-icon-image style="border: none;" role="button" data-severity="{{devicesMap.reportsService.selected.severity}}" data-beacon-type="{{devicesMap.reportsService.selected.beaconType}}" data-location-method="{{devicesMap.reportsService.selected.locationMethod | locationMethod: report.latitude:report.longitude}}"></a>  Report Details</strong>
+                    <span class="pull-right text-right">
+                        <a style="border: none;" role="button" ng-click="devicesMap.actions.closeReportDetails()"><i class="fa fa-lg fa-close" title="Close"></i></a>
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <button id="btn-details-select-prev" class="btn btn-default btn-sm" title="Select previous report"
+                            ng-disabled="!devicesMap.previousReport"
+                            ng-click="devicesMap.actions.selectReport(devicesMap.previousReport)">
+                        <i class="fa fa-chevron-left"></i>&nbsp;&nbsp;Prev
+                    </button>
+                    <button id="btn-details-select-next" class="btn btn-default btn-sm pull-right" title="Select next report"
+                            ng-disabled="!devicesMap.nextReport"
+                            ng-click="devicesMap.actions.selectReport(devicesMap.nextReport)">
+                        Next&nbsp;&nbsp;<i class="fa fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-condensed">
+                        <tr>
+                            <td>
+                                <strong>Alarms</strong>
+                                <span class="pull-right" ng-repeat="alarm in devicesMap.reportsService.selected.activatedAlarms" ng-class="{'text-danger': devicesMap.reportsService.selected.severity === 'warning', 'text-info': devicesMap.reportsService.selected.severity === 'info'}">
+                                    {{ alarm.alarmName }}<br/>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr><td><strong>Battery</strong><span class="pull-right">{{ devicesMap.reportsService.selected.batteryPercent }}%</span></td></tr>
+                        <tr ng-if="devicesMap.reportsService.selected.type == 'Sentry'"><td><strong>Button</strong><span class="pull-right">{{ devicesMap.reportsService.selected.isButtonPushed ? 'Pressed' : 'Not pressed' }}</span></td></tr>
+                        <tr ng-if="devicesMap.reportsService.selected.type == 'Sentry'"><td><strong>Communication Type</strong><span class="pull-right">{{ devicesMap.reportsService.selected.communicateType === 'Unavailable' ? '' : devicesMap.reportsService.selected.communicationType }}</span></td></tr>
+                        <tr><td><strong>Time of Report</strong><span class="pull-right" local-datetime utc-datetime="{{devicesMap.reportsService.selected.messageTimeStamp}}" date-format="L" time-format="LTS"></span></td></tr>
+                        <tr><td><strong>Time of Receipt</strong><span class="pull-right" local-datetime utc-datetime="{{devicesMap.reportsService.selected.serverTimeStamp}}" date-format="L" time-format="LTS"></span></td></tr>
+                        <tr ng-show="devicesMap.reportsService.selected.deviceTagId !== devicesMap.reportsService.selected.deviceName"><td><strong>Device Name</strong><span class="pull-right">{{ devicesMap.reportsService.selected.deviceName }}</span></td></tr>
+                        <tr><td><strong>Device Tag</strong><span class="pull-right">{{ devicesMap.reportsService.selected.deviceTagId }}</span></td></tr>
+                        <tr><td><strong>Dew Point</strong><span class="pull-right">{{ devicesMap.reportsService.selected.dewPointC }}&deg;C<br/>{{ devicesMap.reportsService.selected.dewPointF }}&deg;F</span></td></tr>
+                        <tr><td><strong>ExtSwitch</strong><span class="pull-right">{{ devicesMap.reportsService.selected.extSwitch}}</span></td></tr>
+                        <tr><td><strong>Humidity</strong><span class="pull-right text-right">{{ devicesMap.reportsService.selected.humidity}}%</span></td></tr>
+                        <tr ng-if="devicesMap.reportsService.selected.latitude"><td><strong>Lat / Lng</strong><span class="pull-right text-right">{{ devicesMap.reportsService.selected.latitude }}<br/>{{ devicesMap.reportsService.selected.longitude }}</span><br/> <span ng-if=" devicesMap.reportsService.selected.locationName">({{devicesMap.reportsService.selected.locationName}})</span></td></tr>
+                        <tr><td><strong>Light</strong><span class="pull-right">{{ devicesMap.reportsService.selected.light }} lux</span></td></tr>
+                        <tr><td><strong>Location Method</strong><span class="pull-right">{{ devicesMap.reportsService.selected.locationMethod  === 'CellTriangulation' ? 'Network' : devicesMap.reportsService.selected.locationMethod}}</span></td></tr>
+                        <tr ng-if="devicesMap.reportsService.selected.type == 'Sentry'"><td><strong>Motion</strong><span class="pull-right">{{  devicesMap.reportsService.selected.isMotionDetected || devicesMap.reportsService.selected.isVibrationDetected ? 'Detected' : 'Not detected' }}</span></td></tr>
+                        <tr><td><strong>Pressure</strong><span class="pull-right">{{ devicesMap.reportsService.selected.pressure }} kPa</span></td></tr>
+                        <tr ng-if="devicesMap.reportsService.selected.type == 'Sentry'"><td><strong>Reporting Interval</strong><span class="pull-right">{{ devicesMap.secondsService.format(devicesMap.reportsService.selected.reportInterval) }}</span></td></tr>
+                        <tr><td><strong>Shock</strong><span class="pull-right text-right">{{ devicesMap.reportsService.selected.isShockExceeded ? devicesMap.reportsService.selected.shockMagnitude  + 'g' : 'Not detected' }}<br/>{{ devicesMap.reportsService.selected.isShockExceeded && devicesMap.reportsService.selected.type == 'Sentry' ? '(' + devicesMap.reportsService.selected.shockX + ', ' + devicesMap.reportsService.selected.shockY + ', ' + devicesMap.reportsService.selected.shockZ + ')' : null}}</span></td></tr>
+                        <!-- <tr ng-if="devicesMap.reportsService.selected.type == 'Sentinel'"><td><strong>Humidity</strong><span class="pull-right text-right">{{ devicesMap.reportsService.selected.humidity}}%</span></td></tr> -->
+                        <tr><td><strong>Temperature</strong><span class="pull-right">{{ devicesMap.reportsService.selected.temperatureC }}&deg;C<br/>{{ devicesMap.reportsService.selected.temperatureF }}&deg;F</span></td></tr>
+                       <!-- <tr ng-if="devicesMap.reportsService.selected.temperatureProbe"><td><strong>Temperature Probe</strong><span class="pull-right">{{ devicesMap.reportsService.selected.temperatureProbe }}&deg;C</span></td></tr>-->
+                        <tr><td><strong>Temperature Probe 1</strong><span class="pull-right">{{ devicesMap.reportsService.selected.temperatureProbe1C }}&deg;C<br/>{{ devicesMap.reportsService.selected.temperatureProbe1F }}&deg;F</span></td></tr>
+                        <tr><td><strong>Temperature Probe 2</strong><span class="pull-right">{{ devicesMap.reportsService.selected.temperatureProbe2C }}&deg;C<br/>{{ devicesMap.reportsService.selected.temperatureProbe2F }}&deg;F</span></td></tr>
+                        <tr><td><strong>Tilt</strong><span class="pull-right text-right">{{ devicesMap.reportsService.selected.isTiltExceeded ? devicesMap.reportsService.selected.tiltMagnitude : '' }}&deg;<br/>{{ devicesMap.reportsService.selected.isTiltExceeded ? '(' + devicesMap.reportsService.selected.tiltX + ', ' + devicesMap.reportsService.selected.tiltY + ', ' + devicesMap.reportsService.selected.tiltZ + ')' : null}}</span></td></tr>
+                        <tr ng-if="devicesMap.reportsService.selected.type == 'Sentry'"><td><strong>Total Sightings Count</strong><span class="pull-right">{{devicesMap.reportsService.selected.totalSightingsCount}}</span></td></tr>
+                    </table>
+                </div>
+                <div class="panel-footer">
+                    <button id="btn-details-device-admin" class="btn btn-default btn-sm" ng-click="devicesMap.actions.goToDeviceAdmin()" title="Device Admin" ng-show="devicesMap.reportsService.selected.type == 'Sentry'"
+                           >
+                        <i class="fa fa-pencil"></i>
+                    </button>
+                    
+                    <button id="btn-details-device-map" class="btn btn-default btn-sm" title="Track Device"
+                            ng-click="devicesMap.actions.goToDeviceMap()"
+                            ng-if="devicesMap.reportsService.selected.type == 'Sentry'">
+                        <i class="fa fa-map-o"></i>
+                    </button>
+                    <button id="btn-details-device-map" class="btn btn-default btn-sm" title="Track Device"
+                            ng-click="devicesMap.actions.goToSentinelMap()"
+                            ng-if="devicesMap.reportsService.selected.type == 'Sentinel'">
+                        <i class="fa fa-map-o"></i>
+                    </button>
+                
+                    <button id="btn-details-device-reports" class="btn btn-default btn-sm" title="Device Reports"
+                            ng-click="devicesMap.actions.goToDeviceReports()"
+                            ng-if="devicesMap.reportsService.selected.type == 'Sentry'">
+                        <i class="fa fa-table"></i>
+                    </button>
+                    <button id="btn-details-sightings-reports" class="btn btn-default btn-sm" title="Sightings Reports"
+                            ng-click="devicesMap.actions.goToDeviceReports()"
+                            ng-if="devicesMap.reportsService.selected.type == 'Sentinel'">
+                        <i class="fa fa-list-ul"></i>
+                    </button>
+                    <button id="btn-details-sightings-reports" class="btn btn-default btn-sm" title="Sightings Reports"
+                            ng-click="devicesMap.actions.gotoSightingsForReport()"
+                            ng-if="devicesMap.reportsService.selected.type == 'Sentry'">
+                        <i class="fa fa-list-ul"></i>
+                    </button>
+                    <button id="btn-details-sightings-reports" class="btn btn-default btn-sm" title="Alarms"
+                            ng-click="devicesMap.actions.goToDeviceAlarms()">
+                        <i class="fa fa-bell"></i>
+                    </button>
+                    <button id="btn-details-center-timeline" class="btn btn-default btn-sm pull-right" title="Show on timeline"
+                            ng-click="devicesMap.actions.reportMarker.centerOnTimeline()">
+                        <i class="fa fa-clock-o"></i>
+                    </button>
+                    <button id="btn-details-center-map" class="btn btn-default btn-sm pull-right" title="Center on map"
+                            ng-if="devicesMap.reportsService.selected.longitude !== null && devicesMap.reportsService.selected.latitude !== null"
+                            ng-click="devicesMap.actions.reportMarker.panTo(devicesMap.selectedReportMarker)">
+                        <i class="fa fa-crosshairs"></i>
+                    </button>
+                </div>
+            </div>    <!-- device details -->
+        </div>
+    </div><!--map-->
+   
+    <div id="mapPropTool" class="gmap-control gmap-control-left-end">
+        <a style="border: none;" role="button" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Map Properties"><i class="fa fa-info"></i></a>
+        <ul class="dropdown-menu gmap-control-map-prop">
+            <li><strong>Zoom</strong></li>
+            <li>&nbsp;&nbsp;{{ devicesMap.zoomLevel }}</li>
+            <li><strong>Center Lat</strong></li>
+            <li>&nbsp;&nbsp;{{ devicesMap.center.lat }}</li>
+            <li><strong>Center Lng</strong></li>
+            <li>&nbsp;&nbsp;{{ devicesMap.center.lng }}</li>
+        </ul>
+    </div>
+    <div id="legendTool" class="gmap-control gmap-control-right-end">
+        <a style="border: none;" role="button" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Legend">Legend</a>
+        <ul class="dropdown-menu dropdown-menu-right gmap-control-legend">
+            <li><img class="img-circle" src="../img/ok-gps.png">&nbsp;&nbsp;Ok - GPS Location</li>
+            <li><img class="img-square" src="../img/ok-network.png">&nbsp;&nbsp;Ok - Network Location</li>
+            <li><img class="img-square" src="../img/ok-anchor.png">&nbsp;&nbsp;Ok - Anchor Location</li>
+            <li><img class="img-diamond" src="../img/ok-none.png">&nbsp;&nbsp;Ok - No Location</li>
+            <li><img class="img-circle" src="../img/info-gps.png">&nbsp;&nbsp;Info - GPS Location</li>
+            <li><img class="img-square" src="../img/info-network.png">&nbsp;&nbsp;Info - Network Location</li>
+            <li><img class="img-square" src="../img/info-anchor.png">&nbsp;&nbsp;Info - Anchor Location</li>
+            <li><img class="img-diamond" src="../img/info-none.png">&nbsp;&nbsp;Info - No Location</li>
+            <li><img class="img-circle" src="../img/warning-gps.png">&nbsp;&nbsp;Warning - GPS Location</li>
+            <li><img class="img-square" src="../img/warning-network.png">&nbsp;&nbsp;Warning - Network Location</li>
+            <li><img class="img-square" src="../img/warning-anchor.png">&nbsp;&nbsp;Warning - Anchor Location</li>
+            <li><img class="img-diamond" src="../img/warning-none.png">&nbsp;&nbsp;Warning - No Location</li>
+        </ul>
+    </div>
+</div>

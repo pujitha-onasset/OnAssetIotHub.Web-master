@@ -1,0 +1,130 @@
+<div ng-controller="LocationAdminController as locationAdmin">
+    <div feedback></div>
+    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row" ng-if="!locationAdmin.mode.isNew" style="margin-top: 3px;">
+                        <div class="col-sm-8" ng-if="locationAdmin.hasPermission.toSave">
+                            <ul class="nav nav-pills" ng-cloak>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="Delete" ng-click="locationAdmin.actions.beginRemove()"
+                                            ng-show="!locationAdmin.mode.isRemoving">
+                                        <i class="fa fa-trash"></i> Delete
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="Yes" ng-click="locationAdmin.actions.remove()"
+                                            ng-show="locationAdmin.mode.isRemoving">
+                                        <i class="fa fa-check"></i> Yes
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="No" ng-click="locationAdmin.actions.cancelRemove()"
+                                            ng-show="locationAdmin.mode.isRemoving">
+                                        <i class="fa fa-ban"></i> No
+                                    </button>
+                                </li>
+                            </ul>
+                            <br/>
+                            <br/>
+                        </div>
+                    </div>
+                    <div class="row" ng-show="locationAdmin.mode.isRemoving">
+                        <div class="col-sm-12">
+                            <p><i class="fa fa-question-circle fa-lg"></i>  Do you wish to delete <strong>{{ locationAdmin.location.name }}</strong>? </p>
+                        </div>
+                    </div>
+                    <div class="row" ng-hide="locationAdmin.mode.isRemoving">
+                        <div class="col-sm-12">
+                            <form name="geofenceForm" id="clientForm" ng-submit="locationAdmin.actions.submit()" novalidate>
+                                <div class="form-group" ng-class="{'has-error': !locationAdmin.locationName.isPristine && locationAdmin.locationName.hasError()}">
+                                    <label>Name *</label>
+                                    <input type="text" class="form-control" id="locationName" name="locationName" placeholder="Enter a name for the location" maxlength="80"
+                                           ng-model="locationAdmin.locationName.value"
+                                           ng-readonly="!locationAdmin.hasPermission.toSave"
+                                           ng-change="locationAdmin.locationName.isPristine = true">
+                                    <p class="help-block text-right" ng-show="!locationAdmin.locationName.isPristine && locationAdmin.locationName.errors.isBlank">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;A location name is required</p>
+                                    <p class="help-block text-right" ng-show="!locationAdmin.locationName.isPristine && locationAdmin.locationName.errors.isDuplicate">&nbsp;<i class="fa fa-info-circle"></i>&nbsp;The location name is already in use</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="comments">Description</label>
+                                    <textarea class="form-control" id="comments" name="comments"
+                                              ng-model="locationAdmin.locationDescription.value"
+                                              ng-readonly="!locationAdmin.hasPermission.toSave"
+                                              placeholder="Enter a description for this location (optional)" rows="3" maxlength="500">
+                                    </textarea>
+                                </div>
+                                 <div class="form-group">
+                                    <label for="comments">Responsiveness</label>
+                                    <select name="Responsiveness" id="Responsiveness" ng-model="locationAdmin.locationResponsiveness.value" 
+                                    ng-options="o as o for o in locationAdmin.responsivenessArray">
+                                      
+                                    </select>
+                                </div>
+                                <div class="form-group" ng-if="!locationAdmin.mode.isChangingLocation" ng-class="{'has-error': !locationAdmin.locationAddress.isPristine && locationAdmin.locationAddress.hasError() }">
+                                    <label>Address *</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" ng-model="locationAdmin.locationAddress.value" readonly>
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default" title="Change location"
+                                                ng-click="locationAdmin.actions.changeLocation()"
+                                                ng-disabled="!locationAdmin.hasPermission.toSave"><i class="fa fa-fw fa-pencil"></i>
+                                        </button>
+                                    </span>
+                                    </div>
+                                    <p class="help-block text-right" ng-show="!locationAdmin.locationAddress.isPristine && locationAdmin.locationAddress.hasError() "><i class="fa fa-info-circle"></i>&nbsp;A location is required</p>
+                                </div>
+                                <div class="form-group" ng-if="locationAdmin.mode.isChangingLocation"  ng-class="{'has-error': (!locationAdmin.locationAddress.isPristine && locationAdmin.locationAddress.hasError()) || (!locationAdmin.locationSearch.isPristine && locationAdmin.locationSearch.hasError()) }">
+                                    <label>Address *</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="Enter an address and search for a location" ng-model="locationAdmin.locationSearch.value"  ng-change="locationAdmin.actions.locationSearchChanged()"  maxlength="128">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default" title="Get address locations" ng-click="locationAdmin.actions.getLocations()"><i class="fa fa-fw fa-search"></i></button>
+                                    </span>
+                                    </div>
+                                    <p class="help-block text-right" ng-show="(!locationAdmin.locationAddress.isPristine && locationAdmin.locationAddress.errors.isBlank) || (!locationAdmin.locationSearch.isPristine && locationAdmin.locationSearch.errors.isBlank) "><i class="fa fa-info-circle"></i>&nbsp;A location is required</p>
+                                    <p class="help-block text-right" ng-show="!locationAdmin.locationSearch.isPristine && locationAdmin.locationSearch.value && locationAdmin.locationSearch.locations.length === 0"><i class="fa fa-exclamation-circle"></i>&nbsp;Click <i class="fa fa-search"></i> to find locations for this address</p>
+                                    <p class="help-block text-right" ng-show="!locationAdmin.locationSearch.isPristine && locationAdmin.locationSearch.errors.hasZeroResults"><i class="fa fa-exclamation-circle"></i>&nbsp;Could not find any locations for the address.  Please try again</p>
+                                    <div>
+                                        <ul class="list-unstyled">
+                                            <li ng-show="locationAdmin.locationSearch.locations.length > 0 && locationAdmin.locationSearch.locations.length < locationAdmin.locationLimit"><i class="fa fa-info-circle"></i>&nbsp;Click a location below to use as the starting point for the geofence</li>
+                                            <li ng-show="locationAdmin.locationSearch.locations.length > 0 && locationAdmin.locationSearch.locations.length >= locationAdmin.locationLimit"><i class="fa fa-info-circle"></i>&nbsp;Only showing first {{locationAdmin.locationLimit}} matches.  If you don't see a location, enter a more specific address and try again</li>
+                                            <li ng-repeat="location in locationAdmin.locationSearch.locations | orderBy: 'formatted_address' | limitTo: locationAdmin.locationLimit">
+                                                <a role="button" ng-click="locationAdmin.actions.selectLocation(location)">
+                                                    <strong>{{ location.formatted_address }}</strong>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div><!-- address selection -->
+                                <div class="form-group">
+                                    <div id="locationMap" class="location-map"></div>
+
+                                </div>
+                                <div class="form-group">
+                                    <br/>
+                                    <br/>
+                                    <div class="pull-right">
+                                        <button type="submit" class="btn btn-default" ng-if="locationAdmin.hasPermission.toSave"><i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                        <button type="button" class="btn btn-default" ng-if="locationAdmin.hasPermission.toSave" ng-click="locationAdmin.actions.reset()"><i class="fa fa-undo"></i>&nbsp;&nbsp;Reset</button>
+                                        <button type="button" class="btn btn-default" ng-click="locationAdmin.actions.close()"><i class="fa fa-times"></i>&nbsp;&nbsp;Close</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" ng-if="!locationAdmin.mode.isNew && !locationAdmin.mode.isRemoving">
+            <div location-zones location="locationAdmin.location"></div>
+        </div>
+        <div id="centerZoomLabel" class="gmap-control-label gmap-control-left-end" ng-show="locationAdmin.location">
+            <strong>Zoom</strong>
+        </div>
+        <div id="locationZoom" class="gmap-control gmap-control-right-end" ng-show="locationAdmin.location">
+            <a role="button" ng-click="locationAdmin.actions.panToLocation()" title="Zoom to this location">Location</a>
+        </div>
+    </div>
+</div>

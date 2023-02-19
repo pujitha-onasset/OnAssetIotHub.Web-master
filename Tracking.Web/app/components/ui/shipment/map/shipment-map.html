@@ -1,0 +1,106 @@
+<div ng-controller="ShipmentMapController as shipmentMap">
+    <div shipment-reports-filterbar></div>
+    <div class="row">
+        <div class="col-lg-3 col-md-4 col-sm-5">
+            <div class="panel panel-default" ng-show="!shipmentMap.reportsService.selected && !shipmentMap.selectedStopMarker"><!-- device list -->
+                <div class="panel-heading"><strong>Reports for {{shipmentMap.shipment.shipmentInfo.referenceNumber}}</strong></div>
+                <div id="map-items-list" class="table-responsive">
+                    <table class="table table-condensed">
+                        <tr ng-show="shipmentMap.reportsService.isFull" class="warning"><td colspan="3">The maximum number of reports have been loaded</td></tr>
+                        <tr ng-show="shipmentMap.reportsService.reports.length === 0" class="warning"><td colspan="3">There are no reports for this shipment</td></tr>
+                        <tr ng-show="!shipmentMap.reportsService.isFull && shipmentMap.reportsService.reports.length > 0" class="warning"><td colspan="3" class="text-right">Showing {{ filteredReports.length }} /  {{ shipmentMap.reportsService.reports.length }} reports</td></tr>
+                        <tr ng-repeat="report in filteredReports = (shipmentMap.reportsService.reports | filter: shipmentMap.filterService.filter)">
+                            <td width="10%">
+                                <a map-icon-image style="border: none;" role="button" ng-click="shipmentMap.actions.selectReport(report)" severity="ok" location-method="{{report.locationMethod}}" selected="{{ shipmentMap.reportsService.selected && shipmentMap.reportsService.selected.reportId === report.reportId }}"></a>
+                            </td>
+                            <td width="40%">
+                                <a role="button" ng-click="shipmentMap.actions.selectReport(report)">
+                                    <span local-datetime utc-datetime="{{report.messageTimeStamp}}" date-format="L" time-format="LTS"></span>
+                                </a>
+                            </td>
+                            <td width="50%" class="text-right">
+                                <small>
+                                    <span class="pull-right" time-from-now utc-datetime="{{report.messageTimeStamp}}"></span><br/>
+                                    <span ng-show="report[shipmentMap.filterService.range.property] || report[shipmentMap.filterService.range.property] === 0">{{ report[shipmentMap.filterService.range.property] }}{{ shipmentMap.filterService.range.suffix }}</span>
+                                </small>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div><!-- device list -->
+            <div class="panel panel-default" ng-if="shipmentMap.reportsService.selected"><!-- device details -->
+                <div class="panel-heading">
+                    <strong>Report Details</strong>
+                    <span class="pull-right text-right">
+                        <a role="button" ng-click="shipmentMap.actions.closeReportDetails()"><i class="fa fa-lg fa-close" title="Close"></i></a>
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <button id="btn-details-select-prev" class="btn btn-default btn-sm" title="Select previous report"
+                            ng-disabled="!shipmentMap.previousReport"
+                            ng-click="shipmentMap.actions.selectReport(shipmentMap.previousReport)">
+                        <i class="fa fa-chevron-left"></i>&nbsp;&nbsp;Prev
+                    </button>
+                    <button id="btn-details-select-next" class="btn btn-default btn-sm pull-right" title="Select next report"
+                            ng-disabled="!shipmentMap.nextReport"
+                            ng-click="shipmentMap.actions.selectReport(shipmentMap.nextReport)">
+                        Next&nbsp;&nbsp;<i class="fa fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-condensed">
+                        <tr><td><strong>Device Tag</strong><span class="pull-right">{{ shipmentMap.reportsService.selected.deviceTagId }}</span></td></tr>
+                        <tr><td><strong>Battery</strong><span class="pull-right">{{ shipmentMap.reportsService.selected.batteryPercent }}%</span></td></tr>
+                        <tr><td><strong>Button</strong><span class="pull-right">{{ shipmentMap.reportsService.selected.isButtonPushed ? 'Pressed' : 'Not pressed' }}</span></td></tr>
+                        <tr><td><strong>Datetime</strong><span class="pull-right" local-datetime utc-datetime="{{shipmentMap.reportsService.selected.messageTimeStamp}}" date-format="L" time-format="LTS"></span></td></tr>
+                        <tr><td><strong>Light</strong><span class="pull-right">{{ shipmentMap.reportsService.selected.light }} lux</span></td></tr>
+                        <tr><td><strong>Location Method</strong><span class="pull-right">{{ shipmentMap.reportsService.selected.locationMethod  === 'CellTriangulation' ? 'Network' : shipmentMap.reportsService.selected.locationMethod}}</span></td></tr>
+                        <tr><td><strong>Motion</strong><span class="pull-right">{{ shipmentMap.reportsService.selected.isMotionDetected || shipmentMap.reportsService.selected.isVibrationDetected ? 'Detected' : 'Not detected' }}</span></td></tr>
+                        <tr><td><strong>Pressure</strong><span class="pull-right">{{ shipmentMap.reportsService.selected.pressure }} kPa</span></td></tr>
+                        <tr><td><strong>Shock</strong><span class="pull-right">{{ shipmentMap.reportsService.selected.isShockExceeded ? shipmentMap.reportsService.selected.shockMagnitude : 'Not detected' }}</span></td></tr>
+                        <tr><td><strong>Temperature</strong><span class="pull-right">{{ shipmentMap.reportsService.selected.temperatureC }}&deg;C<br/>{{ shipmentMap.reportsService.selected.temperatureF }}&deg;F</span></td></tr>
+                        <tr ng-if="shipmentMap.reportsService.selected.temperatureProbe"><td><strong>Temperature Probe</strong><span class="pull-right">{{ shipmentMap.reportsService.selected.temperatureProbe }}&deg;C</span></td></tr>
+                    </table>
+                </div>
+                <div class="panel-footer text-center">
+                    <button id="btn-details-center-map" class="btn btn-default btn-sm" title="Center on map"
+                            ng-if="shipmentMap.reportsService.selected.longitude !== null && shipmentMap.reportsService.selected.latitude !== null"
+                            ng-click="shipmentMap.actions.reportMarker.panTo(shipmentMap.selectedReportMarker)">
+                        <i class="fa fa-crosshairs"></i>&nbsp;Map
+                    </button>
+                    <button id="btn-details-center-timeline" class="btn btn-default btn-sm" title="Show on timeline"
+                            ng-click="shipmentMap.actions.reportMarker.centerOnTimeline()">
+                        <i class="fa fa-clock-o"></i>&nbsp;Timeline
+                    </button>
+
+                </div>
+            </div>    <!-- device details -->
+        </div>
+        <div class="col-lg-9 col-md-8 col-sm-7">
+            <div id="shipmentMap" class="large-map"></div>
+            <div shipment-map-timeline></div>
+        </div>
+    </div><!--map-->
+    <div id="reportsZoom" class="gmap-control gmap-control-left-end gmap-control-right-end">
+        <a role="button" ng-click="shipmentMap.actions.map.panToReports()" title="Zoom to show all reports">Zoom on Reports</a>
+    </div>
+    <div id="mapPropTool" class="gmap-control gmap-control-left-end">
+        <a role="button" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Map Properties"><i class="fa fa-info"></i></a>
+        <ul class="dropdown-menu gmap-control-map-prop">
+            <li><strong>Zoom</strong></li>
+            <li>&nbsp;&nbsp;{{ shipmentMap.zoomLevel }}</li>
+            <li><strong>Center Lat</strong></li>
+            <li>&nbsp;&nbsp;{{ shipmentMap.center.lat }}</li>
+            <li><strong>Center Lng</strong></li>
+            <li>&nbsp;&nbsp;{{ shipmentMap.center.lng }}</li>
+        </ul>
+    </div>
+    <div id="legendTool" class="gmap-control gmap-control-right-end">
+        <a role="button" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Legend">Legend</a>
+        <ul class="dropdown-menu dropdown-menu-right gmap-control-legend">
+            <li><img class="img-circle" src="../img/ok-gps.png">&nbsp;&nbsp;GPS Location</li>
+            <li><img class="img-square" src="../img/ok-network.png">&nbsp;&nbsp;Network Location</li>
+            <li><img class="img-diamond" src="../img/ok-none.png">&nbsp;&nbsp;No Location</li>
+        </ul>
+    </div>
+</div>

@@ -1,0 +1,102 @@
+<div ng-controller="ZoneTrackingController as zoneTracking">
+    <div>
+        <div class="row">
+            <nav class="navbar navbar-default">
+                <form class="navbar-form navbar-left">
+                    <label><i class="fa fa-lg fa-filter"></i></label>&nbsp;&nbsp;
+                    <input type="text" class="form-control" placeholder="Filter.." ng-model="zoneTracking.filter.searchText">
+                </form>
+                 <form class="navbar-form navbar-right">
+                    <a role="button" ng-click="zoneTracking.actions.gotoAddZone()">Add zone</i></a>&nbsp;&nbsp;</span>
+                    <a role="button" ng-click="zoneTracking.actions.reload()"><i class="fa fa-refresh" title="Reload"></i></a>&nbsp;&nbsp;</span>
+                 </form>
+            </nav>
+        </div>
+    </div>
+    <div class="row">
+         <div class="col-lg-9 col-lg-push-3 col-md-8 col-md-push-4">
+            <div id="zoneMap" class="location-map"></div>
+        </div>
+        <div class="col-lg-3 col-lg-pull-9 col-md-4 col-md-pull-8" >
+            <div class="panel panel-default panel-themed" ng-show="!zoneTracking.selected"><!-- device list -->
+                <div class="panel-heading"><strong>Zones</strong></div>
+                <div id="map-items-list" class="table-responsive">
+                    <table class="table table-condensed">
+                        <tr ng-show="zoneTracking.zones.length>0" class="warning"><td colspan="3" class="text-right">Showing {{ filteredList.length }} / {{ zoneTracking.zones.length }} locations</td></tr>
+                        <tr ng-repeat="zone in filteredList = (zoneTracking.zones | orderBy: 'name' | filter: zoneTracking.filter.filter)" class="text-ok">
+                            <td>
+                                
+                                <div>
+                                    
+                                    <a role="button" ng-click="zoneTracking.actions.selectZone(zone)">
+                                        <span>{{ zone.zoneName }}</span>
+                                    </a>
+                                    <div class="pull-right text-right">
+                                        <small>
+                                            <span class="pull-right">{{ zone.assetsCount }} assets</span>
+                                            <span><br/>{{ zone.deviceId }} ({{zone.deviceType}})</span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div><!-- device list -->
+            <div class="panel panel-default panel-themed" ng-if="zoneTracking.selected"><!-- device details -->
+                <div class="panel-heading">
+                    <strong> Zone Details</strong>
+                    <span class="pull-right text-right">
+                        <a style="border: none;" role="button" ng-click="zoneTracking.actions.closeZoneDetails()"><i class="fa fa-lg fa-close" title="Close"></i></a>
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <button id="btn-details-select-prev" class="btn btn-default btn-sm" title="Select previous zone"
+                            ng-disabled="!zoneTracking.previousZone"
+                            ng-click="zoneTracking.actions.selectZone(zoneTracking.previousZone)">
+                        <i class="fa fa-chevron-left"></i>&nbsp;&nbsp;Prev
+                    </button>
+                    <button id="btn-details-select-next" class="btn btn-default btn-sm pull-right" title="Select next zone"
+                            ng-disabled="!zoneTracking.nextZone"
+                            ng-click="zoneTracking.actions.selectZone(zoneTracking.nextZone)">
+                        Next&nbsp;&nbsp;<i class="fa fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-condensed">
+                        <tr><td><strong>Name</strong><span class="pull-right">{{ zoneTracking.selected.zoneName }}</span></td></tr>
+                        <tr><td><strong>Device</strong><span class="pull-right">{{ zoneTracking.selected.deviceId }} ({{zoneTracking.selected.deviceType}})</span></td></tr>
+                        <tr><td><strong>Location</strong><span class="pull-right">{{ zoneTracking.selected.location.name }}</span></td></tr>
+                        <tr><td><strong>Latitude</strong><span class="pull-right">{{ zoneTracking.selected.latitude }}</span></td></tr>
+                        <tr><td><strong>Longitude</strong><span class="pull-right">{{ zoneTracking.selected.longitude }}</span></td></tr>
+                        <tr><td><strong>Comments</strong><span class="pull-right">{{ zoneTracking.selected.zoneNotes  }}</span></td></tr>
+                        <tr><td><strong>Images</strong><br/>
+                            <div class="previewData" ng-repeat="image in zoneTracking.selected.imageUrls track by $index"><a href="{{image}}" data-lightbox="images-{{zone.id}}" ><img src="{{image}}"></img></a>   
+                            </div>
+                        </td></tr>
+                    </table>
+                </div>
+                <div class="panel-footer">
+                    <button id="btn-details-device-admin" class="btn btn-default btn-sm" title="Edit Zone" 
+                            ng-click="zoneTracking.actions.gotoEditZone(zoneTracking.selected)">
+                        <i class="fa fa-pencil"></i>
+                    </button>
+                    
+                    <button id="btn-details-device-map" class="btn btn-default btn-sm" title="Assets by Zone"
+                            ng-click="zoneTracking.actions.gotoZone(zoneTracking.selected)">
+                        <i class="fa fa-map-o"></i>
+                    </button>
+                
+                   
+                </div>
+            </div>    
+        </div>
+    </div>
+    <div id="centerZoomLabel" class="gmap-control-label gmap-control-left-end" ng-show="zoneTracking.zone">
+        <strong>Zoom</strong>
+    </div>
+    <div id="zoneZoom" class="gmap-control gmap-control-right-end" ng-show="zoneTracking.zone">
+        <a role="button" ng-click="zoneTracking.actions.panToZone()" title="Zoom to this zone">zone</a>
+    </div>
+
+</div>

@@ -1,0 +1,139 @@
+<div ng-controller="SentinelAssignmentController as sentinelAssignmentUi">
+    <!-- Modals -->
+    <div class="modal fade" id="updateAnchorTagModal" tabindex="-1" role="dialog" aria-labelledby="updateAnchorTagModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content panel-warning">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="sentinelAssignmentUi.updateAnchorTagCancel()"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="updateAnchorTagModalLabel"><i class="fa fa-exclamation-circle"></i> Update anchor tag for sentinel <strong>{{sentinelAssignmentUi.anchortag.sentinelId}}</strong></h5>
+                </div>
+                <div class="modal-body">
+                    <div ng-if="sentinelAssignmentUi.updateAnchorTagErrorMessage" class="alert alert-danger">{{ sentinelAssignmentUi.updateAnchorTagErrorMessage }}</div>
+                    <form class="form-horizontal">
+                        <div class="form-group" ng-class="{'has-error': !sentinelAssignmentUi.anchorname.isPristine && sentinelAssignmentUi.anchorname.hasError()}">
+                            <label class="col-sm-3">Anchor Name</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="sentinelAssignmentUi.anchortag.anchorName" ng-change="sentinelAssignmentUi.anchorname.isPristine = true" autocomplete="off">
+                            </div>
+                            <p class="help-block text-right text-error-horizontal" ng-show="!sentinelAssignmentUi.anchorname.isPristine && sentinelAssignmentUi.anchorname.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Anchor name is required</p>
+                        </div>
+                        <div class="form-group" ng-class="{'has-error': !sentinelAssignmentUi.description.isPristine && sentinelAssignmentUi.description.hasError()}">
+                            <label class="col-sm-3">Description</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="sentinelAssignmentUi.anchortag.description" ng-change="sentinelAssignmentUi.description.isPristine = true" autocomplete="off">
+                            </div>
+                            <p class="help-block text-right text-error-horizontal" ng-show="!sentinelAssignmentUi.description.isPristine && sentinelAssignmentUi.description.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Description is required</p>
+                        </div>
+                        <div class="form-group" ng-class="{'has-error': !sentinelAssignmentUi.latitude.isPristine && sentinelAssignmentUi.latitude.hasError()}">
+                            <label class="col-sm-3">Latitude</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="sentinelAssignmentUi.anchortag.latitude" ng-change="sentinelAssignmentUi.latitude.isPristine = true" autocomplete="off">
+                            </div>
+                            <p class="help-block text-right text-error-horizontal" ng-show="!sentinelAssignmentUi.latitude.isPristine && sentinelAssignmentUi.latitude.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Latitude is required</p>
+                            <p class="help-block text-right text-error-horizontal" ng-show="!sentinelAssignmentUi.latitude.isPristine && sentinelAssignmentUi.latitude.errors.isNotNumber"><i class="fa fa-exclamation-circle"></i>&nbsp;Latitude must be a number</p>
+                        </div>
+                        <div class="form-group" ng-class="{'has-error': !sentinelAssignmentUi.longitude.isPristine && sentinelAssignmentUi.longitude.hasError()}">
+                            <label class="col-sm-3">Longitude</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="sentinelAssignmentUi.anchortag.longitude" ng-change="sentinelAssignmentUi.longitude.isPristine = true" autocomplete="off">
+                            </div>
+                            <p class="help-block text-right text-error-horizontal" ng-show="!sentinelAssignmentUi.longitude.isPristine && sentinelAssignmentUi.longitude.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Longitude is required</p>
+                            <p class="help-block text-right text-error-horizontal" ng-show="!sentinelAssignmentUi.longitude.isPristine && sentinelAssignmentUi.longitude.errors.isNotNumber"><i class="fa fa-exclamation-circle"></i>&nbsp;Latitude must be a number</p>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="sentinelAssignmentUi.updateAnchorTagCancel()">Cancel</button>
+                    <button type="button" class="btn btn-primary" ng-click="sentinelAssignmentUi.updateAnchorTagSubmit()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <br/>
+            <nav class="navbar navbar-default col-sm-12">
+                <form class="navbar-form">
+                    <div class="form-group">
+                        <select class="form-control" ng-model="sentinelAssignmentUi.filter">
+                            <option value="all" ng-selected="sentinelAssignmentUi.filter === 'all'">Show all</option>
+                            <option value="current" ng-selected="sentinelAssignmentUi.filter === 'current'">Show currently assigned only</option>
+                            <option value="removed" ng-selected="sentinelAssignmentUi.filter === 'removed'">Show removed only</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        &nbsp;
+                        <button class="btn btn-default" type="button" ng-click="sentinelAssignmentUi.load()">Load</button>
+                        &nbsp;
+                        <export-table-to file-name="sentinels" table-id-to-export="sentinelTableList"></export-table-to>
+                    </div>
+                </form>
+            </nav>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <nav class="pull-right" aria-label="Page navigation" ng-show="sentinelAssignmentUi.totalPages > 1">
+                <ul class="pagination">
+                    <li ng-class="{'disabled': sentinelAssignmentUi.page === 1}"><a role="button" aria-label="Previous" ng-click="sentinelAssignmentUi.previous();"><span aria-hidden="true">&laquo;</span></a></li>
+                    <li ng-repeat="n in sentinelAssignmentUi.pageArray" ng-class="{'active': n === sentinelAssignmentUi.page}"><a role="button" ng-click="sentinelAssignmentUi.gotoPage(n);" aria-label="Page {{n}}"><span aria-hidden="true">{{n}}</span></a></li>
+                    <li ng-class="{'disabled': sentinelAssignmentUi.page === sentinelAssignmentUi.totalPages}"><a role="button" aria-label="Next" ng-click="sentinelAssignmentUi.next();"><span aria-hidden="true">&raquo;</span></a></li>
+                </ul>
+            </nav>
+            <div ng-if="latestSightingsUi.errorMessage" class="alert alert-danger">{{ latestSightingsUi.errorMessage }}</div>
+           
+            <table class="table table-striped" id="sentinelTableList">
+                <thead>
+                <tr>
+                    <th width="20">#</th>
+                    <th width="60" class="noExport">
+                        <!--<button class="btn btn-sm btn-default" type="button" id="btn-addAccount" ng-click="sentinelAssignmentUi.addAccountBegin()">-->
+                        <!--New-->
+                        <!--</button>-->
+                    </th>
+                    <th>Sentinel</th>
+                    <th>Type</th>
+                    <th>
+                        Currently Assigned?
+                    </th>
+                    <th>Date Assigned</th>
+                    <th>Date Removed</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-show="sentinelAssignmentUi.list.length === 0" class="warning noExport">
+                    <td></td>
+                    <td colspan="6">There are no records</td>
+                </tr>
+                <tr ng-show="sentinelAssignmentUi.list.length != 0" ng-repeat="item in sentinelAssignmentUi.list">
+                    <td width="20">{{ (sentinelAssignmentUi.page > 1) ? ((sentinelAssignmentUi.page - 1) * sentinelAssignmentUi.itemsPerPage) + $index + 1 : $index + 1 }}</td>
+                    <td width="60" class="noExport">
+                        <!--div class="dropdown" ng-show="item.sentinelType == '100L'">
+                            <button class="btn btn-sm btn-default dropdown-toggle" type="button" id="dropdown{{$index}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdown{{$index}}">
+                                <li><a ng-click="sentinelAssignmentUi.goToLogData(item)">View Log Data</a></li>
+                                <li><a ng-click="sentinelAssignmentUi.goToWatchlist(item)">Watchlist</a></li>
+                            </ul>
+                        </div -->
+                        <!--div class="dropdown" ng-show="item.sentinelType == '100A'">
+                            <button class="btn btn-sm btn-default dropdown-toggle" type="button" id="dropdown{{$index}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-bars"></i>&nbsp;&nbsp;<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdown{{$index}}">
+                                <li><a data-toggle="modal" data-target="#updateAnchorTagModal" ng-click="sentinelAssignmentUi.updateAnchorTagBegin(item)">Anchor</a></li>
+                            </ul>
+                        </div -->
+                    </td>
+                    <td>{{ item.sentinelId }}</td>
+                    <td>{{ item.sentinelType }}</td>
+                    <td>{{ !item.timeOfRemoval ? 'yes' : 'no' }}</td>
+                    <td><span local-datetime utc-datetime="{{ item.timeOfAssignment }}" date-format="L" time-format="LTS"></span></td>
+                    <td><span local-datetime utc-datetime="{{ item.timeOfRemoval }}" date-format="L" time-format="LTS"></span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

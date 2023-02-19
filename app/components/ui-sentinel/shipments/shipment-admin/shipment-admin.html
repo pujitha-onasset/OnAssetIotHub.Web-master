@@ -1,0 +1,433 @@
+<div ng-controller="ShipmentAdminController as shipmentAdmin">
+    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row"> 
+                        <div class="col-sm-12">
+                            <ul class="nav nav-pills">
+                                <li>
+                                    <button class="btn btn-default" type="button" title="Track Device" ng-click="shipmentAdmin.actions.goToShipmentMap()">
+                                        <i class="fa fa-map-o"></i> Track Shipment
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="btn btn-default" type="button" title="Track Device" ng-click="shipmentAdmin.actions.goToShipmentReports()">
+                                        <i class="fa fa-table"></i> Shipment Reports
+                                    </button>
+                                </li>
+                                <li class="dropdown" role="presentation">
+                                    <button class="btn btn-default dropdown-toggle" type="button" id="btn-status" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
+                                            ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit">
+                                        <span class="font-bold">Shipment Status</span>&nbsp;&nbsp;<span class="caret" ng-show="shipmentAdmin.hasPermission.toChange && shipmentAdmin.editor.canEdit"></span><br/>
+                                        <small>{{ shipmentAdmin.editor.shipment.shipmentInfo.status }}</small>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="btn-status">
+                                        <!--<li><a role="button" ng-click="shipmentAdmin.actions.cancelShipment()"><i class="fa fa-ban fa-fw"></i>&nbsp;&nbsp;Cancel shipment</a></li>
+                                        -->
+                                        <li><a role="button" ng-click="shipmentAdmin.actions.completeShipment()"><i class="fa fa-check-circle-o fa-fw"></i>&nbsp;&nbsp;Complete shipment</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div feedback></div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <br/>
+                            <br/>
+                            <form name="shipmentInfoForm" ng-submit="shipmentAdmin.actions.presubmit()" novalidate>
+                                <div class="form-group" ng-class="{'has-error': !shipmentAdmin.editor.referenceNumber.isPristine && shipmentAdmin.editor.referenceNumber.hasError()}">
+                                    <label for="referenceNumber">Reference Number *</label>
+                                    <div class="input-group" ng-show="shipmentAdmin.editor.referencePrefix">
+                                        <span class="input-group-addon">{{shipmentAdmin.editor.referencePrefix}}</span>
+                                        <input type="text" class="form-control" id="referenceNumber" name="referenceNumber" placeholder="Enter a reference number for the shipment" spellcheck="false" maxlength="80"
+                                               ng-model="shipmentAdmin.editor.referenceNumber.value"
+                                               ng-change="shipmentAdmin.editor.referenceNumber.isPristine = true"
+                                               ng-readonly="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit">
+                                    </div>
+                                    <input type="text" class="form-control" id="referenceNumberNoPrefix" name="referenceNumberNoPrefix" placeholder="Enter a reference number for the shipment" spellcheck="false" maxlength="80"
+                                           ng-model="shipmentAdmin.editor.referenceNumber.value"
+                                           ng-change="shipmentAdmin.editor.referenceNumber.isPristine = true"
+                                           ng-show="!shipmentAdmin.editor.referencePrefix"
+                                           ng-readonly="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit">
+                                    <p class="help-block text-right" ng-show="!shipmentAdmin.editor.referenceNumber.isPristine && shipmentAdmin.editor.referenceNumber.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Reference number is required</p>
+                                    <p class="help-block text-right" ng-show="!shipmentAdmin.editor.referenceNumber.isPristine && !shipmentAdmin.editor.referenceNumber.errors.isBlank && shipmentAdmin.editor.referenceNumber.errors.isWrongPrefix"><i class="fa fa-exclamation-circle"></i>&nbsp;Reference number must begin with '{{shipmentAdmin.editor.trackingConfig.referencePrefix}}'</p>
+                                    <p class="help-block text-right" ng-show="!shipmentAdmin.editor.referenceNumber.isPristine && !shipmentAdmin.editor.referenceNumber.errors.isBlank && shipmentAdmin.editor.referenceNumber.errors.isDuplicate"><i class="fa fa-exclamation-circle"></i>&nbsp;Reference number already in use</p>
+                                    <p class="help-block text-right" ng-show="!shipmentAdmin.editor.referenceNumber.isPristine && shipmentAdmin.editor.referenceNumber.errors.isTooLong"><i class="fa fa-exclamation-circle"></i>&nbsp;Reference number cannot be more than 30 characters long</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="begiTrackingStrategyType">Begin Tracking Strategy Type</label>
+                                    <select id="beginTrackingStrategyType" class="form-control"       ng-model="shipmentAdmin.editor.beginTrackingStrategyType.value"
+                                        ng-change="shipmentAdmin.editor.beginTrackingStrategyType.isPristine = true"
+                                        ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit">
+                                        <option value="date/time" ng-selected="shipmentAdmin.editor.beginTrackingStrategyType.value === 'date/time'">Date/Time</option>
+                                        <option value="ArrivalGeofence" ng-selected="shipmentAdmin.editor.beginTrackingStrategyType.value === 'ArrivalGeofence'">Arrival at Geofence</option>
+                                         <option value="DepartureGeofence" ng-selected="shipmentAdmin.editor.beginTrackingStrategyType.value === 'DepartureGeofence'">Departure from Geofence</option>
+                                          <option value="Immediately" ng-selected="shipmentAdmin.editor.beginTrackingStrategyType.value === 'Immediately'">Immediately</option>
+                                    </select>
+                                    <p class="help-block text-right" ng-show="!shipmentAdmin.editor.beginTrackingStrategyType.isPristine && shipmentAdmin.editor.beginTrackingStrategyType.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Begin Tracking Strategy type is required</p>
+                                </div>  
+                                <div class="form-group" ng-if="shipmentAdmin.editor.beginTrackingStrategyType.value === 'ArrivalGeofence'">
+                                    <label for="endGeofenceNameText">Arrival at Geofence *</label>
+                                    <div ng-if="shipmentAdmin.editor.endGeofence.value !== null">
+                                        <div class="input-group">
+                                            <input id="endGeofenceNameText" type="text" class="form-control"
+                                            ng-readonly="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit"
+                                             ng-model="shipmentAdmin.endGeofenceNameText" readonly>
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default" title="Change geofence" ng-click="shipmentAdmin.actions.clearEndGeofence()"
+                                            ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit"><i class="fa fa-fw fa-pencil"></i></button>
+                                        </span>
+                                        </div>
+                                    </div> 
+                                     <div  ng-class="{'has-error': !shipmentAdmin.editor.endGeofence.isPristine && shipmentAdmin.editor.endGeofence.value === null}">
+                                        <input type="text" class="form-control" placeholder="Enter text to filter the geofences list..." ng-model="shipmentAdmin.endGeofenceSearchText"
+                                        ng-readonly="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit">
+                                        <p class="help-block text-right" ng-show="!shipmentAdmin.editor.endGeofence.isPristine && shipmentAdmin.editor.endGeofence.value === null"><i class="fa fa-exclamation-circle"></i>&nbsp;A Geofence is required</p>
+                                        <p ng-show="shipmentAdmin.availableGeofences.length <= shipmentAdmin.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Click a geofence to use</p>
+                                        <p ng-show="shipmentAdmin.availableGeofences.length > shipmentAdmin.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Showing first {{shipmentAdmin.listLimit}} matches.  Use the filter to narrow your search and then click a geofences to use</p>
+                                        <div class="table-responsive">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                <tr>
+                                                    <th></th>
+                                                    <th>Name</th>
+                                                    <th>Address</th>
+                                                    <th>Type</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr ng-repeat="g in shipmentAdmin.availableGeofences | filter: shipmentAdmin.endGeofenceFilter | limitTo:shipmentAdmin.listLimit " ng-if="shipmentAdmin.availableGeofences.length > 0">
+                                                    <th></th>
+                                                    <td><a role="button" ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit" ng-click="shipmentAdmin.actions.selectEndGeofence(g)">{{ g.name }}</a></td>
+                                                    <td>{{g.address}}</td>
+                                                    <td>{{g.type}}</td>
+                                                </tr>
+                                                <tr ng-if="shipmentAdmin.availableGeofences.length === 0">
+                                                    <td></td>
+                                                    <td colspan="4">There are no geofences assigned to the this client</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-if="shipmentAdmin.editor.beginTrackingStrategyType.value === 'DepartureGeofence'">
+                                    <label for="beginGeofenceNameText">Departure from Geofence *</label>
+                                    <div ng-if="shipmentAdmin.editor.beginGeofence.value !== null">
+                                        <div class="input-group">
+                                            <input id="beginGeofenceNameText" type="text" class="form-control" ng-model="shipmentAdmin.beginGeofenceNameText" readonly>
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default" title="Change geofence"
+                                            ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit"
+                                             ng-click="shipmentAdmin.actions.clearBeginGeofence()"><i class="fa fa-fw fa-pencil"></i></button>
+                                        </span>
+                                        </div>
+                                    </div> 
+                                     <div  ng-class="{'has-error': !shipmentAdmin.editor.beginGeofence.isPristine && shipmentAdmin.editor.beginGeofence.value === null}">
+                                        <input type="text" class="form-control" placeholder="Enter text to filter the geofences list..." ng-model="shipmentAdmin.beginGeofenceSearchText"
+                                        ng-readonly="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit">
+                                        <p class="help-block text-right" ng-show="!shipmentAdmin.editor.beginGeofence.isPristine && shipmentAdmin.editor.beginGeofence.value === null"><i class="fa fa-exclamation-circle"></i>&nbsp;A Geofence is required</p>
+                                        <p ng-show="shipmentAdmin.availableGeofences.length <= shipmentAdmin.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Click a geofence to use</p>
+                                        <p ng-show="shipmentAdmin.availableGeofences.length > shipmentAdmin.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Showing first {{shipmentAdmin.listLimit}} matches.  Use the filter to narrow your search and then click a geofences to use</p>
+                                        <div class="table-responsive">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                <tr>
+                                                    <th></th>
+                                                    <th>Name</th>
+                                                    <th>Address</th>
+                                                    <th>Type</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr ng-repeat="g in shipmentAdmin.availableGeofences | filter: shipmentAdmin.beginGeofenceFilter | limitTo:shipmentAdmin.listLimit " ng-if="shipmentAdmin.availableGeofences.length > 0">
+                                                    <th></th>
+                                                    <td><a role="button" 
+                                                    ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit"
+                                                     ng-click="shipmentAdmin.actions.selectBeginGeofence(g)">{{ g.name }}</a></td>
+                                                    <td>{{g.address}}</td>
+                                                    <td>{{g.type}}</td>
+                                                </tr>
+                                                <tr ng-if="shipmentAdmin.availableGeofences.length === 0">
+                                                    <td></td>
+                                                    <td colspan="4">There are no geofences assigned to the this client</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="shipmentAdmin.editor.beginTrackingStrategyType.value === 'date/time'" ng-class="{'has-error': !shipmentAdmin.editor.beginDate.isPristine && shipmentAdmin.editor.beginDate.hasError() && shipmentAdmin.editor.beginTrackingStrategyType.value === 'date/time'}">
+                                    <label for="beginDate">Tracking begin date *</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="beginDate" name="beginDate"
+                                        ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit"
+                                               ng-model="shipmentAdmin.editor.beginDate.date" ng-change="shipmentAdmin.editor.beginDate.isPristine = true">
+                                        <span class="input-group-addon">@</span>
+                                        <input type="text" class="form-control" id="beginTime" name="beginTime"
+                                        ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit"
+                                               ng-model="shipmentAdmin.editor.beginDate.time" ng-change="shipmentAdmin.editor.beginDate.isPristine = true">
+                                    </div>
+                                    <p class="help-block text-right" ng-show="!shipmentAdmin.editor.beginDate.isPristine && shipmentAdmin.editor.beginDate.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Begin date is required</p>
+                                    <p class="help-block text-right" ng-show="!shipmentAdmin.editor.beginDate.isPristine && shipmentAdmin.editor.beginDate.errors.isTimeBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;Begin time is required</p>
+                                    <p class="help-block text-right" ng-show="!shipmentAdmin.editor.beginDate.isPristine && shipmentAdmin.editor.beginDate.errors.isBeforeNow"><i class="fa fa-exclamation-circle"></i>&nbsp;Begin date must be in the future</p>
+                                    <p class="help-block text-right" ng-show="!shipmentAdmin.editor.beginDate.isPristine && shipmentAdmin.editor.beginDate.errors.isNotADate"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid begin date is required</p>
+                                    <p class="help-block text-right" ng-show="!shipmentAdmin.editor.beginDate.isPristine && shipmentAdmin.editor.beginDate.errors.isNotATime"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid begin time is required</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="endTrackingStrategyType">End Tracking Strategy Type</label>
+                                    <select id="endTrackingStrategyType" class="form-control"       ng-model="shipmentAdmin.editor.endTrackingStrategyType.value"
+                                        ng-change="shipmentAdmin.editor.endTrackingStrategyType.isPristine = true"
+                                        ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit">
+                                        <option value="date/time" ng-selected="shipmentAdmin.editor.endTrackingStrategyType.value === 'date/time'">Date/Time</option>
+                                        <option value="ArrivalGeofence" ng-selected="shipmentAdmin.editor.endTrackingStrategyType.value === 'ArrivalGeofence'">Arrival at a Geofence</option>
+                                    </select>
+                                    <p class="help-block text-right" ng-show="!shipmentAdmin.editor.endTrackingStrategyType.isPristine && shipmentAdmin.editor.endTrackingStrategyType.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;End Tracking Strategy type is required</p>
+                                </div>
+                                <div class="form-group" ng-if="shipmentAdmin.editor.endTrackingStrategyType.value === 'ArrivalGeofence'">
+                                    <label for="endGeofence2NameText">Arrival at Geofence *</label>
+                                    <div ng-if="shipmentAdmin.editor.endGeofence2.value !== null">
+                                        <div class="input-group">
+                                            <input id="endGeofence2NameText" type="text" class="form-control" ng-model="shipmentAdmin.endGeofence2NameText" readonly>
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default" title="Change geofence" ng-click="shipmentAdmin.actions.clearEndGeofence2()"
+                                            ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit"><i class="fa fa-fw fa-pencil"></i></button>
+                                        </span>
+                                        </div>
+                                    </div> 
+                                     <div  ng-class="{'has-error': !shipmentAdmin.editor.endGeofence2.isPristine && shipmentAdmin.editor.endGeofence2.value === null}">
+                                        <input type="text" class="form-control" placeholder="Enter text to filter the geofences list..." ng-model="shipmentAdmin.endGeofence2SearchText"
+                                        ng-readonly="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit">
+                                        <p class="help-block text-right" ng-show="!shipmentAdmin.editor.endGeofence2.isPristine && shipmentAdmin.editor.endGeofence2.value === null"><i class="fa fa-exclamation-circle"></i>&nbsp;A Geofence is required</p>
+                                        <p ng-show="shipmentAdmin.availableGeofences.length <= shipmentAdmin.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Click a geofence to use</p>
+                                        <p ng-show="shipmentAdmin.availableGeofences.length > shipmentAdmin.listLimit"><i class="fa fa-info-circle"></i>&nbsp;Showing first {{shipmentAdmin.listLimit}} matches.  Use the filter to narrow your search and then click a geofences to use</p>
+                                        <div class="table-responsive">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                <tr>
+                                                    <th></th>
+                                                    <th>Name</th>
+                                                    <th>Address</th>
+                                                    <th>Type</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr ng-repeat="g in shipmentAdmin.availableGeofences | filter: shipmentAdmin.endGeofence2Filter | limitTo:shipmentAdmin.listLimit " ng-if="shipmentAdmin.availableGeofences.length > 0">
+                                                    <th></th>
+                                                    <td><a role="button" ng-click="shipmentAdmin.actions.selectEndGeofence2(g)"
+                                                        ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit">{{ g.name }}</a></td>
+                                                    <td>{{g.address}}</td>
+                                                    <td>{{g.type}}</td>
+                                                </tr>
+                                                <tr ng-if="shipmentAdmin.availableGeofences.length === 0">
+                                                    <td></td>
+                                                    <td colspan="4">There are no geofences assigned to the this client</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>   
+                                <div class="form-group" ng-show="shipmentAdmin.editor.endTrackingStrategyType.value === 'date/time'" ng-class="{'has-error': !shipmentAdmin.editor.endDate.isPristine && shipmentAdmin.editor.endDate.hasError() && shipmentAdmin.editor.endTrackingStrategyType.value === 'date/time'}">
+                                    <label for="endDate">Tracking end date *</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="endDate" name="endDate"
+                                               ng-model="shipmentAdmin.editor.endDate.date" 
+                                               ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit" ng-change="shipmentAdmin.editor.endDate.isPristine = true">
+                                        <span class="input-group-addon">@</span>
+                                        <input type="text" 
+                                        ng-readonly="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit"
+                                        class="form-control" id="endTime" name="endTime"
+                                               ng-model="shipmentAdmin.editor.endDate.time" ng-change="shipmentAdmin.editor.endDate.isPristine = true">
+                                    </div>
+                                    <p class="help-block text-right" ng-show="!shipmentAdmin.editor.endDate.isPristine && shipmentAdmin.editor.endDate.errors.isBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;End date is required</p>
+                                    <p class="help-block text-right" ng-show="!shipmentAdmin.editor.endDate.isPristine && shipmentAdmin.editor.endDate.errors.isTimeBlank"><i class="fa fa-exclamation-circle"></i>&nbsp;End time is required</p>
+                                    <p class="help-block text-right" ng-show="!shipmentAdmin.editor.endDate.isPristine && shipmentAdmin.editor.endDate.errors.isBeforeNow"><i class="fa fa-exclamation-circle"></i>&nbsp;End date must be in the future</p>
+                                    <p class="help-block text-right" ng-show="!shipmentAdmin.editor.endDate.isPristine && shipmentAdmin.editor.endDate.errors.isNotADate"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid end date is required</p>
+                                    <p class="help-block text-right" ng-show="!shipmentAdmin.editor.endDate.isPristine && shipmentAdmin.editor.endDate.errors.isNotATime"><i class="fa fa-exclamation-circle"></i>&nbsp;A valid end time is required</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="device">Tracking device *</label>
+                                    <div ng-if="shipmentAdmin.editor.device != null">
+                                        <div class="input-group">
+                                            <input id="device" type="text" class="form-control" ng-model="shipmentAdmin.deviceNameText" readonly>
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default" title="Change device" ng-click="shipmentAdmin.actions.clearDevice()" ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit"><i class="fa fa-fw fa-pencil"></i></button>
+                                        </span>
+                                        </div>
+                                    </div>
+                                    <div ng-show="shipmentAdmin.editor.device.value == null" ng-class="{'has-error': !shipmentAdmin.editor.device.isPristine && shipmentAdmin.editor.device.value === null}">
+                                        <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="Enter text to filter the device list..."
+                                               ng-model="shipmentAdmin.deviceSearchText"
+                                               ng-readonly="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit"
+                                               ng-scanner-detect="shipmentAdmin.sentry_scan_options"
+                                              >
+                                        <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default" title="Search sentry"
+                                                ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit"
+                                                 ng-click="shipmentAdmin.changeSentryFilter(shipmentAdmin.deviceSearchText)">Search sentry</button>
+                                            </span>
+                                            </div>
+                                            <div class="table-responsive" ng-show="shipmentAdmin.availableDevices.length == 0">
+                                                <table class="table table-striped">
+                                                    <tbody><tr class="warning"><td>This sentry does not exist in this account</td></tr></tbody>
+                                                </table>
+                                            </div>
+                                            <div class="table-responsive" ng-show="shipmentAdmin.availableDevices.length>0">
+                                            <p class="help-block text-right" ng-show="!shipmentAdmin.editor.device.isPristine && shipmentAdmin.editor.device.value === null"><i class="fa fa-exclamation-circle"></i>&nbsp;A tracking device is required</p>
+                                            <p class="text-muted" ng-show="shipmentAdmin.availableDevices.length <= shipmentAdmin.listLimit">&nbsp;&nbsp;<i class="fa fa-info-circle"></i>&nbsp;Click a device to use</p>
+                                            <p class="text-muted"  ng-show="shipmentAdmin.availableDevices.length > shipmentAdmin.listLimit">&nbsp;&nbsp;<i class="fa fa-info-circle"></i>&nbsp;Showing first {{shipmentAdmin.listLimit}} matches.  Use the filter to narrow your search and then click a device to use</p>
+                                            <table class="table table-striped">
+                                                <thead>
+                                                 <tr>
+                                                        <th></th>
+                                                        <th>Device</th>
+                                                        <th>Name</th>
+                                                        <th>Last Reported</th>
+                                                        <th>Last Battery %</th>
+                                                        <th style="text-align: center;">Ready for Use</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr ng-repeat="device in shipmentAdmin.availableDevices " ng-if="shipmentAdmin.availableDevices.length > 0">
+                                                    <th></th>
+                                                    <td>
+                                                        <a role="button" ng-click="shipmentAdmin.actions.selectDevice(device)"
+                                                        ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit">
+                                                           {{ device.imei }}
+                                                        </a>
+                                                    </td>
+                                                    <td>{{ device.friendlyName }}</td>
+                                                    <td><span local-datetime utc-datetime="{{ device.timeOfReport }}" date-format="L" time-format="LTS"></td>
+                                                    <td>{{device.batteryVoltage}}{{device.batteryVoltage ? '%' : ''}}</td>
+                                                    <td class="{{device.readyForUse === true ? 'text-success' : 'text-danger'}}" style="text-align: center;"><b>{{device.readyForUse ? 'YES' : 'NO'}}</b></td>
+                                                </tr>
+                                                <tr ng-show="shipmentAdmin.availableDevices.length === 0">
+                                                    <td></td>
+                                                    <td colspan="4">There are no devices assigned to this client</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                        <label for="sentinel">Tracking sentinels *</label>
+                                           <p ng-show="shipmentAdmin.editor.sentinels.length > 0"><i class="fa fa-info-circle"></i>&nbsp;List of Sentinels selected</p>
+                                             <div class="input-group" ng-repeat="s in shipmentAdmin.editor.sentinels">
+                                                <input type="text" class="form-control" ng-show="s.friendlyName" ng-value="s.friendlyName + ' [' + s.deviceId + ']'" readonly>
+                                                <input type="text" class="form-control" ng-show="!s.friendlyName" ng-value="s.deviceId" readonly>
+                                                 <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default" title="Change device" ng-click="shipmentAdmin.actions.removeSentinel(s,$index)"
+                                                ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit"><i class="fa fa-fw fa-remove"></i></button>
+                                            </span>
+                                            </div>
+                                            <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Enter text to filter the sentinel list..." 
+                                                ng-readonly="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit"
+                                                ng-model="shipmentAdmin.sentinelSearchText"  
+                                                id="addSentinelInput"
+                                                ng-focus="shipmentAdmin.showSentinels = true"
+                                                ng-scanner-detect="shipmentAdmin.sentinel_scan_options">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default" title="Search sentinel" ng-click="shipmentAdmin.sentinelFilter(shipmentAdmin.sentinelSearchText)"
+                                                ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit">Search sentinel</button>
+                                            </span>
+                                            </div>
+                                            <div class="table-responsive" ng-show="shipmentAdmin.availableSentinels.length == 0">
+                                                <table class="table table-striped">
+                                                    <tbody><tr class="warning"><td>This sentinel does not exist in this account</td></tr></tbody>
+                                                </table>
+                                            </div>
+                                            <div class="table-responsive" ng-show="shipmentAdmin.showSentinels">
+                                                <p ng-show="!shipmentAdmin.sentinelSearchText && shipmentAdmin.showSentinels">&nbsp;Showing first {{shipmentAdmin.listLimit}} matches.  Use the filter to narrow your search and then click a sentinel to use</p>
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Device</th>
+                                                        <th>Name</th>
+                                                        <th>Last Reported</th>
+                                                        <th>Last Battery %</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr ng-repeat="sentinel in shipmentAdmin.availableSentinels" ng-if="shipmentAdmin.availableSentinels.length > 0">
+                                                        <th></th>
+                                                        <td><a role="button" ng-click="shipmentAdmin.actions.selectSentinel(sentinel); shipmentAdmin.showSentinels = false"
+                                                            ng-disabled="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit">{{ sentinel.deviceId }}</a></td>
+                                                        <td>{{ sentinel.friendlyName }}</td>
+                                                        <td><span local-datetime utc-datetime="{{ sentinel.timeOfReport }}" date-format="L" time-format="LTS"></td>
+                                                        <td>{{ sentinel.batteryVoltage }}{{ sentinel.batteryVoltage ? '%' : '' }}</td>
+                                                    </tr>
+                                                    <tr ng-if="shipmentAdmin.availableSentinels.length === 0">
+                                                        <td></td>
+                                                        <td colspan="4">There are no sentinels assigned to this client</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                    </div>
+                                <div class="form-group">
+                                    <label for="notes">Notes</label>
+                                <textarea class="form-control" id="notes" name="notes" placeholder="Enter notes for this shipment (optional)" rows="3" maxlength="500"
+                                          ng-model="shipmentAdmin.editor.notes.value"
+                                          ng-readonly="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit"></textarea>
+                                </div>
+                                <div class="form-group" ng-class="{'has-error': !shipmentAdmin.editor.shipmentEmails.isPristine && shipmentAdmin.editor.shipmentEmails.hasError()}">
+                                    <label for="shipmentEmails">Tracking notification recipients</label>
+                                <textarea class="form-control" id="shipmentEmails" name="shipmentEmails" placeholder="Enter a list of email addresses, separated by semi-colons (optional)" rows="3" maxlength="1000" spellcheck="false"
+                                          ng-model="shipmentAdmin.editor.shipmentEmails.value"
+                                          ng-change="shipmentAdmin.editor.shipmentEmails.isPristine = true"
+                                          ng-readonly="!shipmentAdmin.hasPermission.toChange || !shipmentAdmin.editor.canEdit"></textarea>
+                                    <p class="help-block text-right" ng-show="!shipmentAdmin.editor.shipmentEmails.isPristine && shipmentAdmin.editor.shipmentEmails.hasError()"><i class="fa fa-info-circle"></i>&nbsp;An invalid email address exists</p>
+                                    <p class="help-block text-right" ng-hide="!shipmentAdmin.editor.shipmentEmails.isPristine && shipmentAdmin.editor.shipmentEmails.hasError()"><i class="fa fa-info-circle"></i>&nbsp;Recipients listed above will receive departure, arrival, and completion email notifications with an embedded link to your tracking page</p>
+                                </div>
+                                <div class="form-group">
+                                    <div class="pull-right">
+                                        <button type="submit" class="btn btn-default" ng-show="shipmentAdmin.hasPermission.toChange && shipmentAdmin.editor.canEdit"><i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                        <button type="button" class="btn btn-default" ng-show="shipmentAdmin.hasPermission.toChange && shipmentAdmin.editor.canEdit" ng-click="shipmentAdmin.actions.reset()"><i class="fa fa-undo"></i>&nbsp;&nbsp;Reset</button>
+                                        <button type="button" class="btn btn-default" ng-click="shipmentAdmin.actions.close()"><i class="fa fa-times"></i>&nbsp;&nbsp;Close</button>
+                                    </div>
+                                    
+                                    
+                                </div>
+                                
+                            </form>
+
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" ng-if="shipmentAdmin.isCompleting">
+            <p><i class="fa fa-question-circle fa-lg"></i>  This will complete the shipment, are you sure you want to continue? </p>      
+        </div>
+        <div class="row" ng-if="shipmentAdmin.isCompleting">
+                <ul class="nav nav-pills"  ng-cloak>
+                    <li>
+                        <button class="btn btn-default" type="button" title="Yes" ng-click="shipmentAdmin.actions.submit()">
+                            <i class="fa fa-check"></i> Yes
+                        </button>
+                    </li>
+                    <li>
+                        <button class="btn btn-default" type="button" title="No" ng-click="shipmentAdmin.actions.cancelsubmit()">
+                            <i class="fa fa-ban"></i> No
+                        </button>
+                    </li>
+                </ul>
+                <br/>
+                <br/>
+        </div>
+        <div class="row">
+            <div shipment-admin-stops></div>
+        </div>
+        <div class="row">
+            <div shipment-admin-alarms></div>
+        </div>
+    </div>
+</div>

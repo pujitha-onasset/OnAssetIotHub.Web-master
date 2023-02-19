@@ -1,0 +1,94 @@
+<div ng-controller="AlarmContactAdminController as alarmContactUi">
+    <div feedback></div>
+    <div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 col-sm-12">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row" ng-hide="alarmContactUi.isNew" style="margin-top: 3px;" ng-if="alarmContactUi.hasPermission.toChange">
+                            <div class="col-sm-8">
+                                <ul class="nav nav-pills" ng-cloak>
+                                    <li ng-show="!alarmContactUi.isRemoving">
+                                        <button class="btn btn-default" type="button" title="Delete" ng-click="alarmContactUi.actions.beginRemove()"
+                                                ng-if="alarmContactUi.hasPermission.toDelete">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                    </li>
+                                    <li ng-show="alarmContactUi.isRemoving">
+                                        <button class="btn btn-default" type="button" title="Yes" ng-click="alarmContactUi.actions.remove()"
+                                                ng-if="alarmContactUi.hasPermission.toDelete">
+                                            <i class="fa fa-check"></i> Yes
+                                        </button>
+                                    </li>
+                                    <li ng-show="alarmContactUi.isRemoving">
+                                        <button class="btn btn-default" type="button" title="Delete" ng-click="alarmContactUi.actions.cancelRemove()"
+                                                ng-if="alarmContactUi.hasPermission.toDelete">
+                                            <i class="fa fa-ban"></i> No
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row" ng-show="alarmContactUi.isRemoving">
+                            <div class="col-sm-12">
+                                <br/>
+                                <br/>
+                                <p><i class="fa fa-question-circle fa-lg"></i>  Do you wish to delete <strong>{{ alarmContactUi.alarmContact.firstname }} {{ alarmContactUi.alarmContact.lastname }}</strong>? </p>
+                            </div>
+                        </div>
+                        <div class="row" ng-show="!alarmContactUi.isRemoving">
+                            <div class="col-sm-12">
+                                <br/>
+                                <br/>
+                                <form name="contactForm" id="contactForm" ng-submit="alarmContactUi.actions.submit()" novalidate>
+                                    <div class="form-group" ng-class="{'has-error': !alarmContactUi.firstname.isPristine && alarmContactUi.firstname.hasError()}">
+                                        <label for="firstName">First name *</label>
+                                        <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Enter a first name for the contact" maxlength="80"
+                                           ng-model="alarmContactUi.firstname.value" ng-readonly="!alarmContactUi.hasPermission.toChange"
+                                           ng-change="alarmContactUi.firstname.isPristine = true">
+                                        <p class="help-block text-right" ng-show="!alarmContactUi.firstname.isPristine && alarmContactUi.firstname.errors.isBlank" class="help-block"><i class="fa fa-exclamation-circle"></i>&nbsp;First name is required</p>
+                                    </div>
+                                    <div class="form-group" ng-class="{'has-error': !alarmContactUi.lastname.isPristine && alarmContactUi.lastname.hasError()}">
+                                        <label for="lastName">Last name *</label>
+                                        <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Enter a last name for the contact"  maxlength="80"
+                                            ng-model="alarmContactUi.lastname.value" ng-readonly="!alarmContactUi.hasPermission.toChange"
+                                            ng-change="alarmContactUi.lastname.isPristine = true">
+                                        <p class="help-block text-right" ng-show="!alarmContactUi.lastname.isPristine && alarmContactUi.lastname.errors.isBlank" class="help-block"><i class="fa fa-exclamation-circle"></i>&nbsp;Last name is required</p>
+                                    </div>
+                                    <div class="form-group" ng-class="{'has-error': !alarmContactUi.email.isPristine && alarmContactUi.email.hasError()}">
+                                        <label for="emailAddress">Email address *</label>
+                                        <input type="text" class="form-control" id="emailAddress" name="emailAddress" placeholder="Enter an email address for the contact" maxlength="100"
+                                            ng-model="alarmContactUi.email.value" ng-readonly="!alarmContactUi.hasPermission.toChange"
+                                            ng-change="alarmContactUi.email.isPristine = true">
+                                        <p class="help-block text-right" ng-show="!alarmContactUi.email.isPristine && alarmContactUi.email.errors.isBlank" class="help-block"><i class="fa fa-exclamation-circle"></i>&nbsp;Email address is required</p>
+                                        <p class="help-block text-right" ng-show="!alarmContactUi.email.isPristine && alarmContactUi.email.errors.isBadFormat" class="help-block"><i class="fa fa-exclamation-circle"></i>&nbsp;Email address format is not valid</p>
+                                    </div>
+                                    <div class="form-group" ng-class="{'has-error': !alarmContactUi.sms.isPristine && alarmContactUi.sms.hasError()}">
+                                        <label for="smsAddress">Sms email address</label>
+                                        <input type="text" class="form-control" id="smsAddress" name="smsAddress" placeholder="Enter an sms email address for the contact" maxlength="100"
+                                            ng-model="alarmContactUi.sms.value" ng-readonly="!alarmContactUi.hasPermission.toChange"
+                                            ng-change="alarmContactUi.sms.isPristine = true">
+                                        <p class="help-block text-right" ng-show="!alarmContactUi.sms.isPristine && alarmContactUi.sms.errors.isBadFormat" class="help-block"><i class="fa fa-exclamation-circle"></i>&nbsp;Sms address must be in an email address format</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="pull-right">
+                                            <button type="submit" class="btn btn-default" ng-if="alarmContactUi.hasPermission.toChange"><i class="fa fa-save"></i>&nbsp;&nbsp;Save</button>
+                                            <button type="button" class="btn btn-default" ng-if="alarmContactUi.hasPermission.toChange" ng-click="alarmContactUi.actions.reset()"><i class="fa fa-undo"></i>&nbsp;&nbsp;Reset</button>
+                                            <button type="button" class="btn btn-default" ng-click="alarmContactUi.actions.close()"><i class="fa fa-times"></i>&nbsp;&nbsp;Close</button>
+                                        </div>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" ng-if="!alarmContactUi.isNew" ng-show="!alarmContactUi.isRemoving">
+            <div class="col-sm-12">
+                <div contact-subscriptions></div>
+            </div>
+        </div><!-- contact-subscriptions-->
+    </div>
+</div>
